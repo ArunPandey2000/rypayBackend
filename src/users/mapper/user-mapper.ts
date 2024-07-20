@@ -32,6 +32,7 @@ export class UserMapper {
             merchantDetails.shopName = userRequestDto.merchantInfo.shopName;
             merchantDetails.gstNumber = userRequestDto.merchantInfo.gstNumber;
             merchantDetails.msmeNumber = userRequestDto.merchantInfo.msmeNumber;
+            user.merchant = merchantDetails;
         }
         user.wallet = new Wallet();
         return user;

@@ -5,5 +5,5 @@ export const BASE_OPTIONS: JwtSignOptions = {
     audience:'rypay-client',
 }
 
-export const ACCESS_TOKEN_EXPIRY = 4 * 60 * 60 * 1000; // 4h
-export const REFRESH_TOKEN_EXPIRY = 30 * 24 * 60 * 60 * 1000; // 30d
+export const ACCESS_TOKEN_EXPIRY = 4 * 60 * 60; // 4h
+export const REFRESH_TOKEN_EXPIRY = 30 * 24 * 60 * 60; // 30d

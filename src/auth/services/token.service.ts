@@ -105,7 +105,7 @@ export class TokenService {
   }
 
   async generateTokens(tokenPayload: IAccessTokenUserPayload): Promise<TokenResponse> {
-    const savedToken = await this.createRefreshToken(tokenPayload.userId, 30 * 24 * 60 * 60);
+    const savedToken = await this.createRefreshToken(tokenPayload.userId, REFRESH_TOKEN_EXPIRY * 1000);
     const basePayload = {
         ...BASE_OPTIONS,
         sub: tokenPayload.userId,
@@ -114,8 +114,7 @@ export class TokenService {
     }
     const refreshTokenPayload = {
         ...basePayload,
-        jit: savedToken.id,
-        expired_at: savedToken.expiredAt,
+        jit: savedToken.id
     }
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
