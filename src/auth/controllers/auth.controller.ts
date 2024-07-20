@@ -1,6 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { VerifyPhoneRequestDto } from '../dto/verify-phone-request.dto';
 import { sendOtpResponseDto } from '../dto/send-otp-response.dto';
 import { UserApiResponseDto } from 'src/users/dto/user-response.dto';
@@ -14,14 +14,24 @@ export class AuthController {
     }
 
     @ApiResponse({type: sendOtpResponseDto})
+    @HttpCode(HttpStatus.OK)
     @Post('request-otp')
-    async requestOtp(@Body() otpRequestDto: sendOtpRequestDto): Promise<sendOtpResponseDto> {
-        return this.authService.requestOtp(otpRequestDto.phone);
+    @ApiBody({
+        required: true,
+        type: sendOtpRequestDto
+    })
+    async requestOtp(@Body() userPhone: sendOtpRequestDto) {
+        return this.authService.requestOtp(userPhone.phone);
     }
 
     @ApiResponse({type: UserApiResponseDto})
     @Post('validate-otp')
-    async validateOtp(@Body() verifyPhoneDto: VerifyPhoneRequestDto): Promise<UserApiResponseDto> {
-        return this.authService.verifyOtp(verifyPhoneDto);
+    @HttpCode(HttpStatus.OK)
+    @ApiBody({
+        required: true,
+        type: VerifyPhoneRequestDto
+    })
+    async validateOtp(@Body() userPhone: VerifyPhoneRequestDto) {
+        return this.authService.validateOTP(userPhone);
     }
 }

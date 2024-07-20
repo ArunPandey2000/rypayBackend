@@ -22,6 +22,6 @@ async function bootstrap() {
   app.use(helmet());
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(3000);
+  await app.listen(API_DEFAULT_PORT);
 }
 bootstrap();

@@ -9,11 +9,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/core/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { RefreshToken } from 'src/core/entities/refresh-token';
+import { OtpInfo } from 'src/core/entities/otp-info.entity';
+import { OtpRepository } from './repository/otp.repository';
 
 @Global()
 @Module({
-  imports: [JwtModule.register({global: true}), TypeOrmModule.forFeature([User, RefreshToken]), OtpFlowModule],
-  providers: [AuthService, TokenService, UsersService, ConfigService],
+  imports: [JwtModule.register({global: true}), TypeOrmModule.forFeature([User, RefreshToken, OtpInfo]), OtpFlowModule],
+  providers: [AuthService, TokenService, UsersService, ConfigService, OtpRepository],
   controllers: [AuthController],
   exports: [TokenService]
 })
