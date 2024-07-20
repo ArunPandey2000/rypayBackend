@@ -1,13 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
-import { Address } from './entities/address.entity';
-import { Document } from './entities/document.entity';
-import { Merchant } from './entities/merchant.entity';
-import { OtpInfo } from './entities/otp-info.entity';
-import { Transaction } from './entities/transactions.entity';
-import { Wallet } from './entities/wallet.entity';
+import { dataSourceOptions } from './data/data-source';
 
 @Module({
     imports: [ConfigModule.forRoot(),
@@ -15,16 +9,22 @@ import { Wallet } from './entities/wallet.entity';
           imports: [ConfigModule],
           useFactory: (configService: ConfigService) => ({
             type: 'postgres',
-            host: configService.get<string>('DB_HOST'),
-            port: +configService.get<string>('DB_PORT'),
-            username: configService.get<string>('DB_USERNAME'),
-            password: configService.get<string>('DB_PASSWORD'),
-            database: configService.get<string>('DB_NAME'),
-            entities: [User, Address, Document, Merchant, OtpInfo, Transaction, Wallet],
-            synchronize: true, // Disable in production
+            host: configService.get('DB_HOST'),
+            port: configService.get('DB_PORT'),
+            username: configService.get('DB_USERNAME'),
+            password: configService.get('DB_PASSWORD'),
+            database: configService.get('DB_NAME'),
+            entities: ['dist/**/*.entity{.ts,.js}'],
+            synchronize: false,
+            autoLoadEntities: true,
+            migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
+            seeds: [__dirname + '/seeds/**/*{.ts,.js}'],
+            factories: [__dirname + '/factories/**/*{.ts,.js}'],
+            cli: {
+              migrationsDir: __dirname + '/migrations/',
+            },
           }),
           inject: [ConfigService],
         }),
-        TypeOrmModule.forFeature([User, Address, Document, Merchant, OtpInfo, Transaction, Wallet]),]
-})
+      ]})
 export class CoreModule {}

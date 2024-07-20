@@ -5,10 +5,10 @@ export class Address {
     @PrimaryGeneratedColumn({ name: 'id' })
     id: number;
 
-    @Column({ name: 'address' })
+    @Column({ name: 'address1' })
     address1: string;
 
-    @Column({ name: 'address' })
+    @Column({ name: 'address2' })
     address2: string;
 
     @Column({ name: 'city' })

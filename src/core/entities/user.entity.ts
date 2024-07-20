@@ -17,7 +17,7 @@ export class User {
   @Column({ name: 'phone_number', unique: true })
   phoneNumber: string;
 
-  @Column({ name: 'is_kyc_verified', type: 'tinyint', default: 0 })
+  @Column({ name: 'is_kyc_verified', type: 'smallint', default: 0 })
   kycVerificationStatus: KycVerificationStatus;
 
   @OneToOne(() => Wallet, { cascade: true })
