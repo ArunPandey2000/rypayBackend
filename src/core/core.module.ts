@@ -20,7 +20,7 @@ import { Wallet } from './entities/wallet.entity';
             username: configService.get<string>('DB_USERNAME'),
             password: configService.get<string>('DB_PASSWORD'),
             database: configService.get<string>('DB_NAME'),
-            entities: [User, Address],
+            entities: [User, Address, Document, Merchant, OtpInfo, Transaction, Wallet],
             synchronize: true, // Disable in production
           }),
           inject: [ConfigService],
