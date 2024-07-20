@@ -2,6 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { sendOtpRequestDto } from '../dto/send-otp-request.dto';
+import { VerifyPhoneRequestDto } from '../dto/verify-phone-request.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -20,6 +21,11 @@ export class AuthController {
     }
 
     @Post('validate-otp')
-    async validateOtp(@Body('phone') userPhone: string) {
+    @ApiBody({
+        required: true,
+        type: VerifyPhoneRequestDto
+    })
+    async validateOtp(@Body() userPhone: VerifyPhoneRequestDto) {
+        return this.authService.validateOTP(userPhone);
     }
 }

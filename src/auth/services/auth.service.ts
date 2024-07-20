@@ -11,6 +11,7 @@ import { OtpInfo } from 'src/core/entities/otp-info.entity';
 import * as otpGenerator from 'otp-generator';
 import { sendOtpResponse } from '../dto/send-otp-response.dto';
 import { OtpRepository } from '../repository/otp.repository';
+import { VerifyPhoneRequestDto } from '../dto/verify-phone-request.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,42 +22,33 @@ export class AuthService {
     private otpFlowService: OtpFlowService,
     private otpRepository: OtpRepository,
     @InjectRepository(User) private userRepo: Repository<User>,
-    
+
   ) { }
 
-  async verifyPhone(phone: string): Promise<VerifyPhoneResponse> {
-    const userData = await this.userRepo.findOne({
-      where: {
-        phoneNumber: phone
-      }
-    });
-    this.otpFlowService.sendOtp(phone);
-    if (userData) {
-      return {
-        isUserRegistered: true
-      };
-    }
-    return {
-      isUserRegistered: false
-    };
-  }
-
   async requestOtp(phoneNumber: string) {
-    const otpLength = this.configService.get('OTP_LENGTH')
+    const otpLength = this.configService.get('OTP_LENGTH');
     const generatedOtp = otpGenerator.generate(otpLength, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
     /*
-      Message service code comes here
+      send SMS message service code comes here
     */
+    this.otpFlowService.sendOtp(phoneNumber);
     let otpRecord = this.otpRepository.upsertOtpInfo(phoneNumber, generatedOtp);
     return otpRecord.then(response => {
       return {
         message: 'success'
       } as sendOtpResponse;
     }).catch(err => {
-      console.log('error', err);
       return {
         message: err.message,
       } as sendOtpResponse;
+    });
+  }
+
+  async validateOTP(userPhoneInfo: VerifyPhoneRequestDto) {
+    return await this.otpRepository.validateUserOtp(userPhoneInfo.phoneNumber, userPhoneInfo.otp).catch(err => {
+      return {
+        message: err.message
+      };
     });
   }
 
