@@ -16,5 +16,5 @@ export class Merchant {
     gstNumber: string;
 
     @Column({ name: 'msme_number', type: 'varchar', nullable: false })
-    msmeNumber: boolean;
+    msmeNumber: string;
 }

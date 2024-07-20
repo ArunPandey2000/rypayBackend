@@ -1,6 +1,10 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { VerifyPhoneRequestDto } from '../dto/verify-phone-request.dto';
+import { sendOtpResponseDto } from '../dto/send-otp-response.dto';
+import { UserApiResponseDto } from 'src/users/dto/user-response.dto';
+import { sendOtpRequestDto } from '../dto/send-otp-request.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -9,13 +13,15 @@ export class AuthController {
 
     }
 
+    @ApiResponse({type: sendOtpResponseDto})
     @Post('request-otp')
-    async verifyPhone(@Body('phone') userPhone: string) {
-        this.authService.verifyPhone(userPhone);
+    async requestOtp(@Body() otpRequestDto: sendOtpRequestDto): Promise<sendOtpResponseDto> {
+        return this.authService.requestOtp(otpRequestDto.phone);
     }
 
+    @ApiResponse({type: UserApiResponseDto})
     @Post('validate-otp')
-    async validateOtp(@Body('phone') userPhone: string) {
-
+    async validateOtp(@Body() verifyPhoneDto: VerifyPhoneRequestDto): Promise<UserApiResponseDto> {
+        return this.authService.verifyOtp(verifyPhoneDto);
     }
 }

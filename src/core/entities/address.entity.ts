@@ -20,9 +20,6 @@ export class Address {
     @Column({ name: 'pincode' })
     pincode: string;
 
-    @Column({ name: 'created_by' })
-    createdBy: string;
-
     @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
     createdAt: Date;
 }

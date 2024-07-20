@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { dataSourceOptions } from './data/data-source';
 
 @Module({
     imports: [ConfigModule.forRoot(),
@@ -26,5 +25,6 @@ import { dataSourceOptions } from './data/data-source';
           }),
           inject: [ConfigService],
         }),
-      ]})
+      ],
+    })
 export class CoreModule {}

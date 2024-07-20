@@ -17,6 +17,12 @@ export class User {
   @Column({ name: 'phone_number', unique: true })
   phoneNumber: string;
 
+  @Column({ name: 'aadhar_number', type: 'varchar', unique: true })
+  aadharNumber: string;
+
+  @Column({ name: 'pan_number', type: 'varchar', unique: true })
+  panNumber: string;
+
   @Column({ name: 'is_kyc_verified', type: 'smallint', default: 0 })
   kycVerificationStatus: KycVerificationStatus;
 
@@ -51,9 +57,6 @@ export class User {
   @Column({ name: 'dob' })
   dob: string;
 
-  @Column({ name: 'token' })
-  token: string;
-
   @Column({ name: 'role' })
   role: UserRole;
 
@@ -64,10 +67,4 @@ export class User {
   @OneToOne(() => Merchant, (merchant) => merchant.id, { cascade: true })
   @JoinColumn({ name: 'merchant_id' })
   merchant: Merchant;
-
-  @Column({
-    name: 'status',
-    type: 'text',
-  })
-  status: string;
 }
