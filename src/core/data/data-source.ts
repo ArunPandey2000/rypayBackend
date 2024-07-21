@@ -9,6 +9,9 @@ export const dataSourceOptions: DataSourceOptions = {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     synchronize: false,
+    ssl: {
+        rejectUnauthorized: false,
+    },
     entities: ['dist/**/*.entity{.ts,.js}'],
     logging: ["error" , "warn" , "info" , "log"],
     migrations: ['src/migrations/**/*.ts'],

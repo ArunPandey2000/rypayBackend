@@ -15,6 +15,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
             database: configService.get('DB_NAME'),
             entities: ['dist/**/*.entity{.ts,.js}'],
             synchronize: false,
+            ssl: {
+              rejectUnauthorized: false,
+            },
             autoLoadEntities: true,
             migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
             seeds: [__dirname + '/seeds/**/*{.ts,.js}'],
