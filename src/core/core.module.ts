@@ -25,7 +25,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
             cli: {
               migrationsDir: __dirname + '/migrations/',
             },
-          }),
+          }), 
           inject: [ConfigService],
         }),
       ],
