@@ -70,4 +70,17 @@ export class AuthService {
       throw err;
     });
   }
+
+  async refreshToken(refreshToken: string) {
+    return this.tokenService.createAccessTokenFromRefreshToken(refreshToken);
+  }
+
+  async revokeToken(userId: string) {
+    try {
+      return this.tokenService.revokeAccessToken(userId);
+    } catch {
+      throw new InternalServerErrorException('there is some error in revoking user access');
+    }
+  }
+  
 }

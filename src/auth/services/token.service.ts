@@ -8,6 +8,10 @@ import { TokenResponse } from "../dto/token-response.dto"
 import { IRefreshTokenPayload } from "../interfaces/refresh-token-payload.interface"
 import { IAccessTokenUserPayload } from "../interfaces/user-token-request-payload.interface"
 import { RefreshToken } from "src/core/entities/refresh-token"
+import { User } from "src/core/entities/user.entity"
+import { UserMapper } from "src/users/mapper/user-mapper"
+import { UserResponse } from "src/users/dto/user-response.dto"
+import { AuthUtil } from "../utils/auth.util"
 
 @Injectable()
 export class TokenService {
@@ -15,6 +19,7 @@ export class TokenService {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
+    @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(RefreshToken) private refreshTokenRepo: Repository<RefreshToken>) {
 
     }
@@ -35,43 +40,43 @@ export class TokenService {
   public async findTokenById(id: string): Promise<RefreshToken | null> {
     return this.refreshTokenRepo.findOne({
       where: {
-        userId: id
+        id: id
       }
     })
   }
 
-//   public async resolveRefreshToken (encoded: string): Promise<{ user: User, token: RefreshToken }> {
-//     const payload = await this.decodeRefreshToken(encoded)
-//     const token = await this.getStoredTokenFromRefreshTokenPayload(payload)
+  public async resolveRefreshToken (encoded: string): Promise<{ user: User, token: RefreshToken }> {
+    const payload = await this.decodeRefreshToken(encoded)
+    const token = await this.getStoredTokenFromRefreshTokenPayload(payload)
 
-//     if (!token) {
-//       throw new UnprocessableEntityException('Refresh token not found')
-//     }
+    if (!token) {
+      throw new UnprocessableEntityException('Refresh token not found')
+    }
 
-//     if (token.isRevoked) {
-//       throw new UnprocessableEntityException('Refresh token revoked')
-//     }
+    if (token.isRevoked) {
+      throw new UnprocessableEntityException('Refresh token revoked')
+    }
 
-//     const user = await this.getUserFromRefreshTokenPayload(payload)
+    const user = await this.getUserFromRefreshTokenPayload(payload)
 
-//     if (!user) {
-//       throw new UnprocessableEntityException('Refresh token malformed')
-//     }
+    if (!user) {
+      throw new UnprocessableEntityException('Refresh token malformed')
+    }
 
-//     return { user, token }
-//   }
+    return { user, token }
+  }
 
-//   public async createAccessTokenFromRefreshToken (refresh: string): Promise<{ token: string, user: User }> {
-//     const { user } = await this.resolveRefreshToken(refresh)
+  public async createAccessTokenFromRefreshToken (refresh: string): Promise<{ accessToken: string, user: UserResponse }> {
+    const { user } = await this.resolveRefreshToken(refresh)
+    const userDto = new UserResponse(user);
+    const accessToken = await this.generateAccessToken(AuthUtil.getAccessTokenPayloadFromUserModel(user))
 
-//     const token = await this.generateAccessToken(user)
-
-//     return { user, token }
-//   }
+    return { user: userDto, accessToken }
+  }
   
   private async decodeRefreshToken (token: string): Promise<IRefreshTokenPayload> {
     try {
-      return this.jwtService.verifyAsync(token)
+      return this.jwtService.verifyAsync(token, {secret: process.env.JWT_REFRESH_SECRET})
     } catch (e) {
       if (e instanceof TokenExpiredError) {
         throw new UnprocessableEntityException('Refresh token expired')
@@ -81,14 +86,14 @@ export class TokenService {
     }
   }
 
-//   private async getUserFromRefreshTokenPayload (payload: IRefreshTokenPayload): Promise<User> {
-//     const subId = payload.sub
+  private async getUserFromRefreshTokenPayload (payload: IRefreshTokenPayload): Promise<User> {
+    const subId = payload.sub
 
-//     if (!subId) {
-//       throw new UnprocessableEntityException('Refresh token malformed')
-//     }
-//     return this.usersService.findUserById(subId)
-//   }
+    if (!subId) {
+      throw new UnprocessableEntityException('Refresh token malformed')
+    }
+    return this.userRepo.findOne({where: {id: subId}});
+  }
 
   private async getStoredTokenFromRefreshTokenPayload (payload: IRefreshTokenPayload): Promise<RefreshToken | null> {
     const tokenId = payload.jti
@@ -100,8 +105,23 @@ export class TokenService {
     return this.findTokenById(tokenId)
   }
 
-  public async generateAccessToken (payload: any): Promise<string> {
-    return this.jwtService.signAsync({}, payload)
+  public async generateAccessToken(payload: any): Promise<string> {
+    const basePayload = {
+      ...BASE_OPTIONS,
+      sub: payload.userId,
+      role: payload.role,
+      phone: payload.phoneNumber
+  }
+    return this.jwtService.signAsync(basePayload, {
+      secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+      expiresIn: ACCESS_TOKEN_EXPIRY,
+    })
+  }
+
+  public async revokeAccessToken(userId: string) {
+    await this.refreshTokenRepo.delete({
+      userId: userId
+    })
   }
 
   async generateTokens(tokenPayload: IAccessTokenUserPayload): Promise<TokenResponse> {
@@ -114,7 +134,7 @@ export class TokenService {
     }
     const refreshTokenPayload = {
         ...basePayload,
-        jit: savedToken.id
+        jti: savedToken.id
     }
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(

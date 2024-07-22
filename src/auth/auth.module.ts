@@ -11,11 +11,13 @@ import { ConfigService } from '@nestjs/config';
 import { RefreshToken } from 'src/core/entities/refresh-token';
 import { OtpInfo } from 'src/core/entities/otp-info.entity';
 import { OtpRepository } from './repository/otp.repository';
+import { AccessTokenStrategy } from './strategies/access-token.strategy';
+import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 
 @Global()
 @Module({
   imports: [JwtModule.register({global: true}), TypeOrmModule.forFeature([User, RefreshToken, OtpInfo]), OtpFlowModule],
-  providers: [AuthService, TokenService, UsersService, ConfigService, OtpRepository],
+  providers: [AuthService, TokenService, UsersService, AccessTokenStrategy, RefreshTokenStrategy, ConfigService, OtpRepository],
   controllers: [AuthController],
   exports: [TokenService]
 })

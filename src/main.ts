@@ -12,6 +12,7 @@ async function bootstrap() {
     .setTitle('RyPay')
     .setDescription('RyPay Endpoints')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   app.useGlobalPipes(
