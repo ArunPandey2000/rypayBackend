@@ -7,10 +7,12 @@ import { Type } from "class-transformer";
 export class AddressRequestDto {
     @IsNotEmpty()
     @ApiProperty()
+    @Length(10, 200)
     address1: string
 
     @IsNotEmpty()
     @ApiProperty()
+    @Length(10, 200)
     address2: string
 
     @IsNotEmpty()
