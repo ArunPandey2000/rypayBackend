@@ -29,7 +29,7 @@ export class AuthService {
     /*
       send SMS message service code comes here
     */
-    this.otpFlowService.sendOtp(phoneNumber);
+    await this.otpFlowService.sendOtp(phoneNumber, generatedOtp);
     let otpRecord = this.otpRepository.upsertOtpInfo(phoneNumber, generatedOtp);
     return otpRecord.then(() => {
       return {
