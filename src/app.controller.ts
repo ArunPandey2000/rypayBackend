@@ -5,7 +5,7 @@ import { ApiTags } from '@nestjs/swagger';
 @Controller()
 @ApiTags('Health')
 export class AppController {
-  constructor(private readonly appService: AppService) { }
+  constructor(private readonly appService: AppService) {}
 
   @Get()
   getServerStatus() {

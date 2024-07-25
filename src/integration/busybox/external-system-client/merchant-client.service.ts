@@ -9,24 +9,30 @@ import { CustomerStatusResponse } from '../external/interfaces/customer-status.i
 
 @Injectable()
 export class MerchantClientService {
-    constructor(private readonly httpService: HttpService,
-         private configService: ConfigService,
-         private accessTokenService: AccessTokenClientService
-        ) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private configService: ConfigService,
+    private accessTokenService: AccessTokenClientService,
+  ) {}
 
-  
   /**
    * This API is used to initiate the creation of a MIN KYC wallet using Mobile OTP.
    * If the request is successful, please complete the wallet creation using the Wallet Creation API.
    * @param data: CardIssuenceDto
-   * @returns 
+   * @returns
    */
-  async issueCard(data: CardIssuanceDto): Promise<AxiosResponse<CardIssuanceResponse>> {
+  async issueCard(
+    data: CardIssuanceDto,
+  ): Promise<AxiosResponse<CardIssuanceResponse>> {
     const config = await this.accessTokenService.getHeaderConfig();
 
     try {
       const response = await firstValueFrom(
-        this.httpService.post(`${this.configService.get('BUSY_BOX_API_BASE_URL')}/card/issuence`, data, config)
+        this.httpService.post(
+          `${this.configService.get('BUSY_BOX_API_BASE_URL')}/card/issuence`,
+          data,
+          config,
+        ),
       );
       return response.data;
     } catch (error) {
@@ -45,12 +51,18 @@ export class MerchantClientService {
    * @returns {Promise<OtpVerificationResponse>} - The response from the external API, containing the status and verification details.
    * @throws {Error} - Throws an error if the request fails.
    */
-  async verifyRegistrationOtp(data: OtpVerificationDto): Promise<OtpVerificationResponse> {
+  async verifyRegistrationOtp(
+    data: OtpVerificationDto,
+  ): Promise<OtpVerificationResponse> {
     const config = await this.accessTokenService.getHeaderConfig();
 
     try {
       const response = await firstValueFrom(
-        this.httpService.post<OtpVerificationResponse>(`${this.configService.get('BUSY_BOX_API_BASE_URL')}/card/verify`, data, config)
+        this.httpService.post<OtpVerificationResponse>(
+          `${this.configService.get('BUSY_BOX_API_BASE_URL')}/card/verify`,
+          data,
+          config,
+        ),
       );
       return response.data;
     } catch (error) {
@@ -58,25 +70,27 @@ export class MerchantClientService {
     }
   }
 
-
   /**
    * Gets the customer status by sending a GET request to the external API with the provided mobile number.
-   * 
+   *
    * @param {string} mobileNumber - The mobile number of the customer.
    * @returns {Promise<CustomerStatusResponse>} - The response from the external API, containing the customer status and details.
    * @throws {Error} - Throws an error if the request fails.
    */
-  async getCustomerStatus(mobileNumber: string): Promise<CustomerStatusResponse> {
+  async getCustomerStatus(
+    mobileNumber: string,
+  ): Promise<CustomerStatusResponse> {
     const config = await this.accessTokenService.getHeaderConfig();
     try {
       const response = await firstValueFrom(
-        this.httpService.get<CustomerStatusResponse>(`${this.configService.get('BUSY_BOX_API_BASE_URL')}/${mobileNumber}`, config)
+        this.httpService.get<CustomerStatusResponse>(
+          `${this.configService.get('BUSY_BOX_API_BASE_URL')}/${mobileNumber}`,
+          config,
+        ),
       );
       return response.data;
     } catch (error) {
       throw error;
     }
   }
-
-
 }

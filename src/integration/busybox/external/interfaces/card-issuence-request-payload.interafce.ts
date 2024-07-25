@@ -6,7 +6,7 @@ interface IAddress {
   state: string;
   pincode: string;
 }
-  
+
 interface CardIssuanceDto {
   orgId: string;
   customer_name: string;

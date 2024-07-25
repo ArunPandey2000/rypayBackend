@@ -1,9 +1,8 @@
 export interface CardLockResponse {
-    message: string;
-    cardId: string;
+  message: string;
+  cardId: string;
 }
 export interface CardLockDto {
-    cardId: string;
-    lock: string;
-  }
-    
+  cardId: string;
+  lock: string;
+}

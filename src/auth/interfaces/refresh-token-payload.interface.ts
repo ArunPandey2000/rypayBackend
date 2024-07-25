@@ -1,4 +1,4 @@
 export interface IRefreshTokenPayload {
-    jti: string;
-    sub: string
-  }
+  jti: string;
+  sub: string;
+}

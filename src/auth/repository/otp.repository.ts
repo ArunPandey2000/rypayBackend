@@ -1,17 +1,21 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { OtpInfo } from "src/core/entities/otp-info.entity";
-import { User } from "src/core/entities/user.entity";
-import { Repository } from "typeorm";
-import { OTPValidateStatus } from "../enum/otp-verification-status.enum";
-import { NotFoundError } from "rxjs";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { OtpInfo } from 'src/core/entities/otp-info.entity';
+import { User } from 'src/core/entities/user.entity';
+import { Repository } from 'typeorm';
+import { OTPValidateStatus } from '../enum/otp-verification-status.enum';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class OtpRepository {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
-    @InjectRepository(OtpInfo) private otpRepo: Repository<OtpInfo>
-  ) { }
+    @InjectRepository(OtpInfo) private otpRepo: Repository<OtpInfo>,
+  ) {}
 
   async upsertOtpInfo(phoneNumber: string, otp: string) {
     let otpRecord = await this.findByPhoneNumber(phoneNumber);
@@ -23,7 +27,7 @@ export class OtpRepository {
       otpRecord = this.otpRepo.create({
         phoneNumber: phoneNumber,
         otpValue: otp,
-        isUsed: false
+        isUsed: false,
       });
     }
     // should use upsert instead of find and update
@@ -35,7 +39,7 @@ export class OtpRepository {
   async validateUserOtp(phoneNumber: string, otp: string) {
     const record = await this.findByPhoneNumber(phoneNumber);
     if (!record) {
-      throw new NotFoundException(OTPValidateStatus.NOT_FOUND)
+      throw new NotFoundException(OTPValidateStatus.NOT_FOUND);
     }
     const isExpired = this.isTimePassedOut(record.expiryTime);
     if (isExpired || record.isUsed) {
@@ -44,7 +48,7 @@ export class OtpRepository {
     if (record.otpValue === otp) {
       await this.updateOTPUsedRecord(record);
       return {
-        message: OTPValidateStatus.VALID
+        message: OTPValidateStatus.VALID,
       };
     }
     throw new BadRequestException(OTPValidateStatus.INVALID);
@@ -58,8 +62,8 @@ export class OtpRepository {
   findByPhoneNumber(phoneNumber: string) {
     return this.otpRepo.findOne({
       where: {
-        phoneNumber: phoneNumber
-      }
+        phoneNumber: phoneNumber,
+      },
     });
   }
 

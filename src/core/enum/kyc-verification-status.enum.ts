@@ -1,6 +1,6 @@
 export enum KycVerificationStatus {
-    NOT_INITIATED,
-    REQUESTED,
-    COMPLETED,
-    REJECTED
+  NOT_INITIATED,
+  REQUESTED,
+  COMPLETED,
+  REJECTED,
 }

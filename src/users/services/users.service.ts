@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/core/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -11,59 +15,59 @@ import { IAccessTokenUserPayload } from 'src/auth/interfaces/user-token-request-
 
 @Injectable()
 export class UsersService {
+  constructor(
+    private tokenService: TokenService,
+    @InjectRepository(User) private userRepository: Repository<User>,
+  ) {}
 
-    constructor(private tokenService: TokenService,
-        @InjectRepository(User) private userRepository: Repository<User>
-) {
-
+  async registerUser(userRequestDto: UserRequestDto) {
+    try {
+      const newUser = UserMapper.mapUserRequestDtoToEntity(userRequestDto);
+      const user = await this.userRepository.save(newUser);
+      return new UserResponse(user);
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
     }
+  }
 
-    async registerUser(userRequestDto: UserRequestDto) {
-        try {
-            const newUser = UserMapper.mapUserRequestDtoToEntity(userRequestDto);
-            const user = await this.userRepository.save(newUser);
-            return new UserResponse(user);
-        } catch(err) {
-            throw new InternalServerErrorException(err.message)
-        }
+  async registerUserAndGenerateToken(
+    userRequestDto: UserRequestDto,
+  ): Promise<UserApiResponseDto> {
+    const user = await this.registerUser(userRequestDto);
+    const tokenPayload = <IAccessTokenUserPayload>{
+      userId: user.userid,
+      phoneNumber: user.phoneNumber,
+      role: user.userRole,
+    };
+    const tokens = await this.tokenService.generateTokens(tokenPayload);
+    return {
+      user,
+      tokens,
+    };
+  }
+
+  async updateUserKycStatus(
+    userId: string,
+    kycStatus: UpdateKycStatusDto,
+  ): Promise<string> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
+    user.kycVerificationStatus = kycStatus.verificationStatus;
 
-    async registerUserAndGenerateToken(userRequestDto: UserRequestDto): Promise<UserApiResponseDto> {
-        const user = await this.registerUser(userRequestDto);
-        const tokenPayload = <IAccessTokenUserPayload> {
-            userId: user.userid,
-            phoneNumber: user.phoneNumber,
-            role: user.userRole
-        };
-        const tokens = await this.tokenService.generateTokens(tokenPayload);
-        return {
-            user,
-            tokens
-        }
+    try {
+      await this.userRepository.save(user);
+      return 'User kyc status updated.';
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
     }
+  }
 
-    async updateUserKycStatus(userId: string, kycStatus: UpdateKycStatusDto): Promise<string> {
-        const user = await this.userRepository.findOne({ where: { id: userId } });
+  updateRefreshToken(userId: string, refreshToken: string) {}
 
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
-        user.kycVerificationStatus = kycStatus.verificationStatus;
-
-        try {
-            await this.userRepository.save(user);
-            return 'User kyc status updated.';
-        }
-        catch (err) {
-            throw new InternalServerErrorException(err.message);
-        }
-    }
-
-    updateRefreshToken(userId: string, refreshToken: string) {
-
-    }
-
-    findUserById(userId: string) {
-        return this.userRepository.findOne({where: {id: userId}});
-    }
+  findUserById(userId: string) {
+    return this.userRepository.findOne({ where: { id: userId } });
+  }
 }

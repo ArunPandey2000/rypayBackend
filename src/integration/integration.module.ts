@@ -10,9 +10,20 @@ import { ExternalController } from './busybox/external/controllers/external.cont
 import { ExternalService } from './busybox/external/services/external.service';
 
 @Module({
-  imports: [CacheModule.register(), HttpModule, ConfigModule, ],
-  providers: [MerchantClientService, CardsClientService, AccessTokenClientService, TransactionsClientService, ExternalService],
+  imports: [CacheModule.register(), HttpModule, ConfigModule],
+  providers: [
+    MerchantClientService,
+    CardsClientService,
+    AccessTokenClientService,
+    TransactionsClientService,
+    ExternalService,
+  ],
   controllers: [ExternalController],
-  exports: [MerchantClientService, CardsClientService, TransactionsClientService, ExternalService]
+  exports: [
+    MerchantClientService,
+    CardsClientService,
+    TransactionsClientService,
+    ExternalService,
+  ],
 })
 export class IntegrationModule {}

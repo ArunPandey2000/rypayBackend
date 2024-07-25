@@ -9,8 +9,16 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [CoreModule, ConfigModule.forRoot(), AuthModule, IntegrationModule, UsersModule, OtpFlowModule, IntegrationModule],
+  imports: [
+    CoreModule,
+    ConfigModule.forRoot(),
+    AuthModule,
+    IntegrationModule,
+    UsersModule,
+    OtpFlowModule,
+    IntegrationModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

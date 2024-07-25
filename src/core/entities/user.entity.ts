@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Address } from './address.entity';
 import { KycVerificationStatus } from '../enum/kyc-verification-status.enum';
 import { Wallet } from './wallet.entity';
@@ -6,7 +13,7 @@ import { Document } from './document.entity';
 import { UserRole } from '../enum/user-role.enum';
 import { Merchant } from './merchant.entity';
 
-@Entity({name: 'users'})
+@Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn({ name: 'id' })
   id: string;

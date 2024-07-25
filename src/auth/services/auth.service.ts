@@ -1,8 +1,15 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/core/entities/user.entity';
 import { OtpFlowService } from 'src/otp-flow/services/otp-flow.service';
-import { UserApiResponseDto, UserResponse } from 'src/users/dto/user-response.dto';
+import {
+  UserApiResponseDto,
+  UserResponse,
+} from 'src/users/dto/user-response.dto';
 import { Repository } from 'typeorm';
 import { VerifyPhoneRequestDto } from '../dto/verify-phone-request.dto';
 import { OtpRepository } from '../repository/otp.repository';
@@ -19,56 +26,64 @@ export class AuthService {
     private otpFlowService: OtpFlowService,
     private otpRepository: OtpRepository,
     private configService: ConfigService,
-    @InjectRepository(User) private userRepo: Repository<User>) {
-
-    }
+    @InjectRepository(User) private userRepo: Repository<User>,
+  ) {}
 
   async requestOtp(phoneNumber: string) {
     const otpLength = this.configService.get('OTP_LENGTH');
-    const generatedOtp = otpGenerator.generate(otpLength, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+    const generatedOtp = otpGenerator.generate(otpLength, {
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
     /*
       send SMS message service code comes here
     */
     await this.otpFlowService.sendOtp(phoneNumber, generatedOtp);
     let otpRecord = this.otpRepository.upsertOtpInfo(phoneNumber, generatedOtp);
-    return otpRecord.then(() => {
-      return {
-        message: 'success'
-      } as sendOtpResponseDto;
-    }).catch(err => {
-      return {
-        message: err.message,
-      } as sendOtpResponseDto;
-    });
+    return otpRecord
+      .then(() => {
+        return {
+          message: 'success',
+        } as sendOtpResponseDto;
+      })
+      .catch((err) => {
+        return {
+          message: err.message,
+        } as sendOtpResponseDto;
+      });
   }
 
   async validateOTP(userPhoneInfo: VerifyPhoneRequestDto) {
-    return await this.otpRepository.validateUserOtp(userPhoneInfo.phoneNumber, userPhoneInfo.otp)
-    .then(async () => {
+    return await this.otpRepository
+      .validateUserOtp(userPhoneInfo.phoneNumber, userPhoneInfo.otp)
+      .then(async () => {
         const userData = await this.userRepo.findOne({
-            where: {
-              phoneNumber: userPhoneInfo.phoneNumber,
-            },
-            relations: {address: true, merchant: true }
-          });
+          where: {
+            phoneNumber: userPhoneInfo.phoneNumber,
+          },
+          relations: { address: true, merchant: true },
+        });
         if (!userData) {
-            return <UserApiResponseDto>{
-                user: null,
-                tokens: null
-            }
+          return <UserApiResponseDto>{
+            user: null,
+            tokens: null,
+          };
         }
-        const tokenPayload = AuthUtil.getAccessTokenPayloadFromUserModel(userData);
+        const tokenPayload =
+          AuthUtil.getAccessTokenPayloadFromUserModel(userData);
         const tokens = await this.tokenService.generateTokens(tokenPayload);
-        return <UserApiResponseDto> {
-            user: new UserResponse(userData),
-            tokens: tokens
+        return <UserApiResponseDto>{
+          user: new UserResponse(userData),
+          tokens: tokens,
+        };
+      })
+      .catch((err) => {
+        if (err instanceof InternalServerErrorException) {
+          throw new InternalServerErrorException(err.message);
         }
-    }).catch(err => {
-      if (err instanceof InternalServerErrorException) {
-        throw new InternalServerErrorException(err.message)
-      }
-      throw err;
-    });
+        throw err;
+      });
   }
 
   async refreshToken(refreshToken: string) {
@@ -79,8 +94,9 @@ export class AuthService {
     try {
       return this.tokenService.revokeAccessToken(userId);
     } catch {
-      throw new InternalServerErrorException('there is some error in revoking user access');
+      throw new InternalServerErrorException(
+        'there is some error in revoking user access',
+      );
     }
   }
-  
 }

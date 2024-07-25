@@ -16,9 +16,21 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 
 @Global()
 @Module({
-  imports: [JwtModule.register({global: true}), TypeOrmModule.forFeature([User, RefreshToken, OtpInfo]), OtpFlowModule],
-  providers: [AuthService, TokenService, UsersService, AccessTokenStrategy, RefreshTokenStrategy, ConfigService, OtpRepository],
+  imports: [
+    JwtModule.register({ global: true }),
+    TypeOrmModule.forFeature([User, RefreshToken, OtpInfo]),
+    OtpFlowModule,
+  ],
+  providers: [
+    AuthService,
+    TokenService,
+    UsersService,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
+    ConfigService,
+    OtpRepository,
+  ],
   controllers: [AuthController],
-  exports: [TokenService]
+  exports: [TokenService],
 })
-export class AuthModule { }
+export class AuthModule {}

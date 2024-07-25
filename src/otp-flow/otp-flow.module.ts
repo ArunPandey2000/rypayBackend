@@ -7,6 +7,6 @@ import { SmsClientService } from './sms-client.service';
 @Module({
   imports: [HttpModule, ConfigModule],
   providers: [OtpFlowService, SmsClientService],
-  exports: [OtpFlowService]
+  exports: [OtpFlowService],
 })
 export class OtpFlowModule {}

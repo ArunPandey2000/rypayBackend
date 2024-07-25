@@ -1,6 +1,24 @@
-import { Body, Controller, ExecutionContext, HttpCode, HttpStatus, Param, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ExecutionContext,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { VerifyPhoneRequestDto } from '../dto/verify-phone-request.dto';
 import { sendOtpResponseDto } from '../dto/send-otp-response.dto';
 import { UserApiResponseDto } from 'src/users/dto/user-response.dto';
@@ -13,58 +31,58 @@ import { UserRole } from 'src/core/enum/user-role.enum';
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
-    constructor(private authService: AuthService) {
+  constructor(private authService: AuthService) {}
 
-    }
+  @ApiResponse({ type: sendOtpResponseDto })
+  @HttpCode(HttpStatus.OK)
+  @Post('request-otp')
+  @ApiBody({
+    required: true,
+    type: sendOtpRequestDto,
+  })
+  async requestOtp(@Body() userPhone: sendOtpRequestDto) {
+    return this.authService.requestOtp(userPhone.phone);
+  }
 
-    @ApiResponse({type: sendOtpResponseDto})
-    @HttpCode(HttpStatus.OK)
-    @Post('request-otp')
-    @ApiBody({
-        required: true,
-        type: sendOtpRequestDto
-    })
-    async requestOtp(@Body() userPhone: sendOtpRequestDto) {
-        return this.authService.requestOtp(userPhone.phone);
-    }
+  @ApiResponse({ type: UserApiResponseDto })
+  @Post('validate-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({
+    required: true,
+    type: VerifyPhoneRequestDto,
+  })
+  async validateOtp(@Body() userPhone: VerifyPhoneRequestDto) {
+    return this.authService.validateOTP(userPhone);
+  }
 
-    @ApiResponse({type: UserApiResponseDto})
-    @Post('validate-otp')
-    @HttpCode(HttpStatus.OK)
-    @ApiBody({
-        required: true,
-        type: VerifyPhoneRequestDto
-    })
-    async validateOtp(@Body() userPhone: VerifyPhoneRequestDto) {
-        return this.authService.validateOTP(userPhone);
-    }
+  @ApiResponse({ type: RefreshAccessTokenResponseDto })
+  @Post('refresh-access-token')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({
+    required: true,
+    type: RefreshAccessTokenRequestDto,
+  })
+  async refreshAccessToken(
+    @Body() refreshTokenDto: RefreshAccessTokenRequestDto,
+  ) {
+    return this.authService.refreshToken(refreshTokenDto.refreshToken);
+  }
 
-    @ApiResponse({type: RefreshAccessTokenResponseDto})
-    @Post('refresh-access-token')
-    @HttpCode(HttpStatus.OK)
-    @ApiBody({
-        required: true,
-        type: RefreshAccessTokenRequestDto
-    })
-    async refreshAccessToken(@Body() refreshTokenDto: RefreshAccessTokenRequestDto) {
-        return this.authService.refreshToken(refreshTokenDto.refreshToken);
+  @ApiResponse({ type: RefreshAccessTokenResponseDto })
+  @Post('logout/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiParam({ name: 'id', type: String, description: 'User ID' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBody({
+    required: true,
+    type: RefreshAccessTokenRequestDto,
+  })
+  async logout(@Param('id') id: string, @Req() request) {
+    const user = request.user;
+    if (user.role === UserRole.ADMIN || user.sub?.toString() === id) {
+      return this.authService.revokeToken(id);
     }
-
-    @ApiResponse({type: RefreshAccessTokenResponseDto})
-    @Post('logout/:id')
-    @HttpCode(HttpStatus.OK)
-    @ApiBearerAuth()
-    @ApiParam({ name: 'id', type: String, description: 'User ID' })
-    @UseGuards(JwtAuthGuard)
-    @ApiBody({
-        required: true,
-        type: RefreshAccessTokenRequestDto
-    })
-    async logout(@Param('id') id: string, @Req() request) {
-        const user = request.user ;
-        if (user.role === UserRole.ADMIN || user.sub?.toString() === id) {
-            return this.authService.revokeToken(id);
-        }
-        throw new UnauthorizedException('user does not have enough permissions');
-    }
+    throw new UnauthorizedException('user does not have enough permissions');
+  }
 }

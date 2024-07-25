@@ -1,5 +1,5 @@
 export interface IAccessTokenUserPayload {
-    userId: string;
-    phoneNumber: string;
-    role: string;
+  userId: string;
+  phoneNumber: string;
+  role: string;
 }

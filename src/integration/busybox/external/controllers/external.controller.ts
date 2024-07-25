@@ -6,14 +6,13 @@ import { KycWebhookPayload } from '../interfaces/kyc-webhook-payload.interface';
 @Controller('external')
 @ApiTags('External')
 export class ExternalController {
-    @Post('transactions')
-    async handleTransactions(payload: TransactionNotifyPayload) {
-        //webhook processing logic
-    }
+  @Post('transactions')
+  async handleTransactions(payload: TransactionNotifyPayload) {
+    //webhook processing logic
+  }
 
-    @Post('kyc-events')
-    async handleKycEvents(payload: KycWebhookPayload) {
-        // webhook processing logic
-    }
-
+  @Post('kyc-events')
+  async handleKycEvents(payload: KycWebhookPayload) {
+    // webhook processing logic
+  }
 }
