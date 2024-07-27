@@ -57,7 +57,7 @@ export class WalletController {
     fundMyAccountDto.reference = reference;
     fundMyAccountDto.transactionHash = transactionHash;
 
-    const transaction = await this.walletService.fundMyAccount(
+    const transaction = await this.walletService.AddMoneyToWallet(
       fundMyAccountDto, req
     );
 

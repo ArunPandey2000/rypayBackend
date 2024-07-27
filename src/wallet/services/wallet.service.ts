@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/core/entities/user.entity';
 import { Wallet } from 'src/core/entities/wallet.entity';
@@ -86,7 +86,7 @@ export class WalletService {
         return queryRunner.manager.save(wallet);
       }
     
-      async fundMyAccount(
+      async AddMoneyToWallet(
         fundMyAccountDto: AddMoneyToWalletDto,
         req: any
       ): Promise<Wallet> {
@@ -115,7 +115,7 @@ export class WalletService {
         fundMyAccountDto.user = user;
         fundMyAccountDto.type = TransactionType.CREDIT;
         fundMyAccountDto.amount = Number(fundMyAccountDto.amount);
-        fundMyAccountDto.description = `₦${fundMyAccountDto.amount} was credited to your wallet`;
+        fundMyAccountDto.description = `INR${fundMyAccountDto.amount} was credited to your wallet`;
         fundMyAccountDto.transactionDate = new Date();
         fundMyAccountDto.walletBalanceBefore = Number(getWallet.balance);
         fundMyAccountDto.walletBalanceAfter =
@@ -188,20 +188,17 @@ export class WalletService {
         });
     
         if (!getWallet) {
-          throw new HttpException('Wallet not found', HttpStatus.NOT_FOUND);
+          throw new BadRequestException('Wallet not found');
         }
     
         if (Math.sign(fundMyAccountDto.amount) === -1) {
-          throw new HttpException(
-            'Amount cannot be negative',
-            HttpStatus.BAD_REQUEST,
-          );
+          throw new BadRequestException('Amount cannot be negative');
         }
     
         fundMyAccountDto.user = user;
         fundMyAccountDto.type = TransactionType.CREDIT;
         fundMyAccountDto.amount = Number(fundMyAccountDto.amount);
-        fundMyAccountDto.description = `₦${fundMyAccountDto.amount} was debited from your wallet`;
+        fundMyAccountDto.description = `INR${fundMyAccountDto.amount} was debited from your wallet`;
         fundMyAccountDto.transactionDate = new Date();
         fundMyAccountDto.walletBalanceBefore = Number(getWallet.balance);
         fundMyAccountDto.walletBalanceAfter =
@@ -219,11 +216,7 @@ export class WalletService {
     
           await queryRunner.release();
     
-          throw new HttpException(
-            'Wallet cannot be credited',
-            HttpStatus.BAD_REQUEST,
-            { cause: new Error() },
-          );
+          throw new BadRequestException('Wallet cannot be credited');
         }
     
         const transaction = await this.transactionsService.saveTransaction(
@@ -236,11 +229,7 @@ export class WalletService {
     
           await queryRunner.release();
     
-          throw new HttpException(
-            'Transaction cannot be saved',
-            HttpStatus.BAD_REQUEST,
-            { cause: new Error() },
-          );
+          throw new BadRequestException('Transaction cannot be saved');
         }
     
         await queryRunner.commitTransaction();
@@ -263,7 +252,7 @@ export class WalletService {
         });
     
         if (!user) {
-          throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+          throw new BadRequestException('User not found');
         }
     
         const getReceiver = await this.userRepository.findOneBy({
@@ -271,7 +260,7 @@ export class WalletService {
         });
     
         if (!getReceiver) {
-          throw new HttpException('Receiver not found', HttpStatus.NOT_FOUND);
+          throw new BadRequestException('Receiver not found');
         }
     
         const senderWallet = await this.getOne({
@@ -279,7 +268,7 @@ export class WalletService {
         });
     
         if (!senderWallet) {
-          throw new HttpException('Sender Wallet not found', HttpStatus.NOT_FOUND);
+          throw new BadRequestException('Sender Wallet not found');
         }
     
         const receiverWallet = await this.getOne({
@@ -287,21 +276,15 @@ export class WalletService {
         });
     
         if (!receiverWallet) {
-          throw new HttpException(
-            'Receiver Wallet not found',
-            HttpStatus.NOT_FOUND,
-          );
+          throw new NotFoundException('Receiver Wallet not found');
         }
     
         if (Math.sign(transferAccountDto.amount) === -1) {
-          throw new HttpException(
-            'Amount cannot be negative',
-            HttpStatus.BAD_REQUEST,
-          );
+          throw new BadRequestException('Amount cannot be negative');
         }
     
         if (transferAccountDto.amount > senderWallet.balance) {
-          throw new HttpException('Insufficient funds', HttpStatus.BAD_REQUEST);
+          throw new BadRequestException('Insufficient funds');
         }
     
         const result = await Promise.all([
@@ -319,7 +302,7 @@ export class WalletService {
               user,
               type: TransactionType.DEBIT,
               amount: Number(transferAccountDto.amount),
-              description: `₦${transferAccountDto.amount} was debited from your wallet`,
+              description: `INR${transferAccountDto.amount} was debited from your wallet`,
               transactionDate: new Date(),
               walletBalanceBefore: Number(senderWallet.balance),
               walletBalanceAfter: senderWallet.balance + transferAccountDto.amount,
@@ -345,7 +328,7 @@ export class WalletService {
               user,
               type: TransactionType.CREDIT,
               amount: Number(transferAccountDto.amount),
-              description: `₦${transferAccountDto.amount} was credited to your wallet.`,
+              description: `INR${transferAccountDto.amount} was credited to your wallet.`,
               transactionDate: new Date(),
               walletBalanceBefore: Number(receiverWallet.balance),
               walletBalanceAfter: receiverWallet.balance + transferAccountDto.amount,
