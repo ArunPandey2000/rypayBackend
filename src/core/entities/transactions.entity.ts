@@ -9,18 +9,21 @@ import {
   Check,
 } from 'typeorm';
 import { Wallet } from './wallet.entity';
+import { User } from './user.entity';
 
 @Entity({ name: 'transactions' })
 export class Transaction {
   @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
 
-  @Column({ name: 'wallet_id' })
-  walletId: number;
+  @ManyToOne(() => User, { eager: true })
+  user: User;
+  
+  @Column()
+  walletBalanceBefore: number;
 
-  @ManyToOne(() => Wallet, (wallet) => wallet.transactions, { nullable: false })
-  @JoinColumn({ name: 'wallet_id' })
-  wallet: Wallet;
+  @Column()
+  walletBalanceAfter: number;
 
   @Column({ name: 'amount' })
   amount: number;
@@ -37,11 +40,20 @@ export class Transaction {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @Column({
-    name: 'credit_type',
-    type: 'text',
-  })
-  credit_type: string;
+  @Column({ nullable: true })
+  sender: string;
+
+  @Column({ nullable: true })
+  receiver: string;
+
+  @Column({name: 'transaction-hash'})
+  transactionHash: string;
+
+  @Column()
+  reference: string;
+
+  @Column()
+  transactionDate: Date;
 
   @Column({ default: 0 })
   @Check('balance >= 0')

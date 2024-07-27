@@ -49,6 +49,11 @@ export class UserRequestDto {
   @ApiProperty()
   lastName: string;
 
+  @IsNotEmpty()
+  @IsIn(['M', 'F'])
+  @ApiProperty()
+  gender: 'M' | 'F';
+
   @IsPhoneNumber('IN')
   @IsNotEmpty()
   @ApiProperty()
@@ -82,4 +87,6 @@ export class UserRequestDto {
   @ApiProperty()
   @Validate(MerchantRequestDto)
   merchantInfo: MerchantRequestDto;
+
+  cardHolderId: string
 }

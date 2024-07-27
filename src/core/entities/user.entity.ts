@@ -1,16 +1,15 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
+  Entity,
+  JoinColumn,
   OneToMany,
   OneToOne,
-  JoinColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Address } from './address.entity';
 import { KycVerificationStatus } from '../enum/kyc-verification-status.enum';
-import { Wallet } from './wallet.entity';
-import { Document } from './document.entity';
 import { UserRole } from '../enum/user-role.enum';
+import { Address } from './address.entity';
+import { Document } from './document.entity';
 import { Merchant } from './merchant.entity';
 
 @Entity({ name: 'users' })
@@ -33,9 +32,11 @@ export class User {
   @Column({ name: 'is_kyc_verified', type: 'smallint', default: 0 })
   kycVerificationStatus: KycVerificationStatus;
 
-  @OneToOne(() => Wallet, { cascade: true })
-  @JoinColumn()
-  wallet: Wallet;
+  @Column({ name: 'gender', type: 'char', default: 'M' })
+  gender: string;
+
+  @Column({ name: 'card_holder_id', type: 'varchar', unique: true })
+  cardHolderId: string;
 
   @OneToMany(() => Document, (document) => document.user)
   documents: Document[];

@@ -23,7 +23,7 @@ export class MerchantClientService {
    */
   async issueCard(
     data: CardIssuanceDto,
-  ): Promise<AxiosResponse<CardIssuanceResponse>> {
+  ): Promise<CardIssuanceResponse> {
     const config = await this.accessTokenService.getHeaderConfig();
 
     try {

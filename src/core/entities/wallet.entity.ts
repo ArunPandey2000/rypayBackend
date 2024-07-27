@@ -2,12 +2,12 @@ import {
   Check,
   Column,
   Entity,
-  OneToMany,
+  JoinColumn,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
+import { WalletStatus } from '../enum/wallet-status.enum';
 import { User } from './user.entity';
-import { Transaction } from './transactions.entity';
 
 @Entity()
 export class Wallet {
@@ -18,12 +18,14 @@ export class Wallet {
   @Check('balance >= 0')
   balance: number;
 
-  @OneToMany(() => Transaction, (transaction) => transaction.wallet, {
-    cascade: true,
-  })
-  transactions: Transaction[];
+  @Column({ enum: Object.values(WalletStatus), default: WalletStatus.ACTIVE })
+  status: string;
 
-  @OneToOne(() => User)
+  @Column()
+  walletAccountNo: string;
+
+  @OneToOne(() => User, { eager: true })
+  @JoinColumn()
   user: User;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

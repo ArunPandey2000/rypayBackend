@@ -48,7 +48,7 @@ export class AccessTokenClientService {
     const token = await this.getToken();
     return {
       headers: {
-        Token: token,
+        Token: token
       },
     };
   }

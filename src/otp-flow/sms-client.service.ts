@@ -1,15 +1,17 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OTPFlowPayload } from './constant/otp-flow.constant';
 import { OTPFLowDto } from './dto/otp-flow.dto';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
+import { InjectPinoLogger, Logger } from 'nestjs-pino';
 
 @Injectable()
 export class SmsClientService {
   constructor(
     private httpService: HttpService,
     private configService: ConfigService,
+    @InjectPinoLogger(SmsClientService.name) private logger: Logger
   ) {}
 
   async sendOtpToPhone(phone: string, otp: string) {
@@ -32,7 +34,7 @@ export class SmsClientService {
         ),
       );
     } catch (err) {
-      //log error, will finalize logger
+      this.logger.error('failed to send logs', err);
       throw err;
     }
   }

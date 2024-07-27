@@ -13,17 +13,25 @@ import { OtpInfo } from 'src/core/entities/otp-info.entity';
 import { OtpRepository } from './repository/otp.repository';
 import { AccessTokenStrategy } from './strategies/access-token.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
+import { IntegrationModule } from 'src/integration/integration.module';
+import { WalletService } from 'src/wallet/services/wallet.service';
+import { Wallet } from 'src/core/entities/wallet.entity';
+import { TransactionsService } from 'src/transactions/services/transactions.service';
+import { Transaction } from 'src/core/entities/transactions.entity';
 
 @Global()
 @Module({
   imports: [
     JwtModule.register({ global: true }),
-    TypeOrmModule.forFeature([User, RefreshToken, OtpInfo]),
+    TypeOrmModule.forFeature([User, RefreshToken, OtpInfo, Wallet, Transaction]),
+    IntegrationModule,
     OtpFlowModule,
   ],
   providers: [
     AuthService,
     TokenService,
+    WalletService,
+    TransactionsService,
     UsersService,
     AccessTokenStrategy,
     RefreshTokenStrategy,

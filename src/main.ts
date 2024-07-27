@@ -4,9 +4,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { json } from 'express';
 import helmet from 'helmet';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const API_DEFAULT_PORT = Number(process.env.PORT ?? 3000);
   const config = new DocumentBuilder()
     .setTitle('RyPay')
@@ -22,7 +23,9 @@ async function bootstrap() {
   app.use(json());
   app.use(helmet());
   SwaggerModule.setup('api', app, document);
-
-  await app.listen(API_DEFAULT_PORT);
+  const logger = app.get(Logger);
+  await app.listen(API_DEFAULT_PORT).then(() => {
+    logger.log('server started');
+  });
 }
 bootstrap();

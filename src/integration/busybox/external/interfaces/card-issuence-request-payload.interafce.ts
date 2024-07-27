@@ -16,5 +16,5 @@ interface CardIssuanceDto {
   gender: string;
   doc_name: string;
   doc_number: string;
-  addresses: IAddress;
+  addresses: IAddress[];
 }

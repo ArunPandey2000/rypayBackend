@@ -1,9 +1,9 @@
-import { User } from 'src/core/entities/user.entity';
-import { UserRequestDto } from '../dto/user-request.dto';
 import { Address } from 'src/core/entities/address.entity';
-import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
 import { Merchant } from 'src/core/entities/merchant.entity';
+import { User } from 'src/core/entities/user.entity';
 import { Wallet } from 'src/core/entities/wallet.entity';
+import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
+import { UserRequestDto } from '../dto/user-request.dto';
 
 export class UserMapper {
   static mapUserRequestDtoToEntity(userRequestDto: UserRequestDto) {
@@ -20,6 +20,8 @@ export class UserMapper {
       user.address = address;
     }
     user.dob = userRequestDto.dob;
+    user.gender = userRequestDto.gender;
+    user.cardHolderId = userRequestDto.cardHolderId;
     user.phoneNumber = userRequestDto.phoneNumber;
     user.email = userRequestDto.email;
     user.firstName = userRequestDto.firstName;
@@ -35,7 +37,29 @@ export class UserMapper {
       merchantDetails.msmeNumber = userRequestDto.merchantInfo.msmeNumber;
       user.merchant = merchantDetails;
     }
-    user.wallet = new Wallet();
     return user;
+  }
+
+  static mapUserRequestDtoToMerchantRegistrationDto(userRequestDto: UserRequestDto, orgId: string): CardIssuanceDto {
+    return {
+      orgId: orgId,
+      customer_name: `${userRequestDto.firstName} ${userRequestDto.lastName}`,
+      date_of_birth: userRequestDto.dob,
+      doc_name: 'PAN', // will use PAN for now
+      doc_number: userRequestDto.panNumber,
+      mobile_number: userRequestDto.phoneNumber,
+      email: userRequestDto.email,
+      gender: userRequestDto.gender,
+      addresses: [
+        {
+          address1: userRequestDto.address.address1,
+          address2: userRequestDto.address.address2,
+          addressType: 'DELIVERY_ADDRESS', // this will contain single value
+          city: userRequestDto.address.city,
+          state: userRequestDto.address.state,
+          pincode: userRequestDto.address.pincode
+        }
+      ]
+    }
   }
 }

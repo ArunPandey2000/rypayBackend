@@ -47,7 +47,6 @@ export class UserResponse {
     this.userRole = user.role;
     this.address = user.address;
     this.phoneNumber = user.phoneNumber;
-    this.wallet = user.wallet;
   }
 }
 
