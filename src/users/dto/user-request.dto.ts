@@ -1,5 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsDate,
   IsDateString,
   IsEmail,
   IsIn,
@@ -7,13 +7,10 @@ import {
   IsOptional,
   IsPhoneNumber,
   Length,
-  Min,
-  Validate,
+  Validate
 } from 'class-validator';
 import { UserRole } from 'src/core/enum/user-role.enum';
 import { MerchantRequestDto } from './merchecnt-request.dto';
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 
 export class AddressRequestDto {
   @IsNotEmpty()

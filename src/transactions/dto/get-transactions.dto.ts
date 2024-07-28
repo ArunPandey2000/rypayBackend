@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsDate, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsDateString, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { SORT_DIRECTIONS } from "../enum/sort-direction.enum";
 import { TransactionType } from "../enum/transaction-type.enum";
 
@@ -19,12 +19,12 @@ export class TransactionQueryDto {
     @ApiPropertyOptional()
     pagination: PaginationRequestDto
   
-    @IsDate()
+    @IsDateString()
     @ApiPropertyOptional()
     @IsOptional()
     fromDate: string;
   
-    @IsDate()
+    @IsDateString()
     @ApiPropertyOptional()
     @IsOptional()
     toDate: string;

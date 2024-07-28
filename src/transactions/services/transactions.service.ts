@@ -5,12 +5,15 @@ import { Between, Like, QueryRunner, Repository } from 'typeorm';
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { TransactionQueryDto } from '../dto/get-transactions.dto';
 import { Pagination } from '../dto/pagination-response.dto';
+import { PdfService } from 'src/pdf/services/pdf.service';
+import { formatDateToIST } from 'src/core/utils/date.util';
 
 @Injectable()
 export class TransactionsService {
     constructor(
         @InjectRepository(Transaction)
     private readonly transactionsRepository: Repository<Transaction>,
+    private pdfService: PdfService
     ){ }
 
     async saveTransaction(
@@ -125,5 +128,42 @@ export class TransactionsService {
         }
     
         return pagination.PaginateResponse(result, total, page, pageSize);
+      }
+
+      async getPrintableTransactionRecords(req: any, queryDto: TransactionQueryDto) {
+        const result = await this.getWalletTransactions(req, queryDto);
+        const transaction = await this.transactionsRepository.findOne({
+          where: {
+            user: {
+              id: req.user.sub
+            }
+          }
+        });
+        const user = transaction?.user;
+        const pdfPayload =  {
+          dateRange: {
+            to: formatDateToIST(new Date(queryDto.toDate), false),
+            from: formatDateToIST(new Date(queryDto.fromDate), false)
+          },
+          generatedDate: formatDateToIST(new Date()),
+          user: {
+            name: `${user.firstName} ${user.lastName}`,
+            virtualAccountNumber: user.cardHolderId,
+            panNumber: user.panNumber,
+            category: user.role,
+            email: user.email,
+            phone: user.phoneNumber
+          },
+          statement: result.data.map((record) => ({
+            date: formatDateToIST(record.transactionDate),
+            description: record.description,
+            reference: record.reference,
+            amount: record.amount,
+            transactionType: record.transactionType,
+            transactionHash: record.transactionHash,
+            balance: record.walletBalanceAfter
+          }))
+        }
+        return this.pdfService.generatePDF(pdfPayload);
       }
 }

@@ -87,7 +87,7 @@ export class WalletService {
       }
     
       async AddMoneyToWallet(
-        fundMyAccountDto: AddMoneyToWalletDto,
+        addMoneyWalletDto: AddMoneyToWalletDto,
         req: any
       ): Promise<Wallet> {
     
@@ -112,21 +112,21 @@ export class WalletService {
           throw new HttpException('Wallet not found', HttpStatus.NOT_FOUND);
         }
     
-        fundMyAccountDto.user = user;
-        fundMyAccountDto.type = TransactionType.CREDIT;
-        fundMyAccountDto.amount = Number(fundMyAccountDto.amount);
-        fundMyAccountDto.description = `INR${fundMyAccountDto.amount} was credited to your wallet`;
-        fundMyAccountDto.transactionDate = new Date();
-        fundMyAccountDto.walletBalanceBefore = Number(getWallet.balance);
-        fundMyAccountDto.walletBalanceAfter =
-          getWallet.balance + fundMyAccountDto.amount;
-        fundMyAccountDto.wallet = getWallet;
-        fundMyAccountDto.sender = user.id;
-        fundMyAccountDto.receiver =
-          fundMyAccountDto.receiver !== null ? fundMyAccountDto.receiver : null;
+        addMoneyWalletDto.user = user;
+        addMoneyWalletDto.type = TransactionType.CREDIT;
+        addMoneyWalletDto.amount = Number(addMoneyWalletDto.amount);
+        addMoneyWalletDto.description = `INR${addMoneyWalletDto.amount} was credited to your wallet`;
+        addMoneyWalletDto.transactionDate = new Date();
+        addMoneyWalletDto.walletBalanceBefore = Number(getWallet.balance);
+        addMoneyWalletDto.walletBalanceAfter =
+          getWallet.balance + addMoneyWalletDto.amount;
+        addMoneyWalletDto.wallet = getWallet;
+        addMoneyWalletDto.sender = user.id;
+        addMoneyWalletDto.receiver =
+          addMoneyWalletDto.receiver !== null ? addMoneyWalletDto.receiver : null;
         const creditWallet = await this.creditWallet(
-          fundMyAccountDto.wallet,
-          fundMyAccountDto.amount,
+          addMoneyWalletDto.wallet,
+          addMoneyWalletDto.amount,
           queryRunner,
         );
     
@@ -142,9 +142,8 @@ export class WalletService {
           );
         }
 
-        // fundMyAccountDto.walletId = wallet.id.toString();
         const transaction = await this.transactionsService.saveTransaction(
-          fundMyAccountDto,
+          addMoneyWalletDto,
           queryRunner,
         );
     
@@ -295,9 +294,8 @@ export class WalletService {
             queryRunner,
           ),
     
-          // Save debit transaction
           await this.transactionsService.saveTransaction(
-            // Update fundMyAccountDto for debit
+            
             Object.assign(transferAccountDto, {
               user,
               type: TransactionType.DEBIT,
