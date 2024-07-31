@@ -6,8 +6,9 @@ import { TransactionsService } from 'src/transactions/services/transactions.serv
 import { DataSource, FindOptionsWhere, QueryRunner, Repository } from 'typeorm';
 import { CreateWalletDto } from '../dto/create-wallet.dto';
 import { Request } from 'express';
-import { AddMoneyToWalletDto, TransferMoneyDto } from '../dto/transfer-money.dto';
+import { AddMoneyToWalletDto, DeductWalletBalanceRechargeDto, TransferMoneyDto, UpdateWalletAfterRechargeDto } from '../dto/transfer-money.dto';
 import { TransactionType } from 'src/transactions/enum/transaction-type.enum';
+import { generateHash } from 'src/core/utils/hash.util';
 
 @Injectable()
 export class WalletService {
@@ -358,4 +359,90 @@ export class WalletService {
         return senderWallet;
       }
     
+
+      async processRechargePayment(
+        deductBalanceData: DeductWalletBalanceRechargeDto,
+        userId: string
+      ): Promise<Wallet> {
+        const rechargeDto = new UpdateWalletAfterRechargeDto();
+        rechargeDto.amount = deductBalanceData.amount;
+        rechargeDto.reference = deductBalanceData.reference;
+        rechargeDto.transactionHash = generateHash();
+        
+        const queryRunner = this._connection.createQueryRunner();
+    
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+    
+        const user = await this.userRepository.findOneBy({
+          id: userId
+        });
+    
+        if (!user) {
+          throw new BadRequestException('User not found');
+        }
+    
+    
+        const userWallet = await this.getOne({
+          user: { id: userId },
+        });
+    
+        if (!userWallet) {
+          throw new BadRequestException('User Wallet not found');
+        }
+    
+        if (Math.sign(rechargeDto.amount) === -1) {
+          throw new BadRequestException('Amount cannot be negative');
+        }
+    
+        if (rechargeDto.amount > userWallet.balance) {
+          throw new BadRequestException('Insufficient funds');
+        }
+    
+        const result = await Promise.all([
+          // Perform debit operation
+          await this.debitWallet(
+            userWallet,
+            rechargeDto.amount,
+            queryRunner,
+          ),
+    
+          await this.transactionsService.saveTransaction(
+            
+            Object.assign(rechargeDto, {
+              user,
+              type: TransactionType.DEBIT,
+              amount: Number(rechargeDto.amount),
+              description: `INR${rechargeDto.amount} was debited from your wallet`,
+              transactionDate: new Date(),
+              walletBalanceBefore: Number(userWallet.balance),
+              walletBalanceAfter: userWallet.balance + rechargeDto.amount,
+              wallet: userWallet,
+              wallerId: userWallet.id,
+              senderId: userId,
+              sender: userId,
+              receiver: null
+            }),
+            queryRunner,
+          )
+        ]);
+    
+        const filterResult = result.filter((item) => item === undefined);
+    
+        if (filterResult.length > 0) {
+          await queryRunner.rollbackTransaction();
+    
+          await queryRunner.release();
+    
+          throw new HttpException(
+            'Something happened while processing your transaction',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            { cause: new Error() },
+          );
+        }
+    
+        await queryRunner.commitTransaction();
+    
+        return userWallet;
+      }
 }

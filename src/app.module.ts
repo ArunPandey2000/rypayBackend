@@ -12,6 +12,7 @@ import { WalletModule } from './wallet/wallet.module';
 import { CardsModule } from './cards/cards.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { PdfModule } from './pdf/pdf.module';
+import { RechargeModule } from './recharge/recharge.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { PdfModule } from './pdf/pdf.module';
     CardsModule,
     TransactionsModule,
     PdfModule,
+    RechargeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

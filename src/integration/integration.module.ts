@@ -8,6 +8,7 @@ import { MerchantClientService } from './busybox/external-system-client/merchant
 import { TransactionsClientService } from './busybox/external-system-client/transactions-client.service';
 import { ExternalController } from './busybox/external/controllers/external.controller';
 import { ExternalService } from './busybox/external/services/external.service';
+import { RechargeClientService } from './a1topup/external-system-client/recharge/recharge-client.service';
 
 @Module({
   imports: [CacheModule.register(), HttpModule, ConfigModule],
@@ -17,6 +18,7 @@ import { ExternalService } from './busybox/external/services/external.service';
     AccessTokenClientService,
     TransactionsClientService,
     ExternalService,
+    RechargeClientService
   ],
   controllers: [ExternalController],
   exports: [
@@ -24,6 +26,7 @@ import { ExternalService } from './busybox/external/services/external.service';
     CardsClientService,
     TransactionsClientService,
     ExternalService,
+    RechargeClientService
   ],
 })
 export class IntegrationModule {}

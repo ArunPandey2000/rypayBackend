@@ -72,3 +72,35 @@ export class AddMoneyToWalletDto {
     @ApiProperty()
     receiverAccountNo: string;
   }
+
+  export class DeductWalletBalanceRechargeDto {
+    amount: number;
+    reference: string;
+  }
+
+  export class UpdateWalletAfterRechargeDto extends DeductWalletBalanceRechargeDto {
+    user: User;
+  
+    wallet: Wallet;
+
+    walletId: string;
+  
+    @IsNumber()
+    @IsNotEmpty()
+    @ApiProperty()
+    amount: number;
+  
+    transactionType: string;
+  
+    transactionHash: string;
+  
+    description: string;
+  
+    reference: string;
+  
+    walletBalanceBefore: number;
+  
+    walletBalanceAfter: number;
+  
+    transactionDate: Date;
+  }

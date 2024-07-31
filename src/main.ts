@@ -5,6 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { json } from 'express';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
+import { ValidationExceptionFilter } from './core/filters/exception-filters';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -17,8 +18,9 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   app.useGlobalPipes(
-    new ValidationPipe({ forbidUnknownValues: false, transform: true }),
+    new ValidationPipe({ stopAtFirstError: true }),
   );
+  app.useGlobalFilters(new ValidationExceptionFilter())
   app.enableCors();
   app.use(json());
   app.use(helmet());
