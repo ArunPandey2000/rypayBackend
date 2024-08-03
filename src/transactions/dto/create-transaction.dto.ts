@@ -14,6 +14,10 @@ export class CreateTransactionDto {
     @IsString()
     @IsNotEmpty()
     type: TransactionType
+
+    @IsString()
+    @IsNotEmpty()
+    serviceUsed: string
   
     @IsString()
     @IsNotEmpty()

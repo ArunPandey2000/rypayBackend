@@ -59,6 +59,9 @@ export class RechargeService {
         }
 
         await this.walletService.processRechargePayment({amount: requestDto.amount,
+             receiverId: requestDto.accountNumber,
+             serviceUsed: requestDto.operatorCode, // will use service used, mobile / dth
+             description: '',
              reference: rechargePayload.orderid }, userId);
 
         return <RechargeApiResponseDto>{

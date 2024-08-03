@@ -76,6 +76,9 @@ export class AddMoneyToWalletDto {
   export class DeductWalletBalanceRechargeDto {
     amount: number;
     reference: string;
+    receiverId: string;
+    description: string;
+    serviceUsed: string;
   }
 
   export class UpdateWalletAfterRechargeDto extends DeductWalletBalanceRechargeDto {

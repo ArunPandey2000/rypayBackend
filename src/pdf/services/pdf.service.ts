@@ -3,10 +3,15 @@ import { Injectable } from '@nestjs/common';
 import * as Handlebars from 'handlebars';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as htmlPdf from 'html-pdf-node';
+import puppeteer from 'puppeteer';
+import { InjectPinoLogger, Logger } from 'nestjs-pino';
 
 @Injectable()
 export class PdfService {
+
+  constructor(@InjectPinoLogger(PdfService.name) private logger: Logger) {
+
+  }
   async generatePDF(data: any): Promise<Buffer> {
     const templatePath = path.resolve(__dirname, '../templates', 'invoice.hbs');
     const template = fs.readFileSync(templatePath, 'utf-8');
@@ -21,13 +26,33 @@ export class PdfService {
     };
 
     var html = Handlebars.compile(document.template)(document.context);
-    const options = {
-        format: 'A4', // You can customize the format (e.g., A4, Letter, etc.)
-      };
-      
-      const file = {
-        content: html, 
-      };
-      return htmlPdf.generatePdf(file, options);
+    return this.generateHtmlToPdf(html);
   }
+
+  async generateHtmlToPdf(htmlContent: string) {
+    try {
+      const browser = await puppeteer.launch({
+        headless: true,
+        ignoreDefaultArgs: ["--disable-extensions"],
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--hide-scrollbars",
+          "--disable-gpu",
+          "--mute-audio",
+          "--disable-dev-shm-usage"
+        ],
+      });
+      const page = await browser.newPage();
+      await page.setContent(htmlContent);
+      const pdf = await page.pdf({
+        landscape: true,
+      });
+      browser.close();
+      return pdf;
+    } catch (error) {
+      this.logger.error('failed to generate pdf');
+      throw error;
+    }
+  };
 }

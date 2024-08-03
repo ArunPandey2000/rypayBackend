@@ -1,14 +1,11 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
   CreateDateColumn,
-  UpdateDateColumn,
-  Check,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
 } from 'typeorm';
-import { Wallet } from './wallet.entity';
 import { User } from './user.entity';
 
 @Entity({ name: 'transactions' })
@@ -34,6 +31,9 @@ export class Transaction {
   @Column({ name: 'type' })
   type: 'CREDIT' | 'DEBIT';
 
+  @Column({ name: 'service_used' })
+  serviceUsed: string
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
@@ -54,8 +54,4 @@ export class Transaction {
 
   @Column()
   transactionDate: Date;
-
-  @Column({ default: 0 })
-  @Check('balance >= 0')
-  balance: number;
 }

@@ -47,7 +47,7 @@ export class TransactionsService {
         const { search , transactionType, toDate, fromDate, sortDirection} = queryDto;
     
     
-        let result;
+        let result: any[];
         let total = 0;
     
         if (search) {

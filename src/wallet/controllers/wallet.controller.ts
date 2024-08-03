@@ -40,7 +40,7 @@ export class WalletController {
   @HttpCode(HttpStatus.OK)
   async getWallet(@Req() req: any) {
     return await this.walletService.getWallet({
-      user: { id: Number(req.user.sub) },
+      user: { id: req.user.sub },
     });
   }
 
@@ -68,7 +68,7 @@ export class WalletController {
 
   @Post('transfer-to-user')
   @HttpCode(HttpStatus.OK)
-  async transferToUserByEmail(
+  async transferToUserByPhone(
     @Req() req: Request,
     @Body()
     transferAccountDto: TransferMoneyDto,
