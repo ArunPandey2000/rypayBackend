@@ -1,8 +1,8 @@
 
 export interface IRechargeRequest {
-  circlecode: string;
-  operatorcode: string;
+  state_code: string;
+  opid: string;
   number: string;
   amount: number;
-  orderid: string;
+  order_id: string;
 }

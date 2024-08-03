@@ -7,6 +7,9 @@ import {
   IsOptional,
   IsPhoneNumber,
   Length,
+  Matches,
+  Max,
+  Min,
   Validate
 } from 'class-validator';
 import { UserRole } from 'src/core/enum/user-role.enum';
@@ -57,11 +60,13 @@ export class UserRequestDto {
   phoneNumber: string;
 
   @IsDateString()
+  @IsNotEmpty()
   @ApiProperty()
   dob: string;
 
   @Validate(AddressRequestDto)
   @ApiProperty()
+  @IsNotEmpty()
   address: AddressRequestDto;
 
   @IsEmail()
@@ -74,10 +79,12 @@ export class UserRequestDto {
 
   @IsNotEmpty()
   @ApiProperty()
+  @Matches(/[A-Z]{5}[0-9]{4}[A-Z]{1}/)
   panNumber: string;
 
   @IsNotEmpty()
   @ApiProperty()
+  @Length(12)
   aadharNumber: string;
 
   @IsOptional()
