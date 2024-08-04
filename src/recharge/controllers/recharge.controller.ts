@@ -10,6 +10,7 @@ import { BillPayloadDetail } from '../dto/bill-detail-payload.dto';
 import { UtilityBillRequestDto } from '../dto/utility-bill-request.dto';
 import { FetchBillResponse } from '../dto/bill-response.dto';
 import { BillPaymentResponse } from '../dto/bill-payment-response.dto';
+import { PlanRequestDto, PlanResponse } from '../dto/plan.dto';
 
 @ApiTags('Recharge')
 @Controller('recharge')
@@ -75,5 +76,11 @@ export class RechargeController {
   @ApiResponse({type: FetchBillResponse})
   getBillDetails(@Body() billPayload: BillPayloadDetail) {
       return this.rechargeService.getBillDetails(billPayload);
+  }
+
+  @Get('/plans')
+  @ApiResponse({type: PlanResponse})
+  getPlanDetails(@Body() planPayload: PlanRequestDto) {
+      return this.rechargeService.getPlans(planPayload.operatorId, planPayload.circleCode);
   }
 }

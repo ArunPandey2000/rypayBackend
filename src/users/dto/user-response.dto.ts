@@ -37,7 +37,7 @@ export class UserResponse {
   userName: string;
 
   @ApiProperty()
-  kycVerificationStatus: KycVerificationStatus;
+  kycVerificationStatus: string;
   constructor(user: User) {
     this.userid = user.id;
     this.firstName = user.firstName;
@@ -47,6 +47,7 @@ export class UserResponse {
     this.userRole = user.role;
     this.address = user.address;
     this.phoneNumber = user.phoneNumber;
+    this.kycVerificationStatus = KycVerificationStatus[user.kycVerificationStatus].toString()
   }
 }
 

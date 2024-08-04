@@ -14,6 +14,7 @@ import { RechargeRequestDto } from '../dto/recharge-request.dto';
 import { RechargeApiResponseDto } from '../dto/recharge-response.dto';
 import { UtilityBillRequestDto } from '../dto/utility-bill-request.dto';
 import { IUtilityBillPaymentRequest } from 'src/integration/a1topup/external/interfaces/utility-bill-payment-request.interface';
+import { PlanRequestDto, PlanResponse } from '../dto/plan.dto';
 
 @Injectable()
 export class RechargeService {
@@ -130,5 +131,10 @@ export class RechargeService {
         };
         const response = await this.rechargeClientService.fetchBill(reqPayload);
         return new FetchBillResponse(response);
+    }
+
+    async getPlans(operatorId: string, stateCode: string){
+        const plans = await this.rechargeClientService.getRechargePlansList(operatorId, stateCode);
+        return new PlanResponse(plans);
     }
 }

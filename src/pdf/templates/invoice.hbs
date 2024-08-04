@@ -109,9 +109,8 @@
         <th>Narration</th>
         <th>ReferenceId</th>
         <th>Amount</th>
-        <th>Transaction Type</th>
-        <th>TransactionId</th>
         <th>Balance</th>
+        <th>TransactionId</th>
       </tr>
     </thead>
     <tbody>
@@ -120,10 +119,15 @@
         <td>{{this.date}}</td>
         <td>{{this.description}}</td>
         <td>{{this.reference}}</td>
-        <td>{{this.amount}}</td>
-        <td>{{this.transactionType}}</td>
-        <td>{{this.transactionHash}}</td>
+        {{#ifEquals this.transactionType "CREDIT"}}
+            <td>{{this.amount}}<span>cr</span></td>
+        {{/ifEquals}}
+
+        {{#ifEquals this.transactionType "DEBIT"}}
+            <td>{{this.amount}}<span>db</span></td>
+        {{/ifEquals}}
         <td>{{this.balance}}</td>
+        <td>{{this.transactionHash}}</td>
         
       </tr>
       {{/each}}

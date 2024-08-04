@@ -15,6 +15,9 @@ export class PdfService {
   async generatePDF(data: any): Promise<Buffer> {
     const templatePath = path.resolve(__dirname, '../templates', 'invoice.hbs');
     const template = fs.readFileSync(templatePath, 'utf-8');
+    Handlebars.registerHelper('ifEquals', function(arg1, arg2, options) {
+      return (arg1 === arg2) ? options.fn(this) : options.inverse(this);
+    });
     const compiledTemplate = Handlebars.compile(template);
 
     const documentPath = path.resolve(__dirname, '../templates', 'output.pdf')

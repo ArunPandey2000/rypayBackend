@@ -23,8 +23,8 @@ async function bootstrap() {
   app.useGlobalFilters(new ValidationExceptionFilter())
   app.enableCors();
   app.use(json());
-  app.use(helmet());
   SwaggerModule.setup('api', app, document);
+  app.use(helmet());
   const logger = app.get(Logger);
   await app.listen(API_DEFAULT_PORT).then(() => {
     logger.log('server started');

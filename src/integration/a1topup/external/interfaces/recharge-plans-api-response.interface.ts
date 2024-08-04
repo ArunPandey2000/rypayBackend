@@ -6,10 +6,10 @@ export interface IRechargePlanApiResponse {
     operator: string;
     circle: string;
     message: string;
-    plans: Record<string, Plan[]>;
+    plans: Record<string, IPlan[]>;
   }
   
-export interface Plan {
+export interface IPlan {
     rs: number;
     validity: string;
     desc: string;

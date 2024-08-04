@@ -18,6 +18,7 @@ import { MerchantClientService } from 'src/integration/busybox/external-system-c
 import { ConfigService } from '@nestjs/config';
 import { Wallet } from 'src/core/entities/wallet.entity';
 import { WalletService } from 'src/wallet/services/wallet.service';
+import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
 
 @Injectable()
 export class UsersService {
@@ -125,17 +126,18 @@ export class UsersService {
     throw new InternalServerErrorException("Failed to issue card for the user");
   }
 
-  async updateUserKycStatus(
-    userId: string,
-    kycStatus: UpdateKycStatusDto,
-  ): Promise<string> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-
+  async updateUserKycStatus(userId: string, updateKycStatus: keyof typeof KycVerificationStatus) {
+    const user = await this.findUserById(userId);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('user not found');
     }
-    user.kycVerificationStatus = kycStatus.verificationStatus;
-
+    const isRequiredDocumentsUploaded = user.documents.length && user.documents
+    .every((document) => ['AADHAR', 'PAN'].includes(document.documentType));
+    if (!isRequiredDocumentsUploaded) {
+      throw new BadRequestException('AADHAR or PAN documents not uploaded');
+    }
+    const updatedStatus = KycVerificationStatus[updateKycStatus]
+    user.kycVerificationStatus = updatedStatus;
     try {
       await this.userRepository.save(user);
       return 'User kyc status updated.';
@@ -144,7 +146,15 @@ export class UsersService {
     }
   }
 
-  updateRefreshToken(userId: string, refreshToken: string) {}
+  async getUsersByKycStatus(kycStatus: keyof typeof KycVerificationStatus) {
+    const kycStatusValue = KycVerificationStatus[kycStatus];
+    const users = await this.userRepository.find({
+      where: {
+        kycVerificationStatus: kycStatusValue
+      }
+    });
+    return users.map((user) => new UserResponse(user));
+  }
 
   findUserById(userId: string) {
     return this.userRepository.findOne({ where: { id: userId } });
