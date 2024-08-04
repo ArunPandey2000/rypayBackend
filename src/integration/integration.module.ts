@@ -9,6 +9,7 @@ import { TransactionsClientService } from './busybox/external-system-client/tran
 import { ExternalController } from './busybox/external/controllers/external.controller';
 import { ExternalService } from './busybox/external/services/external.service';
 import { RechargeClientService } from './a1topup/external-system-client/recharge/recharge-client.service';
+import { KwikPayExternalController } from './a1topup/external/controllers/recharge-external.controller';
 
 @Module({
   imports: [CacheModule.register(), HttpModule, ConfigModule],
@@ -20,7 +21,7 @@ import { RechargeClientService } from './a1topup/external-system-client/recharge
     ExternalService,
     RechargeClientService
   ],
-  controllers: [ExternalController],
+  controllers: [ExternalController, KwikPayExternalController],
   exports: [
     MerchantClientService,
     CardsClientService,
