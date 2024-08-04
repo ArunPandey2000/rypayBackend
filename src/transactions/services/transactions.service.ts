@@ -6,7 +6,8 @@ import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { TransactionQueryDto } from '../dto/get-transactions.dto';
 import { Pagination } from '../dto/pagination-response.dto';
 import { PdfService } from 'src/pdf/services/pdf.service';
-import { formatDateToIST } from 'src/core/utils/date.util';
+import { formatAmountToINR, formatDateToIST } from 'src/core/utils/date.util';
+import { Address } from 'src/core/entities/address.entity';
 
 @Injectable()
 export class TransactionsService {
@@ -136,8 +137,9 @@ export class TransactionsService {
           where: {
             user: {
               id: req.user.sub
-            }
-          }
+            },
+          },
+          relations: ['user', 'user.address']
         });
         const user = transaction?.user;
         const pdfPayload =  {
@@ -148,20 +150,20 @@ export class TransactionsService {
           generatedDate: formatDateToIST(new Date()),
           user: {
             name: `${user.firstName} ${user.lastName}`,
-            virtualAccountNumber: user.cardHolderId,
+            cardNumber: '*********1234',
             panNumber: user.panNumber,
-            category: user.role,
-            email: user.email,
-            phone: user.phoneNumber
+            accountNumber: '4658511009',
+            ifscCode: 'YESB0000136',
+            address: `${user.address.address1} ${user.address.address2} ${user.address.city} ${user.address.state} ${user.address.pincode}`
           },
           statement: result.data.map((record) => ({
             date: formatDateToIST(record.transactionDate),
             description: record.description,
             reference: record.reference,
-            amount: record.amount,
+            amount: formatAmountToINR(record.amount),
             transactionType: record.transactionType,
             transactionHash: record.transactionHash,
-            balance: record.walletBalanceAfter
+            balance: formatAmountToINR(record.walletBalanceAfter)
           }))
         }
         return this.pdfService.generatePDF(pdfPayload);
