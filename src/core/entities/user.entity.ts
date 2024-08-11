@@ -11,6 +11,7 @@ import { UserRole } from '../enum/user-role.enum';
 import { Address } from './address.entity';
 import { Document } from './document.entity';
 import { Merchant } from './merchant.entity';
+import { Order } from './order.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -71,6 +72,9 @@ export class User {
   @OneToOne(() => Address, (add) => add.id, { cascade: true })
   @JoinColumn({ name: 'address_id' })
   address: Address;
+
+  @OneToMany(() => Order, order => order.user)
+  orders: Order[];
 
   @OneToOne(() => Merchant, (merchant) => merchant.id, { cascade: true })
   @JoinColumn({ name: 'merchant_id' })

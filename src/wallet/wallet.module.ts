@@ -7,9 +7,10 @@ import { WalletService } from './services/wallet.service';
 import { UsersModule } from 'src/users/users.module';
 import { Transaction } from 'src/core/entities/transactions.entity';
 import { TransactionsModule } from 'src/transactions/transactions.module';
+import { Order } from 'src/core/entities/order.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Wallet, User, Transaction]),
+  imports: [TypeOrmModule.forFeature([Wallet, User, Transaction, Order]),
   forwardRef(() => UsersModule),
   TransactionsModule
  ],

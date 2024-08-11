@@ -8,6 +8,13 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 
+export enum TransactionStatus {
+  PENDING = 'PENDING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  DISPUTED = 'DISPUTED',
+}
+
 @Entity({ name: 'transactions' })
 export class Transaction {
   @PrimaryGeneratedColumn({ name: 'id' })
@@ -50,8 +57,15 @@ export class Transaction {
   transactionHash: string;
 
   @Column()
-  reference: string;
+  reference: string; //orderid
 
   @Column()
   transactionDate: Date;
+
+  @Column({
+    type: 'enum',
+    enum: TransactionStatus,
+    default: TransactionStatus.PENDING
+  })
+  status: TransactionStatus;
 }

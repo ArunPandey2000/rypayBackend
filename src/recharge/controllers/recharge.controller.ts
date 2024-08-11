@@ -30,25 +30,25 @@ export class RechargeController {
   }
 
   @Get('/services')
-  @ApiResponse({type: Array<string>})
+  @ApiResponse({
+    schema: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    }
+  })
   getAvailableRechargeServices() {
     return this.rechargeService.getAvailableRechargeServices();
   }
 
-  @Get('circle/:state')
-  @ApiParam({ name: 'state', required: true, description: 'The state to get the circle code for' })
-  @ApiResponse({ type: 'string', status: 200, description: 'Returns the circle code for a specific state.' })
-  @ApiResponse({ status: 404, description: 'State not found.' })
-  getCircleByState(@Param('state') state: string) {
-    const circle = this.rechargeService.getCircleByState(state);
-    if (!circle) {
-      throw new NotFoundException('State not found');
-    }
-    return circle;
-  }
-
   @Get('/circle')
-  @ApiResponse({ type: Array<CircleResponseDto>, status: 200, description: 'Returns the list of all circles.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the list of all circles.',
+    type: CircleResponseDto,
+    isArray: true, // Indicates that the response is an array of CircleResponseDto
+  })
   getAllCircles() {
     return this.rechargeService.getAllCircles();
   }
@@ -66,19 +66,19 @@ export class RechargeController {
     return this.rechargeService.payUtilityBill(userId, utilityBill);
   }
 
-  @Get('/info/:mobile')
-  @ApiResponse({ type: MobileProviderInfo, status: 200, description: 'Returns the detail of operator provider.' })
-  getMobileProviderInfo(@Param('mobile') mobile: string) {
-    return this.rechargeService.getMobileProviderInfo(mobile);
-  }
+  // @Get('/info/:mobile')
+  // @ApiResponse({ type: MobileProviderInfo, status: 200, description: 'Returns the detail of operator provider.' })
+  // getMobileProviderInfo(@Param('mobile') mobile: string) {
+  //   return this.rechargeService.getMobileProviderInfo(mobile);
+  // }
 
-  @Get('/bill/details')
+  @Post('/bill/details')
   @ApiResponse({type: FetchBillResponse})
   getBillDetails(@Body() billPayload: BillPayloadDetail) {
       return this.rechargeService.getBillDetails(billPayload);
   }
 
-  @Get('/plans')
+  @Post('/plans')
   @ApiResponse({type: PlanResponse})
   getPlanDetails(@Body() planPayload: PlanRequestDto) {
       return this.rechargeService.getPlans(planPayload.operatorId, planPayload.circleCode);

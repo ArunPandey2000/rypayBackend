@@ -1,18 +1,16 @@
 export interface IRechargePlanApiResponse {
-    success: boolean;
-    hit_credit: string;
-    api_started: string;
-    api_expiry: string;
-    operator: string;
-    circle: string;
-    message: string;
-    plans: Record<string, IPlan[]>;
+    status: "SUCCESS" | "FAILED";
+    planData: IPlan[];
   }
   
 export interface IPlan {
-    rs: number;
+    amount: number;
     validity: string;
-    desc: string;
-    Type: string;
+    detail: string;
+    talkTime: string;
+    data: string;
+    stateId: string;
+    operatorId: string;
+    type: string;
   }
   

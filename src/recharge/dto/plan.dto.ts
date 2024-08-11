@@ -10,57 +10,34 @@ export class PlanDto {
     detail: string;
     @ApiProperty({ description: 'The type of the plan' })
     rechargeType: string;
+    @ApiProperty({ description: 'The data available on the plan' })
+    data: string;
+    @ApiProperty({ description: 'The talktime available on the plan' })
+    talkTime: string;
+    
 
     constructor(plan: IPlan) {
-        this.price = plan.rs;
+        this.price = plan.amount;
         this.duration = plan.validity;
-        this.detail = plan.desc;
-        this.rechargeType = plan.Type;
+        this.detail = plan.detail;
+        this.rechargeType = plan.type;
+        this.data = plan.data;
+        this.talkTime = plan.talkTime;
     }
 }
 
 export class PlanResponse {
     @ApiProperty()
-    operator: string;
+    operatorId: string;
     @ApiProperty()
-    circle: string;
-    @ApiProperty({ description: 'The plans available', type: 'object', additionalProperties: { type: 'array', items: { type: 'object', properties: {
-        duration: {
-            type: 'string',
-            description: 'The duration of the plan'
-        },
-        price: {
-            type: 'string',
-            description: 'The price of the plan'
-        },
-        detail: {
-            type: 'string',
-            description: 'The description of the plan'
-        },
-        rechargeType: {
-            type: 'string',
-            description: 'The type of the plan'
-        }
-    } } } })
-    plans: Record<string, PlanDto[]>;
+    circleId: string;
+    plans: PlanDto[];
 
-    constructor(plan: IRechargePlanApiResponse) {
-        this.operator = plan.operator;
-        this.circle = plan.circle;
-        this.plans = this.mapPlansRecordToDto(plan.plans)
+    constructor(planInfo: IPlan[], operatorId: string, circleId: string) {
+        this.operatorId = operatorId;
+        this.circleId = circleId;
+        this.plans = planInfo.map((plan) => new PlanDto(plan))
     }
-
-    mapPlansRecordToDto(plansRecord: Record<string, IPlan[]>): Record<string, PlanDto[]> {
-        const mappedRecord: Record<string, PlanDto[]> = {};
-      
-        for (const key in plansRecord) {
-          if (plansRecord.hasOwnProperty(key)) {
-            mappedRecord[key] = plansRecord[key].map(plan => new PlanDto(plan));
-          }
-        }
-      
-        return mappedRecord;
-      }
 }
 
 export class PlanRequestDto {

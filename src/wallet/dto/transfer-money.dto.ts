@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { OrderStatus } from "src/core/entities/order.entity";
+import { TransactionStatus } from "src/core/entities/transactions.entity";
 import { User } from "src/core/entities/user.entity";
 import { Wallet } from "src/core/entities/wallet.entity";
 import { TransactionType } from "src/transactions/enum/transaction-type.enum";
@@ -78,6 +80,7 @@ export class AddMoneyToWalletDto {
     reference: string;
     receiverId: string;
     description: string;
+    status: TransactionStatus;
     serviceUsed: string;
   }
 

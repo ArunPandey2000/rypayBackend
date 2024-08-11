@@ -9,7 +9,7 @@ export class CircleResponseDto {
     circleCode: string;
 
     constructor(circle: ICircleCode) {
-        this.state = circle.circle_name;
-        this.circleCode = circle.circle_name;
+        this.state = circle.name;
+        this.circleCode = circle.stateId;
     }
 }

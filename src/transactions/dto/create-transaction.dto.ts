@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { User } from "src/core/entities/user.entity";
 import { TransactionType } from "../enum/transaction-type.enum";
+import { TransactionStatus } from "src/core/entities/transactions.entity";
 
 export class CreateTransactionDto {
   
@@ -45,4 +46,7 @@ export class CreateTransactionDto {
   
     @IsNotEmpty()
     transactionDate: Date;
+
+    @IsNotEmpty()
+    status: TransactionStatus
   }

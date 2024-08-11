@@ -1,29 +1,33 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Cache } from 'cache-manager';
 import { InjectPinoLogger, Logger } from 'nestjs-pino';
 import { firstValueFrom } from 'rxjs';
+import { RedisKeyConstant } from '../../external/constants/integration.constant';
 import { FetchBillRequestPayload } from '../../external/interfaces/fetch-bill-request.interface';
 import { IFetchBillResponse } from '../../external/interfaces/fetch-bill-response.interface';
 import { IMobileProviderResponse } from '../../external/interfaces/mobile-provider-info.interface';
-import { ICircleCode, IClientApiGenericResponse, IOperatorInfo } from '../../external/interfaces/operator-response.interface';
+import { ICircleApiResponse, IOperatorApiResponse } from '../../external/interfaces/operator-response.interface';
 import { IRechargePlanApiResponse } from '../../external/interfaces/recharge-plans-api-response.interface';
 import { IRechargeRequest } from '../../external/interfaces/recharge-request-body.interface';
 import { IRechargeResponse } from '../../external/interfaces/recharge-response.interface';
-import { TransactionStatusResponse } from '../../external/interfaces/transaction-status-response.interface';
 import { IUtilityBillPaymentRequest } from '../../external/interfaces/utility-bill-payment-request.interface';
 import { UtilityBillAPIResponse } from '../../external/interfaces/utility-bill-response.interface';
 
 @Injectable()
 export class RechargeClientService {
   private readonly apiBaseUrl: string;
-
+  private readonly apiToken: string;
   constructor(
     private readonly httpService: HttpService,
     @InjectPinoLogger(RechargeClientService.name) private logger: Logger,
     private readonly configService: ConfigService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {
     this.apiBaseUrl = this.configService.get<string>('RECHARGE_API_BASE_URL');
+    this.apiToken = this.configService.get('RECHARGE_API_SECRET_KEY');
   }
 
   /***
@@ -31,14 +35,14 @@ export class RechargeClientService {
    */
   async initPrepaidOrDTHRecharge(rechargePayload: IRechargeRequest): Promise<IRechargeResponse> {
 
-    const params = {
-      api_key: this.getApiKey(),
+    const body = {
+      token: this.apiToken,
       ...rechargePayload,
     };
 
     try {
       const response = await firstValueFrom(
-        this.httpService.get(`${this.apiBaseUrl}/recharge.php`, { params })
+        this.httpService.post(`${this.apiBaseUrl}/transaction.php`, body)
       );
       return response.data;
     } catch (error) {
@@ -56,7 +60,7 @@ export class RechargeClientService {
   async initUtilityPayment(utilityPayload: IUtilityBillPaymentRequest): Promise<UtilityBillAPIResponse> {
 
     const params = {
-      api_key: this.getApiKey(),
+      token: this.apiToken,
       ...utilityPayload,
     };
 
@@ -71,31 +75,31 @@ export class RechargeClientService {
     }
   }
 
-  async getTransactionStatus(orderid: string): Promise<IClientApiGenericResponse<TransactionStatusResponse>> {
+  // async getTransactionStatus(orderid: string): Promise<IClientApiGenericResponse<TransactionStatusResponse>> {
 
-    const params = {
-      api_key: this.getApiKey(),
-      order_id: orderid,
-    };
+  //   const params = {
+  //     api_key: this.getApiKey(),
+  //     order_id: orderid,
+  //   };
 
+  //   try {
+  //     const response = await firstValueFrom(
+  //       this.httpService.get(`${this.apiBaseUrl}/status.php`, { params })
+  //     );
+  //     return response.data;
+  //   } catch (error) {
+  //     this.logger.error('Transaction Status API error:', error);
+  //     throw error;
+  //   }
+  // }
+
+  async getServiceProvidersList(): Promise<IOperatorApiResponse> {
+    const body = {
+      token: this.apiToken
+    }
     try {
       const response = await firstValueFrom(
-        this.httpService.get(`${this.apiBaseUrl}/status.php`, { params })
-      );
-      return response.data;
-    } catch (error) {
-      this.logger.error('Transaction Status API error:', error);
-      throw error;
-    }
-  }
-
-  async getServiceProvidersList(): Promise<IClientApiGenericResponse<IOperatorInfo[]>> {
-    const params = {
-      api_key: this.getApiKey()
-    }
-    try {
-      const response = await firstValueFrom(
-        this.httpService.get(`${this.apiBaseUrl}/operator_codes.php`, { params })
+        this.httpService.post(`${this.apiBaseUrl}/utility/operatorList.php`, body)
       );
       return response.data;
     } catch (error) {
@@ -106,7 +110,7 @@ export class RechargeClientService {
 
   async getMobileProviderInfo(mobile: string): Promise<IMobileProviderResponse> {
     const params = {
-      api_key: this.getApiKey(),
+      token: this.apiToken,
       number: mobile
     }
     try {
@@ -121,13 +125,13 @@ export class RechargeClientService {
   }
 
   async fetchBill(billPayload: FetchBillRequestPayload): Promise<IFetchBillResponse> {
-    const params = {
-      api_key: this.getApiKey(),
+    const body = {
+      token: this.apiToken,
       ...billPayload
     }
     try {
       const response = await firstValueFrom(
-        this.httpService.get(`${this.apiBaseUrl}/validation_v2_2.php`, { params })
+        this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body)
       );
       return response.data;
     } catch (error) {
@@ -136,31 +140,37 @@ export class RechargeClientService {
     }
   }
 
-  async getCircleCodeList(): Promise<IClientApiGenericResponse<ICircleCode[]>> {
-    const params = {
-      api_key: this.getApiKey()
+  async getCircleCodeList(): Promise<ICircleApiResponse> {
+    const body = {
+      token: this.apiToken
     }
     try {
       const response = await firstValueFrom(
-        this.httpService.get(`${this.apiBaseUrl}/circle_codes.php`, { params })
+        this.httpService.post(`${this.apiBaseUrl}/utility/stateList.php`, body)
       );
       return response.data;
     } catch (error) {
-      this.logger.error('Service provider list error:', error);
+      this.logger.error('state list API error:', error);
       throw error;
     }
   }
 
-  async getRechargePlansList(operatorId: string, stateCode: string): Promise<IRechargePlanApiResponse> {
+  async getRechargePlansList(operatorId: string): Promise<IRechargePlanApiResponse> {
     const params = {
-      api_key: this.getApiKey(),
-      opid: operatorId,
-      state_code: stateCode
+      token: this.apiToken,
+      operatorId: operatorId,
+      transType: 'mobilePlan'
     }
+    const rechargePlanKey = `recharge_${operatorId}`;
     try {
+      const cachedData = await this.cacheManager.get<IRechargePlanApiResponse>(rechargePlanKey);
+      if (cachedData) {
+        return cachedData;
+      }
       const response = await firstValueFrom(
-        this.httpService.get(`${this.apiBaseUrl}/recharge_plans.php`, { params })
+        this.httpService.get(`${this.apiBaseUrl}/utility/transaction.php`, { params })
       );
+      await this.cacheManager.set(rechargePlanKey, response.data, RedisKeyConstant.PlanApiTTL)
       return response.data;
     } catch (error) {
       this.logger.error('Recharge plans API error:', error);
@@ -187,9 +197,5 @@ export class RechargeClientService {
       this.logger.error('Recharge Status API error:', error);
       throw error;
     }
-  }
-
-  private getApiKey() {
-    return this.configService.get('RECHARGE_API_SECRET_KEY');
   }
 }

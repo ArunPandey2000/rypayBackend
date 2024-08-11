@@ -1,7 +1,8 @@
 export interface FetchBillRequestPayload {
-    number: string;
-    amount: string
-    opid: string
-    order_id: string
-    mobile: string
+    bbpsId: string,
+    mobile: string, // pass account id
+    customerMobile: string, // user mobile number 
+    opvalue1: string, // user mobile number
+    transType: 'billFetch',
+    urid: string
 }

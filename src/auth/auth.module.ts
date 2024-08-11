@@ -8,7 +8,7 @@ import { UsersService } from 'src/users/services/users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/core/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
-import { RefreshToken } from 'src/core/entities/refresh-token';
+import { RefreshToken } from 'src/core/entities/refresh-token.entity';
 import { OtpInfo } from 'src/core/entities/otp-info.entity';
 import { OtpRepository } from './repository/otp.repository';
 import { AccessTokenStrategy } from './strategies/access-token.strategy';
@@ -19,14 +19,20 @@ import { Wallet } from 'src/core/entities/wallet.entity';
 import { TransactionsService } from 'src/transactions/services/transactions.service';
 import { Transaction } from 'src/core/entities/transactions.entity';
 import { PdfModule } from 'src/pdf/pdf.module';
+import { Order } from 'src/core/entities/order.entity';
+import { MerchantClientService } from 'src/integration/busybox/external-system-client/merchant-client.service';
+import { HttpModule } from '@nestjs/axios';
+import { AccessTokenClientService } from 'src/integration/busybox/external-system-client/access-token-client.service';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Global()
 @Module({
   imports: [
     JwtModule.register({ global: true }),
-    TypeOrmModule.forFeature([User, RefreshToken, OtpInfo, Wallet, Transaction]),
-    IntegrationModule,
+    TypeOrmModule.forFeature([User, RefreshToken, OtpInfo, Wallet, Transaction, Order]),
     PdfModule,
+    CacheModule.register(),
+    HttpModule,
     OtpFlowModule,
   ],
   providers: [
@@ -36,6 +42,8 @@ import { PdfModule } from 'src/pdf/pdf.module';
     TransactionsService,
     UsersService,
     AccessTokenStrategy,
+    AccessTokenClientService,
+    MerchantClientService,
     RefreshTokenStrategy,
     ConfigService,
     OtpRepository,

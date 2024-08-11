@@ -6,4 +6,7 @@ export class RechargeApiResponseDto {
 
     @ApiProperty()
     referenceId: string
+
+    @ApiProperty()
+    message: string
 }

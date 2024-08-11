@@ -16,6 +16,8 @@ import { ServiceTypes } from 'src/core/constants/service-types.constant';
 import { CreateWalletDto } from '../dto/create-wallet.dto';
 import { AddMoneyToWalletDto, DeductWalletBalanceRechargeDto, TransferMoneyDto, UpdateWalletAfterRechargeDto } from '../dto/transfer-money.dto';
 import { CreateTransactionDto } from 'src/transactions/dto/create-transaction.dto';
+import { Transaction, TransactionStatus } from 'src/core/entities/transactions.entity';
+import { Order, OrderStatus } from 'src/core/entities/order.entity';
 
 @Injectable()
 export class WalletService {
@@ -24,6 +26,8 @@ export class WalletService {
     private _connection: DataSource,
     private readonly transactionsService: TransactionsService,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Order) private orderRepository: Repository<Order>,
+    @InjectRepository(Transaction) private transactionRepo: Repository<Transaction>,
   ) {}
 
   private async handleTransaction<T>(
@@ -115,6 +119,7 @@ export class WalletService {
         wallet,
         serviceUsed: ServiceTypes.Wallet,
         sender: user.id,
+        status: TransactionStatus.SUCCESS,
         receiver: addMoneyWalletDto.receiver || null,
       }
 
@@ -145,6 +150,7 @@ export class WalletService {
         walletBalanceBefore: wallet.balance,
         walletBalanceAfter: wallet.balance - fundMyAccountDto.amount,
         wallet,
+        status: TransactionStatus.SUCCESS,
         sender: user.id,
         serviceUsed: ServiceTypes.Wallet,
       }
@@ -190,6 +196,7 @@ export class WalletService {
             walletBalanceAfter: senderWallet.balance - transferAccountDto.amount,
             sender: user.id,
             receiver: receiver.id,
+            status: TransactionStatus.SUCCESS,
             serviceUsed: ServiceTypes.Wallet,
           },
           queryRunner,
@@ -206,6 +213,7 @@ export class WalletService {
             walletBalanceAfter: receiverWallet.balance + transferAccountDto.amount,
             sender: user.id,
             receiver: receiver.id,
+            status: TransactionStatus.SUCCESS,
             serviceUsed: ServiceTypes.Wallet,
           },
           queryRunner,
@@ -250,6 +258,45 @@ export class WalletService {
       await this.transactionsService.saveTransaction(rechargeDto, queryRunner);
 
       return wallet;
+    });
+  }
+
+  async processRechargeRefundPayment(
+    orderId: string
+  ): Promise<Wallet> {
+    return this.handleTransaction(async (queryRunner) => {
+      const order = await this.orderRepository.findOne({where: {order_id: orderId}});
+      const user = order.user;
+      const wallet = await this.findWalletByUserId(user.id);
+
+      if (order.amount < 0) {
+        throw new BadRequestException('Amount cannot be negative');
+      }
+      order.status = OrderStatus.FAILED;
+      const transaction = await this.transactionRepo.findOne({where: {reference: orderId}});
+      transaction.status = TransactionStatus.FAILED;
+      await queryRunner.manager.save<Transaction>(transaction);
+      await queryRunner.manager.save<Order>(order);
+      await this.updateWalletBalance(wallet, order.amount, queryRunner, true);
+
+      return wallet;
+    });
+  }
+
+  async processRechargeSuccess(
+    orderId: string, transactionId: string
+  ): Promise<boolean> {
+    return this.handleTransaction(async (queryRunner) => {
+      const order = await this.orderRepository.findOne({where: {order_id: orderId}});
+
+      order.status = OrderStatus.SUCCESS;
+      const transaction = await this.transactionRepo.findOne({where: {reference: orderId}});
+      transaction.status = TransactionStatus.SUCCESS;
+      order.transaction_id = transactionId;
+      await queryRunner.manager.save<Transaction>(transaction);
+      await queryRunner.manager.save<Order>(order);
+
+      return true
     });
   }
 }

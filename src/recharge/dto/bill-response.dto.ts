@@ -1,37 +1,34 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IFetchBillResponse } from "src/integration/a1topup/external/interfaces/fetch-bill-response.interface";
+import { IBillData } from "src/integration/a1topup/external/interfaces/fetch-bill-response.interface";
 
 export class FetchBillResponse {
     @ApiProperty()
-    provider: string
-    @ApiProperty()
-    message: string;
-    @ApiProperty()
-    dueAmount: string;
+    billAmount: string;
     @ApiProperty()
     dueDate: string;
+    @ApiProperty()
+    remarks: string;
     @ApiProperty()
     customerName: string;
     @ApiProperty()
     billNumber: string;
     @ApiProperty()
-    billDate: string;
+    providerName: string;
     @ApiProperty()
     billPeriod: string;
     @ApiProperty()
-    refIid: string;
+    billName: string;
     @ApiProperty()
-    service: string;
-    constructor(billResponse: IFetchBillResponse) {
-        this.provider = billResponse.provider;
-        this.dueAmount = billResponse.due_amount;
-        this.billNumber = billResponse.bill_number;
-        this.billPeriod = billResponse.bill_period;
-        this.billDate = billResponse.bill_date;
-        this.customerName = billResponse.customer_name;
-        this.refIid = billResponse.ref_id;
-        this.service = billResponse.service;
-        this.message = billResponse.message;
-        this.dueDate = billResponse.bill_date;
+    message: string;
+    constructor(billResponse: IBillData) {
+        this.billAmount = billResponse.billAmount;
+        this.billNumber = billResponse.billNumber;
+        this.billPeriod = billResponse.billPeriod;
+        this.customerName = billResponse.billName;
+        this.remarks = billResponse.billRemark;
+        this.dueDate = billResponse.dueDate;
+        this.billName = billResponse.billName;
+        this.providerName = billResponse.bbpsName;
+        this.message = billResponse.resText;
     }
 }
