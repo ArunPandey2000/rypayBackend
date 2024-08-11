@@ -19,13 +19,14 @@ import { User } from 'src/core/entities/user.entity';
 import { Order } from 'src/core/entities/order.entity';
 import { Transaction } from 'src/core/entities/transactions.entity';
 import { PdfService } from 'src/pdf/services/pdf.service';
+import { WebhookResponse } from 'src/core/entities/webhook.entity';
 
 @Module({
   imports: [ CacheModule.register({ 
     store: redisStore as any, 
     host: 'localhost', //default host
     port: 6379 //default port
-  }), HttpModule, ConfigModule, TypeOrmModule.forFeature([Wallet, User, Order, Transaction])],
+  }), HttpModule, ConfigModule, TypeOrmModule.forFeature([Wallet, User, Order, Transaction, WebhookResponse])],
   providers: [
     MerchantClientService,
     CardsClientService,

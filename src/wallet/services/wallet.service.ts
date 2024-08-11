@@ -244,7 +244,6 @@ export class WalletService {
         transactionHash: generateHash(),
         user: user,
         type: TransactionType.DEBIT,
-        description: '',
         transactionDate: new Date(),
         walletBalanceBefore: wallet.balance,
         walletBalanceAfter: wallet.balance - deductBalanceData.amount,
@@ -268,9 +267,14 @@ export class WalletService {
       const order = await this.orderRepository.findOne({where: {order_id: orderId}});
       const user = order.user;
       const wallet = await this.findWalletByUserId(user.id);
-
+      if (!wallet) {
+        throw new BadRequestException('wallet not found for user');
+      }
       if (order.amount < 0) {
         throw new BadRequestException('Amount cannot be negative');
+      }
+      if (order.status !== OrderStatus.PENDING) {
+        throw new BadRequestException('Order is not in pending state');
       }
       order.status = OrderStatus.FAILED;
       const transaction = await this.transactionRepo.findOne({where: {reference: orderId}});
@@ -284,12 +288,13 @@ export class WalletService {
   }
 
   async processRechargeSuccess(
-    orderId: string, transactionId: string
+    orderId: string, transactionId: string, gatewayId: string
   ): Promise<boolean> {
     return this.handleTransaction(async (queryRunner) => {
       const order = await this.orderRepository.findOne({where: {order_id: orderId}});
 
       order.status = OrderStatus.SUCCESS;
+      order.gateway_response = gatewayId;
       const transaction = await this.transactionRepo.findOne({where: {reference: orderId}});
       transaction.status = TransactionStatus.SUCCESS;
       order.transaction_id = transactionId;

@@ -64,7 +64,7 @@ export class RechargeService {
             throw new BadRequestException(response.resText)
         }
         const user = await this.userRepository.findOne({where: {id: userId}});
-
+        const description = `${requestDto.accountNumber} Recharge`
         const order = {
             order_id: rechargePayload.urid,
             order_type: OrderType.RECHARGE,
@@ -73,7 +73,7 @@ export class RechargeService {
             status: OrderStatus.PENDING,
             transaction_id: response.transId,
             user: user,
-            description: 'Recharge Request',
+            description: description,
             payment_method: 'WALLET',
         }
         const SavedOrder = this.orderRepository.create(order);
@@ -82,7 +82,7 @@ export class RechargeService {
         await this.walletService.processRechargePayment({amount: requestDto.amount,
              receiverId: requestDto.accountNumber,
              serviceUsed: RechargeServiceTypes.Mobile, // will use service used, mobile / dth
-             description: 'Recharge Request',
+             description: description,
              status: TransactionStatus.PENDING,
              reference: rechargePayload.urid }, userId);
 
