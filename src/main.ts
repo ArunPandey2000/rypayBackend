@@ -18,7 +18,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   app.useGlobalPipes(
-    new ValidationPipe({ stopAtFirstError: true }),
+    new ValidationPipe({ transform: true, stopAtFirstError: true }),
   );
   app.useGlobalFilters(new ValidationExceptionFilter())
   app.enableCors();
@@ -26,6 +26,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
   app.use(helmet());
   const logger = app.get(Logger);
+  app.useLogger(logger);
   await app.listen(API_DEFAULT_PORT).then(() => {
     logger.log('server started');
   });

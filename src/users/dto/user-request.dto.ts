@@ -8,8 +8,6 @@ import {
   IsPhoneNumber,
   Length,
   Matches,
-  Max,
-  Min,
   Validate
 } from 'class-validator';
 import { UserRole } from 'src/core/enum/user-role.enum';
@@ -40,7 +38,7 @@ export class AddressRequestDto {
   pincode: string;
 }
 
-export class UserRequestDto {
+export class UserRequestCommonDto {
   @IsNotEmpty()
   @ApiProperty({ description: 'first name' })
   firstName: string;
@@ -93,4 +91,16 @@ export class UserRequestDto {
   merchantInfo: MerchantRequestDto;
 
   cardHolderId: string
+}
+
+export class UserRequestDto extends UserRequestCommonDto {
+  @IsIn([UserRole.MERCHANT, UserRole.USER])
+  @ApiProperty()
+  userType: UserRole;
+}
+
+export class UserAdminRequestDto extends UserRequestCommonDto {
+  @IsIn([UserRole.ADMIN])
+  @ApiProperty()
+  userType: UserRole;
 }

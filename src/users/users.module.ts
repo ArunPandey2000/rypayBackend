@@ -7,9 +7,10 @@ import { User } from 'src/core/entities/user.entity';
 import { IntegrationModule } from 'src/integration/integration.module';
 import { ConfigModule } from '@nestjs/config';
 import { WalletModule } from 'src/wallet/wallet.module';
+import { CardsModule } from 'src/cards/cards.module';
 
 @Module({
-  imports: [AuthModule, IntegrationModule, WalletModule, ConfigModule, TypeOrmModule.forFeature([User]), forwardRef(() => WalletModule)],
+  imports: [AuthModule, IntegrationModule, CardsModule, WalletModule, ConfigModule, TypeOrmModule.forFeature([User]), forwardRef(() => WalletModule)],
   providers: [UsersService],
   controllers: [UsersController],
   exports: [UsersService],

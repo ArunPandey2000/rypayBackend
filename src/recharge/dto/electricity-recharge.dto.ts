@@ -1,20 +1,20 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsIn, IsNotEmpty } from "class-validator";
-import { RechargeServiceTypes } from "../constants/recharge-metadata.constant";
 
-export class RechargeRequestDto {
+export class ElectricityRechargeDto {
     @IsNotEmpty()
     @ApiProperty()
-    @IsIn([RechargeServiceTypes.Mobile, RechargeServiceTypes.DTH])
+    operatorCode: string;
+    
     rechargeType: string;
 
     @IsNotEmpty()
     @ApiProperty()
-    operatorCode: string;
+    accountNumber: string;
 
     @IsNotEmpty()
     @ApiProperty()
-    accountNumber: string;
+    mobile: string;
 
     @IsNotEmpty()
     @ApiProperty()

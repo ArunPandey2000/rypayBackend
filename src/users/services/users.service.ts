@@ -5,20 +5,21 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { IAccessTokenUserPayload } from 'src/auth/interfaces/user-token-request-payload.interface';
+import { TokenService } from 'src/auth/services/token.service';
 import { User } from 'src/core/entities/user.entity';
+import { Wallet } from 'src/core/entities/wallet.entity';
+import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
+import { generateRef } from 'src/core/utils/hash.util';
+import { MerchantClientService } from 'src/integration/busybox/external-system-client/merchant-client.service';
+import { WalletService } from 'src/wallet/services/wallet.service';
 import { DataSource, Repository } from 'typeorm';
 import { UserRequestDto } from '../dto/user-request.dto';
-import { UserMapper } from '../mapper/user-mapper';
-import { UpdateKycStatusDto } from '../dto/user-kyc-update.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
-import { TokenService } from 'src/auth/services/token.service';
-import { IAccessTokenUserPayload } from 'src/auth/interfaces/user-token-request-payload.interface';
-import { MerchantClientService } from 'src/integration/busybox/external-system-client/merchant-client.service';
-import { ConfigService } from '@nestjs/config';
-import { Wallet } from 'src/core/entities/wallet.entity';
-import { WalletService } from 'src/wallet/services/wallet.service';
-import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
+import { UserMapper } from '../mapper/user-mapper';
+import { CardsService } from 'src/cards/services/cards.service';
 
 @Injectable()
 export class UsersService {
@@ -27,6 +28,7 @@ export class UsersService {
     private configService: ConfigService,
     private walletService: WalletService,
     private merchantClientService: MerchantClientService,
+    private cardService: CardsService,
     private _connection: DataSource,
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
@@ -72,24 +74,33 @@ export class UsersService {
         },
         queryRunner,
       );
+      const cardInfo = await this.merchantClientService.getCustomerStatus(savedUser.phoneNumber);
+      const cardDetails = cardInfo.data.card_details;
+      const cardDto = {
+        user: savedUser,
+        cardNumber: cardDetails.cardId,
+        status: ''
+      }
+      const card = await this.cardService.createCardAndAssignKitNumberToUser(cardDto, queryRunner);
   
-      if (!wallet) {
+      if (!wallet || !card) {
         await queryRunner.rollbackTransaction();
   
         await queryRunner.release();
   
         throw new BadRequestException('Wallet creation failed');
       }
-  
 
       // const user = await this.userRepository.save(newUser);
       await queryRunner.commitTransaction();
       return new UserResponse(savedUser);
     } catch (err) {
-      await queryRunner.rollbackTransaction();
-  
-      await queryRunner.release();
-      throw new InternalServerErrorException(err.message);
+      if (queryRunner.isTransactionActive) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
+        throw new InternalServerErrorException(err.message);
+      }
+      throw err;
     }
   }
 
@@ -126,6 +137,35 @@ export class UsersService {
     throw new InternalServerErrorException("Failed to issue card for the user");
   }
 
+  async registerAdminAndGenerateToken(
+    userRequestDto: UserRequestDto,
+  ): Promise<UserApiResponseDto> {
+    userRequestDto.cardHolderId = `ADMIN_${generateRef(10)}`;
+    const user = await this.registerUser(userRequestDto);
+    const tokenPayload = <IAccessTokenUserPayload>{
+      userId: user.userid,
+      phoneNumber: user.phoneNumber,
+      role: user.userRole,
+    };
+    const tokens = await this.tokenService.generateTokens(tokenPayload);
+    return {
+      user,
+      tokens,
+    };
+  }
+
+  async validateUserCardAssignment(userId: string, otp: string) {
+    const user = await this.findUserById(userId);
+    const response = await this.merchantClientService.verifyRegistrationOtp({
+      otp: otp,
+      mobile_number: user.phoneNumber,
+      sessionId: 'YES' 
+    });
+    if (response.data.code) {
+      // update card data
+    }
+  }
+
   async updateUserKycStatus(userId: string, updateKycStatus: keyof typeof KycVerificationStatus) {
     const user = await this.findUserById(userId);
     if (!user) {
@@ -144,6 +184,13 @@ export class UsersService {
     } catch (err) {
       throw new InternalServerErrorException(err.message);
     }
+  }
+
+  async handleKycEvent(cardHolderId: string, kycStatus: string) {
+    const user = await this.userRepository.findOne({where: {cardHolderId: cardHolderId}});
+    const kycColumnStatus = kycStatus === 'COMPLETED' ? KycVerificationStatus.COMPLETED : KycVerificationStatus.REJECTED;
+    user.kycVerificationStatus = kycColumnStatus;
+    await this.userRepository.save(user);
   }
 
   async getUsersByKycStatus(kycStatus: keyof typeof KycVerificationStatus) {

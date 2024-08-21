@@ -11,7 +11,7 @@ import { IFetchBillResponse } from '../../external/interfaces/fetch-bill-respons
 import { IMobileProviderResponse } from '../../external/interfaces/mobile-provider-info.interface';
 import { ICircleApiResponse, IOperatorApiResponse } from '../../external/interfaces/operator-response.interface';
 import { IRechargePlanApiResponse } from '../../external/interfaces/recharge-plans-api-response.interface';
-import { IRechargeRequest } from '../../external/interfaces/recharge-request-body.interface';
+import { IPrepaidOrDTHRechargeRequest, RechargeRequest } from '../../external/interfaces/recharge-request-body.interface';
 import { IRechargeResponse } from '../../external/interfaces/recharge-response.interface';
 import { IUtilityBillPaymentRequest } from '../../external/interfaces/utility-bill-payment-request.interface';
 import { UtilityBillAPIResponse } from '../../external/interfaces/utility-bill-response.interface';
@@ -31,9 +31,9 @@ export class RechargeClientService {
   }
 
   /***
-   * this method will recharge prepaid and dth operators
+   * this method will recharge prepaid, dth and electricity operators
    */
-  async initPrepaidOrDTHRecharge(rechargePayload: IRechargeRequest): Promise<IRechargeResponse> {
+  async initRecharge(rechargePayload: RechargeRequest): Promise<IRechargeResponse> {
 
     const body = {
       token: this.apiToken,

@@ -11,6 +11,8 @@ import { UtilityBillRequestDto } from '../dto/utility-bill-request.dto';
 import { FetchBillResponse } from '../dto/bill-response.dto';
 import { BillPaymentResponse } from '../dto/bill-payment-response.dto';
 import { PlanRequestDto, PlanResponse } from '../dto/plan.dto';
+import { ElectricityRechargeDto } from '../dto/electricity-recharge.dto';
+import { RechargeServiceTypes } from '../constants/recharge-metadata.constant';
 
 @ApiTags('Recharge')
 @Controller('recharge')
@@ -56,7 +58,14 @@ export class RechargeController {
   @Post('/prepaid-dth')
   rechargeUser(@Req() req: any, @Body() rechargeDto: RechargeRequestDto) {
     const userId = req.user.sub;
-    return this.rechargeService.rechargePrepaidDTHAccount(userId, rechargeDto);
+    return this.rechargeService.rechargeAccount(userId, rechargeDto);
+  }
+
+  @Post('/electricity')
+  payElectricityBill(@Req() req: any, @Body() rechargeDto: ElectricityRechargeDto) {
+    const userId = req.user.sub;
+    rechargeDto.rechargeType = RechargeServiceTypes.Electricity;
+    return this.rechargeService.rechargeAccount(userId, rechargeDto);
   }
 
   @Post('/utility-bills')

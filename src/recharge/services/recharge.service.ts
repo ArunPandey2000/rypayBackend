@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { generateRef } from 'src/core/utils/hash.util';
 import { RechargeClientService } from 'src/integration/a1topup/external-system-client/recharge/recharge-client.service';
 import { FetchBillRequestPayload } from 'src/integration/a1topup/external/interfaces/fetch-bill-request.interface';
-import { IRechargeRequest } from 'src/integration/a1topup/external/interfaces/recharge-request-body.interface';
+import { IElectricityRechargeRequest, IPrepaidOrDTHRechargeRequest } from 'src/integration/a1topup/external/interfaces/recharge-request-body.interface';
 import { WalletService } from 'src/wallet/services/wallet.service';
 import { currentRechargeSupported, RechargeServiceTypes } from '../constants/recharge-metadata.constant';
 import { BillPayloadDetail } from '../dto/bill-detail-payload.dto';
@@ -20,6 +20,7 @@ import { Order, OrderStatus, OrderType } from 'src/core/entities/order.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/core/entities/user.entity';
 import { TransactionStatus } from 'src/core/entities/transactions.entity';
+import { ElectricityRechargeDto } from '../dto/electricity-recharge.dto';
 
 @Injectable()
 export class RechargeService {
@@ -47,24 +48,19 @@ export class RechargeService {
         return circleCodeResponse.stateList.map(circle => new CircleResponseDto(circle));
     }
 
-    async rechargePrepaidDTHAccount(userId: string, requestDto: RechargeRequestDto) {
+    async rechargeAccount(userId: string, requestDto: RechargeRequestDto | ElectricityRechargeDto) {
         const wallet = await this.walletService.getWallet({user: {id: userId}});
         if (wallet.balance < requestDto.amount) {
             throw new BadRequestException('Insufficient Balance')
         }
-        const rechargePayload: IRechargeRequest = {
-            amount: requestDto.amount,
-            operatorId: requestDto.operatorCode,
-            mobile: requestDto.accountNumber,
-            urid: generateRef(10)
-        }
-        const response = (await this.rechargeClientService.initPrepaidOrDTHRecharge(rechargePayload)).data;
+        const rechargePayload = this.getRechargePayload(requestDto);
+        const response = (await this.rechargeClientService.initRecharge(rechargePayload)).data;
 
         if (response.status === 'FAILED') {
             throw new BadRequestException(response.resText)
         }
         const user = await this.userRepository.findOne({where: {id: userId}});
-        const description = `${requestDto.accountNumber} Recharge`
+        const description = `${requestDto.accountNumber} ${requestDto.rechargeType}`
         const order = {
             order_id: rechargePayload.urid,
             order_type: OrderType.RECHARGE,
@@ -81,7 +77,7 @@ export class RechargeService {
 
         await this.walletService.processRechargePayment({amount: requestDto.amount,
              receiverId: requestDto.accountNumber,
-             serviceUsed: RechargeServiceTypes.Mobile, // will use service used, mobile / dth
+             serviceUsed: requestDto.rechargeType, // will use service used, mobile / dth / electricity
              description: description,
              status: TransactionStatus.PENDING,
              reference: rechargePayload.urid }, userId);
@@ -90,6 +86,25 @@ export class RechargeService {
             referenceId: SavedOrder.order_id,
             amount: +response.amount,
             message: 'Recharge Successful'
+        }
+    }
+
+    private getRechargePayload(payload: ElectricityRechargeDto | RechargeRequestDto) {
+        let basePayload = {
+            amount: payload.amount,
+            mobile: payload.accountNumber,
+            urid: generateRef(10)
+        }
+        if (payload.rechargeType === RechargeServiceTypes.Electricity) {
+            return <IElectricityRechargeRequest> {
+                ...basePayload,
+                bbpsId: payload.operatorCode,
+                opValue1: (payload as ElectricityRechargeDto).mobile
+            }
+        }
+        return <IPrepaidOrDTHRechargeRequest>{
+            ...basePayload,
+            operatorId: payload.operatorCode,
         }
     }
 

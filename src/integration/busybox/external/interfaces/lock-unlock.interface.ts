@@ -4,5 +4,5 @@ export interface CardLockResponse {
 }
 export interface CardLockDto {
   cardId: string;
-  lock: string;
+  lock: boolean;
 }

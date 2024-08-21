@@ -12,6 +12,7 @@ import { Address } from './address.entity';
 import { Document } from './document.entity';
 import { Merchant } from './merchant.entity';
 import { Order } from './order.entity';
+import { Card } from './card.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -72,6 +73,9 @@ export class User {
   @OneToOne(() => Address, (add) => add.id, { cascade: true })
   @JoinColumn({ name: 'address_id' })
   address: Address;
+
+  @OneToOne(() => Card, card => card.user)
+  card: Card;
 
   @OneToMany(() => Order, order => order.user)
   orders: Order[];

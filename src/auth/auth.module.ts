@@ -24,6 +24,7 @@ import { MerchantClientService } from 'src/integration/busybox/external-system-c
 import { HttpModule } from '@nestjs/axios';
 import { AccessTokenClientService } from 'src/integration/busybox/external-system-client/access-token-client.service';
 import { CacheModule } from '@nestjs/cache-manager';
+import { CardsModule } from 'src/cards/cards.module';
 
 @Global()
 @Module({
@@ -34,6 +35,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     CacheModule.register(),
     HttpModule,
     OtpFlowModule,
+    CardsModule
   ],
   providers: [
     AuthService,

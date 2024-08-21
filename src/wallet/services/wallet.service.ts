@@ -11,13 +11,14 @@ import { Wallet } from 'src/core/entities/wallet.entity';
 import { TransactionsService } from 'src/transactions/services/transactions.service';
 import { DataSource, FindOptionsWhere, QueryRunner, Repository } from 'typeorm';
 import { TransactionType } from 'src/transactions/enum/transaction-type.enum';
-import { generateHash } from 'src/core/utils/hash.util';
+import { generateHash, generateRef } from 'src/core/utils/hash.util';
 import { ServiceTypes } from 'src/core/constants/service-types.constant';
 import { CreateWalletDto } from '../dto/create-wallet.dto';
 import { AddMoneyToWalletDto, DeductWalletBalanceRechargeDto, TransferMoneyDto, UpdateWalletAfterRechargeDto } from '../dto/transfer-money.dto';
 import { CreateTransactionDto } from 'src/transactions/dto/create-transaction.dto';
 import { Transaction, TransactionStatus } from 'src/core/entities/transactions.entity';
 import { Order, OrderStatus } from 'src/core/entities/order.entity';
+import { TransactionNotifyPayload } from 'src/integration/busybox/external/interfaces/transaction-notify.interface';
 
 @Injectable()
 export class WalletService {
@@ -156,6 +157,35 @@ export class WalletService {
       }
 
       await this.updateWalletBalance(wallet, fundMyAccountDto.amount, queryRunner, false);
+      await this.transactionsService.saveTransaction(transaction, queryRunner);
+
+      return wallet;
+    });
+  }
+
+  async debitAmountOnCardTransaction(cardTransaction: TransactionNotifyPayload): Promise<Wallet> {
+    return this.handleTransaction(async (queryRunner) => {
+      const user = await this.userRepository.findOne({where: {phoneNumber: cardTransaction.cardHolderMobile}});
+      const wallet = await this.findWalletByUserId(user.id);
+      const amount = Number(cardTransaction.txnAmount);
+      const transaction = {
+        user,
+        reference: generateRef(6),
+        transactionHash: generateHash(),
+        type: TransactionType.DEBIT,
+        amount: Number(cardTransaction.txnAmount),
+        description: `${cardTransaction.txnAmount} / ${cardTransaction.txnCategory} `,
+        transactionDate: new Date(),
+        receiver: cardTransaction.cardId,
+        walletBalanceBefore: wallet.balance,
+        walletBalanceAfter: wallet.balance - amount,
+        wallet,
+        status: TransactionStatus.SUCCESS,
+        sender: user.id,
+        serviceUsed: cardTransaction.txnCategory,
+      }
+
+      await this.updateWalletBalance(wallet, amount, queryRunner, false);
       await this.transactionsService.saveTransaction(transaction, queryRunner);
 
       return wallet;
