@@ -13,3 +13,8 @@ export class CircleResponseDto {
         this.circleCode = circle.stateId;
     }
 }
+
+export class CircleApiResponseDto {
+    @ApiProperty()
+    data: CircleResponseDto
+}

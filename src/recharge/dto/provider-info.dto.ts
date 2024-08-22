@@ -14,3 +14,7 @@ export class ProviderInfo {
         this.serviceType = provider.serviceType;
     }
 }
+export class ProviderInfoResponse {
+    @ApiProperty()
+    data: ProviderInfo;
+}

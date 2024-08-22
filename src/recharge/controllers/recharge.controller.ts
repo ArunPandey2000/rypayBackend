@@ -1,18 +1,17 @@
-import { Body, Controller, Get, NotFoundException, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { CircleResponseDto } from '../dto/circle-response.dto';
-import { MobileProviderInfo } from '../dto/mobile-provider-info.dto';
-import { ProviderInfo } from '../dto/provider-info.dto';
-import { RechargeRequestDto } from '../dto/recharge-request.dto';
-import { RechargeService } from '../services/recharge.service';
-import { BillPayloadDetail } from '../dto/bill-detail-payload.dto';
-import { UtilityBillRequestDto } from '../dto/utility-bill-request.dto';
-import { FetchBillResponse } from '../dto/bill-response.dto';
-import { BillPaymentResponse } from '../dto/bill-payment-response.dto';
-import { PlanRequestDto, PlanResponse } from '../dto/plan.dto';
-import { ElectricityRechargeDto } from '../dto/electricity-recharge.dto';
 import { RechargeServiceTypes } from '../constants/recharge-metadata.constant';
+import { BillPayloadDetail } from '../dto/bill-detail-payload.dto';
+import { BillPaymentResponse } from '../dto/bill-payment-response.dto';
+import { FetchBillResponse } from '../dto/bill-response.dto';
+import { CircleApiResponseDto } from '../dto/circle-response.dto';
+import { ElectricityRechargeDto } from '../dto/electricity-recharge.dto';
+import { PlanRequestDto, PlanResponse } from '../dto/plan.dto';
+import { ProviderInfoResponse } from '../dto/provider-info.dto';
+import { RechargeRequestDto } from '../dto/recharge-request.dto';
+import { UtilityBillRequestDto } from '../dto/utility-bill-request.dto';
+import { RechargeService } from '../services/recharge.service';
 
 @ApiTags('Recharge')
 @Controller('recharge')
@@ -26,9 +25,12 @@ export class RechargeController {
 
   @Get('/operators')
   @ApiQuery({ name: 'serviceId', required: false, description: 'get service providers by recharge service type' })
-  @ApiResponse({type: Array<ProviderInfo>})
-  getServiceProviders(@Query('serviceId') serviceId?: string) {
-      return this.rechargeService.getServiceProvidersListByServiceId(serviceId);
+  @ApiResponse({type: ProviderInfoResponse})
+  async getServiceProviders(@Query('serviceId') serviceId?: string) {
+      const data = await  this.rechargeService.getServiceProvidersListByServiceId(serviceId);
+      return {
+        data
+      }
   }
 
   @Get('/services')
@@ -48,11 +50,13 @@ export class RechargeController {
   @ApiResponse({
     status: 200,
     description: 'Returns the list of all circles.',
-    type: CircleResponseDto,
-    isArray: true, // Indicates that the response is an array of CircleResponseDto
+    type: CircleApiResponseDto,
   })
-  getAllCircles() {
-    return this.rechargeService.getAllCircles();
+  async getAllCircles() {
+    const data = await  this.rechargeService.getAllCircles();
+    return {
+      data
+    }
   }
 
   @Post('/prepaid-dth')
