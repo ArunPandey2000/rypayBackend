@@ -21,6 +21,7 @@ import { Repository } from 'typeorm';
 import { User } from 'src/core/entities/user.entity';
 import { TransactionStatus } from 'src/core/entities/transactions.entity';
 import { ElectricityRechargeDto } from '../dto/electricity-recharge.dto';
+import { gstMapper } from '../constants/recharge-plan-type-mapper.constant';
 
 @Injectable()
 export class RechargeService {
@@ -39,7 +40,8 @@ export class RechargeService {
 
     async getServiceProvidersListByServiceId(serviceId: string) {
         const serviceProviders =  await this.rechargeClientService.getServiceProvidersList();
-        const filteredProviders = serviceId ? serviceProviders.operatorList.filter((service) => service.serviceType === serviceId) : serviceProviders.operatorList;
+        const gstProvider = gstMapper[serviceId] ?? 'P2P';
+        const filteredProviders = serviceId ? serviceProviders.operatorList.filter((service) => service.serviceType === serviceId && service.gstMode === gstProvider) : serviceProviders.operatorList;
         return (filteredProviders || []).map(provider => new ProviderInfo(provider));
     }
 
@@ -108,37 +110,6 @@ export class RechargeService {
         }
     }
 
-    async payUtilityBill(userId: string, requestDto: UtilityBillRequestDto) {
-        const wallet = await this.walletService.getWallet({user: {id: userId}});
-        if (wallet.balance < requestDto.amount) {
-            throw new BadRequestException('Insufficient Balance')
-        }
-        const rechargePayload: IUtilityBillPaymentRequest = {
-            amount: requestDto.amount.toString(),
-            opid: requestDto.operatorCode,
-            number: requestDto.accountNumber,
-            order_id: generateRef(10),
-            mobile: requestDto.mobile,
-            reference_id: requestDto.fetchBillReferenceId
-        }
-        const response = await this.rechargeClientService.initUtilityPayment(rechargePayload);
-
-        if (typeof response === 'string') {
-            throw new BadRequestException(response)
-        }
-
-        await this.walletService.processRechargePayment({amount: requestDto.amount,
-             receiverId: requestDto.accountNumber,
-             serviceUsed: requestDto.operatorCode, // will use service used, mobile / dth
-             description: '',
-             status: TransactionStatus.PENDING,
-             reference: rechargePayload.order_id }, userId);
-
-        return <RechargeApiResponseDto>{
-            referenceId: response.order_id,
-            amount: +response.amount
-        }
-    }
 
     // async getMobileProviderInfo(mobile: string): Promise<MobileProviderInfo> {
     //     const mobileProviderInfo = await this.rechargeClientService.getMobileProviderInfo(mobile);

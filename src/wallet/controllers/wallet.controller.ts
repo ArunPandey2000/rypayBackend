@@ -1,10 +1,10 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { generateHash, generateRef } from 'src/core/utils/hash.util';
 import { AddMoneyToWalletDto, TransferMoneyDto } from '../dto/transfer-money.dto';
 import { WalletService } from '../services/wallet.service';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 @Controller('wallet')
 @ApiBearerAuth()
@@ -17,6 +17,16 @@ export class WalletController {
     ) {
 
     }
+
+  @ApiBearerAuth()
+  @Get('qr')
+  async getWalletQr(@Req() req: any, @Res() res: Response) {
+    const content = await  this.walletService.getWalletQRCode({user: {id: req.user.sub}});
+    res.set({
+      'Content-Type': 'text/html'
+    });
+    res.send(content)
+  }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)

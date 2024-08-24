@@ -2,23 +2,26 @@ import {
   BadRequestException,
   HttpException,
   HttpStatus,
-  Injectable,
-  NotFoundException,
+  Injectable
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ServiceTypes } from 'src/core/constants/service-types.constant';
+import { Order, OrderStatus } from 'src/core/entities/order.entity';
+import { Transaction, TransactionStatus } from 'src/core/entities/transactions.entity';
 import { User } from 'src/core/entities/user.entity';
 import { Wallet } from 'src/core/entities/wallet.entity';
+import { generateHash, generateRef } from 'src/core/utils/hash.util';
+import { TransactionNotifyPayload } from 'src/integration/busybox/external/interfaces/transaction-notify.interface';
+import { CreateTransactionDto } from 'src/transactions/dto/create-transaction.dto';
+import { TransactionType } from 'src/transactions/enum/transaction-type.enum';
 import { TransactionsService } from 'src/transactions/services/transactions.service';
 import { DataSource, FindOptionsWhere, QueryRunner, Repository } from 'typeorm';
-import { TransactionType } from 'src/transactions/enum/transaction-type.enum';
-import { generateHash, generateRef } from 'src/core/utils/hash.util';
-import { ServiceTypes } from 'src/core/constants/service-types.constant';
 import { CreateWalletDto } from '../dto/create-wallet.dto';
-import { AddMoneyToWalletDto, DeductWalletBalanceRechargeDto, TransferMoneyDto, UpdateWalletAfterRechargeDto } from '../dto/transfer-money.dto';
-import { CreateTransactionDto } from 'src/transactions/dto/create-transaction.dto';
-import { Transaction, TransactionStatus } from 'src/core/entities/transactions.entity';
-import { Order, OrderStatus } from 'src/core/entities/order.entity';
-import { TransactionNotifyPayload } from 'src/integration/busybox/external/interfaces/transaction-notify.interface';
+import { AddMoneyToWalletDto, DeductWalletBalanceRechargeDto, TransferMoneyDto } from '../dto/transfer-money.dto';
+import * as qrcode from 'qrcode';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Handlebars from 'handlebars';
 
 @Injectable()
 export class WalletService {
@@ -94,6 +97,29 @@ export class WalletService {
       firstName: user.firstName,
       lastName: user.lastName,
     };
+  }
+
+  async getWalletQRCode(query: FindOptionsWhere<Wallet>) {
+    const wallet = await this.walletRepository.findOneBy(query);
+    if (!wallet) {
+      throw new BadRequestException('Wallet not found');
+    }
+    const data = `rypaywallet:${wallet.walletAccountNo},mobile:${wallet.user.phoneNumber}`
+    const qrCode = await qrcode.toDataURL(data);
+    const templatePath = path.resolve(__dirname, '../templates', 'wallet.hbs');
+    const template = fs.readFileSync(templatePath, 'utf-8');
+    const logoPath = path.resolve(__dirname, '../templates', 'new-logo.png');
+    const logo = fs.readFileSync(logoPath, 'base64');
+    const dataURL = `data:png;base64,${logo}`
+    const name = `${wallet.user.firstName} ${wallet.user.lastName}`;
+    const Initials = `${wallet.user.firstName.at(0).toUpperCase()}${wallet.user.lastName.at(0).toUpperCase()}`
+    const context = {
+      qrCode,
+      userName: name,
+      userInitials: Initials,
+      logo: dataURL
+    }
+    return Handlebars.compile(template)(context);
   }
 
   async generateWalletAccountNo(): Promise<string> {

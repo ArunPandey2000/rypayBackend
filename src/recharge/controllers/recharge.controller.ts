@@ -72,12 +72,12 @@ export class RechargeController {
     return this.rechargeService.rechargeAccount(userId, rechargeDto);
   }
 
-  @Post('/utility-bills')
-  @ApiResponse({ type: BillPaymentResponse, status: 200, description: 'Returns the bill payment response.' })
-  payUtilityBill(@Req() req: any, @Body() utilityBill: UtilityBillRequestDto) {
-    const userId = req.user.sub;
-    return this.rechargeService.payUtilityBill(userId, utilityBill);
-  }
+  // @Post('/utility-bills')
+  // @ApiResponse({ type: BillPaymentResponse, status: 200, description: 'Returns the bill payment response.' })
+  // payUtilityBill(@Req() req: any, @Body() utilityBill: UtilityBillRequestDto) {
+  //   const userId = req.user.sub;
+  //   return this.rechargeService.payUtilityBill(userId, utilityBill);
+  // }
 
   // @Get('/info/:mobile')
   // @ApiResponse({ type: MobileProviderInfo, status: 200, description: 'Returns the detail of operator provider.' })

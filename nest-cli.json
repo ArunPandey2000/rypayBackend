@@ -6,7 +6,7 @@
     "deleteOutDir": true,
     "assets": [
       {
-        "include": "pdf/templates/**/*",
+        "include": "**/templates/**/*",
         "outDir": "dist"
       }
     ]

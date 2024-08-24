@@ -38,6 +38,9 @@ export class UserResponse {
 
   @ApiProperty()
   kycVerificationStatus: string;
+
+  @ApiProperty()
+  isPinCreated: boolean;
   constructor(user: User) {
     this.userid = user.id;
     this.firstName = user.firstName;
@@ -47,7 +50,8 @@ export class UserResponse {
     this.userRole = user.role;
     this.address = user.address;
     this.phoneNumber = user.phoneNumber;
-    this.kycVerificationStatus = KycVerificationStatus[user.kycVerificationStatus].toString()
+    this.kycVerificationStatus = KycVerificationStatus[user.kycVerificationStatus].toString();
+    this.isPinCreated = !!user.pin;
   }
 }
 

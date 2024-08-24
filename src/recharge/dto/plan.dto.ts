@@ -1,5 +1,6 @@
-import { ApiProperty, getSchemaPath } from "@nestjs/swagger";
-import { IPlan, IRechargePlanApiResponse } from "src/integration/a1topup/external/interfaces/recharge-plans-api-response.interface";
+import { ApiProperty } from "@nestjs/swagger";
+import { IPlan } from "src/integration/a1topup/external/interfaces/recharge-plans-api-response.interface";
+import { getRechargeFullForm } from "../constants/recharge-plan-type-mapper.constant";
 
 class PlanDto {
     @ApiProperty({ description: 'The price of the plan' })
@@ -47,7 +48,7 @@ export class PlanResponse {
         this.operatorId = operatorId;
         this.circleId = circleId;
         this.plans = planInfo.reduce((acc, plan) => {
-            const rechargeType = plan.type;
+            const rechargeType = getRechargeFullForm(plan.type);
             if (!acc[rechargeType]) {
                 acc[rechargeType] = [];
             }

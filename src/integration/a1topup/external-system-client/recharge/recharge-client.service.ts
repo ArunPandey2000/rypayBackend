@@ -66,7 +66,7 @@ export class RechargeClientService {
 
     try {
       const response = await firstValueFrom(
-        this.httpService.get(`${this.apiBaseUrl}/bills/payments_v2_2.php`, { params })
+        this.httpService.get(`${this.apiBaseUrl}/transaction.php`, { params })
       );
       return response.data;
     } catch (error) {

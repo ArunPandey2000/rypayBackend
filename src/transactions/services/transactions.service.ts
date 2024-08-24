@@ -96,7 +96,7 @@ export class TransactionsService {
           const query = await this.transactionsRepository.find({
             where: {
               user: { id: userId },
-              type: transactionType,
+              ...(transactionType && {type: transactionType}),
               ...(fromDate &&
                 toDate && {
                   transactionDate: Between(new Date(fromDate), new Date(toDate)),

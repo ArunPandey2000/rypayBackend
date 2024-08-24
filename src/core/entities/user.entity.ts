@@ -80,6 +80,9 @@ export class User {
   @OneToMany(() => Order, order => order.user)
   orders: Order[];
 
+  @Column({ name: 'pin', nullable: true })
+  pin: string;
+
   @OneToOne(() => Merchant, (merchant) => merchant.id, { cascade: true })
   @JoinColumn({ name: 'merchant_id' })
   merchant: Merchant;
