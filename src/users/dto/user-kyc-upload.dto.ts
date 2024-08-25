@@ -7,9 +7,18 @@ export class UpdateKycDetailUploadDto {
   @IsMobilePhone('en-IN')
   phoneNumber: string;
 
+  @ApiProperty()
+  @IsNotEmpty()
+  fileKey: string;
+
   @IsNotEmpty()
   description: string;
   @IsNotEmpty()
+  @ApiProperty({
+    description: 'The type of the document',
+    enum: FileType,
+
+  })
   @IsEnum(FileType)
   docType: FileType;
 }

@@ -228,34 +228,7 @@ export class UsersService {
     return this.userRepository.findOne({ where: { id: userId } });
   }
 
-  async updateUserKycDetails(file: Express.Multer.File, fileInfo: UpdateKycDetailUploadDto) {
-    try {
-      const userInfo = await this.userRepository.findOne({
-        where: {
-          phoneNumber: fileInfo.phoneNumber
-        }
-      });
-      const isDocumentExist = await this.checkIfDocumentAlreadyExist(fileInfo.docType, userInfo);
-      if (userInfo && !isDocumentExist) {
-        const uploadFile = await this.uploadAndSaveDocument(file, fileInfo, userInfo);
-        return {
-          url: uploadFile.url
-        };
-      } else if (isDocumentExist) {
-        throw new NotFoundException("User Record Already exist");
-      } else {
-        throw new NotFoundException("User Record not found");
-      }
-    } catch (err) {
-      if (err instanceof InternalServerErrorException) {
-        throw new InternalServerErrorException(err.message);
-      } else {
-        throw err;
-      }
-    }
-  }
-
-  async updateUserKYCDocuments(file: Express.Multer.File, fileInfo: UpdateKycDetailUploadDto) {
+  async updateUserKycDetails(fileInfo: UpdateKycDetailUploadDto) {
     try {
       const userInfo = await this.userRepository.findOne({
         where: {
@@ -268,11 +241,12 @@ export class UsersService {
           documentType: fileInfo.docType
         }
       });
-
-      const uploadFile = await this.uploadAndSaveDocument(file, fileInfo, userInfo, documentInfo);
-      return {
-        url: uploadFile.url
-      };
+      if (userInfo) {
+        await this.saveDocumentInfo(fileInfo, userInfo, documentInfo);
+        return true
+      } else {
+        throw new NotFoundException("User Record not found");
+      }
     } catch (err) {
       if (err instanceof InternalServerErrorException) {
         throw new InternalServerErrorException(err.message);
@@ -291,20 +265,18 @@ export class UsersService {
     });
   }
 
-  async uploadAndSaveDocument(file: Express.Multer.File, fileInfo: UpdateKycDetailUploadDto, userInfo: User, documentInfo?: UserDocument) {
-    const fileData = await this.uploadFileService.uploadSingleFile(file);
+  async saveDocumentInfo(fileInfo: UpdateKycDetailUploadDto, userInfo: User, documentInfo?: UserDocument) {
     if (documentInfo) {
       documentInfo.description = fileInfo.description;
-      documentInfo.documentUrl = fileData.key;
+      documentInfo.documentUrl = fileInfo.fileKey;
     } else {
       documentInfo = this.documentRepository.create({
         description: fileInfo.description,
-        documentUrl: fileData.key,
+        documentUrl: fileInfo.fileKey,
         documentType: fileInfo.docType,
         user: userInfo
       });
     }
-    await this.documentRepository.save(documentInfo);
-    return fileData;
+    return await this.documentRepository.save(documentInfo);
   }
 }
