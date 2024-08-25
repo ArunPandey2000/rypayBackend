@@ -325,7 +325,8 @@ export class WalletService {
     orderId: string
   ): Promise<Wallet> {
     return this.handleTransaction(async (queryRunner) => {
-      const order = await this.orderRepository.findOne({where: {order_id: orderId}});
+      const order = await this.orderRepository.findOne({where: {order_id: orderId}, relations: {user: true}});
+      order.amount = Number(order.amount);
       if (order) {
         const user = order.user;
         const wallet = await this.findWalletByUserId(user.id);
