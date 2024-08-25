@@ -133,14 +133,27 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Endpoint to validate otp for card after card creation' })
   @Post('/validate/card')
-  async getBalance(@Req() req: any, @Body('otp') otp: string) {
+  async validateCard(@Req() req: any, @Body('otp') otp: string) {
     const cardDetails = await this.userService.validateUserCardAssignment(req.user.sub, otp);
     return {
       isVerified: true
     };
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Endpoint to get my documents' })
+  @Get('/documents')
+  async getMyDocuments(@Req() req: any) {
+    const userDocuments = await this.userService.getUserDocuments(req.user.sub);
+    return {
+      data: userDocuments
+    };
+  }
+
   @Post('/upload/documents')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Endpoint to upload user documents /n Max size of the file is 1 MB' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -175,10 +188,22 @@ export class UsersController {
   }
 
   @Post('/KYC/document')
+  @ApiOperation({ summary: 'Update KYC documents for users' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiBody({
+    description: 'Array of KYC document update information',
+    type: [UpdateKycDetailUploadDto],
+  })
+  @ApiResponse({ status: 200, description: 'Documents updated successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async updateKYCDocument(
-    @Body() userDocInfo: UpdateKycDetailUploadDto
+    @Req() req: any,
+    @Body() userDocsInfo: UpdateKycDetailUploadDto[]
   ) {
-    const fileData = await this.userService.updateUserKycDetails(userDocInfo);
+    const fileData = await this.userService.updateUserKycDetails(req.user.sub, userDocsInfo);
     return {
       success: !!fileData
     };

@@ -18,13 +18,14 @@ import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enu
 import { generateRef } from 'src/core/utils/hash.util';
 import { MerchantClientService } from 'src/integration/busybox/external-system-client/merchant-client.service';
 import { WalletService } from 'src/wallet/services/wallet.service';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
 import { UserRequestDto } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UserMapper } from '../mapper/user-mapper';
 import { UploadFileService } from './updaload-file.service';
 import * as bcrypt from 'bcrypt';
+import { UserDocumentResponseDto } from '../dto/user-documents.dto';
 
 @Injectable()
 export class UsersService {
@@ -228,44 +229,60 @@ export class UsersService {
     return this.userRepository.findOne({ where: { id: userId } });
   }
 
-  async updateUserKycDetails(fileInfo: UpdateKycDetailUploadDto) {
+  async updateUserKycDetails(userId: string, fileInfos: UpdateKycDetailUploadDto[]): Promise<boolean> {
+
+    const userInfo = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!userInfo) {
+      throw new NotFoundException(`User not found`);
+    }
+    const queryRunner = this._connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      const userInfo = await this.userRepository.findOne({
-        where: {
-          phoneNumber: fileInfo.phoneNumber
-        }
-      });
-      const documentInfo = await this.documentRepository.findOne({
-        where: {
-          user: userInfo,
-          documentType: fileInfo.docType
-        }
-      });
-      if (userInfo) {
-        await this.saveDocumentInfo(fileInfo, userInfo, documentInfo);
-        return true
-      } else {
-        throw new NotFoundException("User Record not found");
+      for (const fileInfo of fileInfos) {
+
+        const documentInfo = await queryRunner.manager.findOne(UserDocument, {
+          where: { user: userInfo, documentType: fileInfo.docType },
+        });
+
+        await this.saveDocumentInfo(fileInfo, userInfo, documentInfo, queryRunner.manager);
       }
+
+      await queryRunner.commitTransaction();
+      return true;
     } catch (err) {
+      await queryRunner.rollbackTransaction();
       if (err instanceof InternalServerErrorException) {
         throw new InternalServerErrorException(err.message);
       } else {
         throw err;
       }
+    } finally {
+      await queryRunner.release();
     }
   }
 
-  async checkIfDocumentAlreadyExist(docType: string, user: User) {
-    return this.documentRepository.findOne({
-      where: {
-        user: user,
-        documentType: docType
+  async getUserDocuments(userId: string) {
+    const documents = await this.documentRepository.find({where: {user: {id: userId}}});
+    if (documents.length) {
+      for (const document of documents) {
+        document.documentUrl = (await this.uploadFileService.getPresignedSignedUrl(document.documentUrl)).url;
       }
-    });
+      return documents.map((doc) => new UserDocumentResponseDto(doc));
+    }
+    return [];
   }
 
-  async saveDocumentInfo(fileInfo: UpdateKycDetailUploadDto, userInfo: User, documentInfo?: UserDocument) {
+  async saveDocumentInfo(fileInfo: UpdateKycDetailUploadDto, userInfo: User, documentInfo?: UserDocument, entityManager?: EntityManager) {
+    if (!entityManager) {
+      entityManager = this.documentRepository.manager;
+    }
+
     if (documentInfo) {
       documentInfo.description = fileInfo.description;
       documentInfo.documentUrl = fileInfo.fileKey;
@@ -277,6 +294,7 @@ export class UsersService {
         user: userInfo
       });
     }
-    return await this.documentRepository.save(documentInfo);
+
+    return await entityManager.save(documentInfo);
   }
 }
