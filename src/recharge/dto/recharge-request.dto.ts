@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsIn, IsNotEmpty } from "class-validator";
+import { IsIn, IsNotEmpty, IsOptional } from "class-validator";
 import { RechargeServiceTypes } from "../constants/recharge-metadata.constant";
 
 export class RechargeRequestDto {
@@ -11,6 +11,10 @@ export class RechargeRequestDto {
     @IsNotEmpty()
     @ApiProperty()
     operatorCode: string;
+
+    @ApiProperty()
+    @IsOptional()
+    message: string;
 
     @IsNotEmpty()
     @ApiProperty()

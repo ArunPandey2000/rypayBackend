@@ -32,18 +32,20 @@ export class WalletController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Endpoint to get wallet details by wallet id' })
   @Get('/:id')
-  async getWalletDetails(@Param('id') walletId: number) {
-    // const walletDetails = await this.walletService.getBalance(walletId);
-    // return { data: walletDetails, statusCode: 200 };
+  async getWalletDetailsByWalletId(@Param('id') walletId: string) {
+    return await this.walletService.getWallet({
+      walletAccountNo: walletId
+    });
   }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Endpoint to get wallet details by phone' })
   @Get('/mobile/:number')
-  async getBalanceByUserID(@Param('number') phoneNumber: string) {
-    // const walletDetails = await this.walletService.getWalletDetailsByPhoneNumber(phoneNumber);
-    // return { data: walletDetails, statusCode: 200 };
+  async getWalletDetailsByPhone(@Param('number') phoneNumber: string) {
+    return await this.walletService.getWallet({
+      user: {phoneNumber: phoneNumber}
+    });
   }
 
   @Get()

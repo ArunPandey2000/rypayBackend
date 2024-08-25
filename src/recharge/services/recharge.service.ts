@@ -1,27 +1,24 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Order, OrderStatus, OrderType } from 'src/core/entities/order.entity';
+import { TransactionStatus } from 'src/core/entities/transactions.entity';
+import { User } from 'src/core/entities/user.entity';
 import { generateRef } from 'src/core/utils/hash.util';
 import { RechargeClientService } from 'src/integration/a1topup/external-system-client/recharge/recharge-client.service';
 import { FetchBillRequestPayload } from 'src/integration/a1topup/external/interfaces/fetch-bill-request.interface';
 import { IElectricityRechargeRequest, IPrepaidOrDTHRechargeRequest } from 'src/integration/a1topup/external/interfaces/recharge-request-body.interface';
 import { WalletService } from 'src/wallet/services/wallet.service';
+import { Repository } from 'typeorm';
 import { currentRechargeSupported, RechargeServiceTypes } from '../constants/recharge-metadata.constant';
+import { gstMapper } from '../constants/recharge-plan-type-mapper.constant';
 import { BillPayloadDetail } from '../dto/bill-detail-payload.dto';
 import { FetchBillResponse } from '../dto/bill-response.dto';
 import { CircleResponseDto } from '../dto/circle-response.dto';
-import { MobileProviderInfo } from '../dto/mobile-provider-info.dto';
+import { ElectricityRechargeDto } from '../dto/electricity-recharge.dto';
+import { PlanResponse } from '../dto/plan.dto';
 import { ProviderInfo } from '../dto/provider-info.dto';
 import { RechargeRequestDto } from '../dto/recharge-request.dto';
 import { RechargeApiResponseDto } from '../dto/recharge-response.dto';
-import { UtilityBillRequestDto } from '../dto/utility-bill-request.dto';
-import { IUtilityBillPaymentRequest } from 'src/integration/a1topup/external/interfaces/utility-bill-payment-request.interface';
-import { PlanRequestDto, PlanResponse } from '../dto/plan.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Order, OrderStatus, OrderType } from 'src/core/entities/order.entity';
-import { Repository } from 'typeorm';
-import { User } from 'src/core/entities/user.entity';
-import { TransactionStatus } from 'src/core/entities/transactions.entity';
-import { ElectricityRechargeDto } from '../dto/electricity-recharge.dto';
-import { gstMapper } from '../constants/recharge-plan-type-mapper.constant';
 
 @Injectable()
 export class RechargeService {
@@ -62,7 +59,7 @@ export class RechargeService {
             throw new BadRequestException(response.resText)
         }
         const user = await this.userRepository.findOne({where: {id: userId}});
-        const description = `${requestDto.accountNumber} ${requestDto.rechargeType}`
+        const description = requestDto.message ? requestDto.message :  `${requestDto.accountNumber} ${requestDto.rechargeType}`;
         const order = {
             order_id: rechargePayload.urid,
             order_type: OrderType.RECHARGE,
@@ -87,7 +84,7 @@ export class RechargeService {
         return <RechargeApiResponseDto>{
             referenceId: SavedOrder.order_id,
             amount: +response.amount,
-            message: 'Recharge Successful'
+            message: 'Recharge/Bill payment Successful'
         }
     }
 

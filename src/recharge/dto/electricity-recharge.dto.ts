@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsIn, IsNotEmpty } from "class-validator";
+import { IsIn, IsNotEmpty, IsOptional } from "class-validator";
 
 export class ElectricityRechargeDto {
     @IsNotEmpty()
@@ -11,6 +11,10 @@ export class ElectricityRechargeDto {
     @IsNotEmpty()
     @ApiProperty()
     accountNumber: string;
+
+    @ApiProperty()
+    @IsOptional()
+    message: string;
 
     @IsNotEmpty()
     @ApiProperty()
