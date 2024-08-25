@@ -1,13 +1,13 @@
-import { Body, Controller, FileTypeValidator, Get, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Patch, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, FileTypeValidator, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Patch, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { FileType } from 'src/core/enum/file-type.enum';
 import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
+import { UserKYCDocumentInfo } from '../dto/kyc-file-info.dto';
+import { PinRequestDto } from '../dto/pin-request.dto';
 import { UserAdminRequestDto, UserRequestDto } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UsersService } from '../services/users.service';
-import { UserKYCDocumentInfo } from '../dto/kyc-file-info.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -55,6 +55,33 @@ export class UsersController {
   ): Promise<UserApiResponseDto> {
     return this.userService.registerAdminAndGenerateToken(signUpDto);
   }
+
+  @Post('set-pin')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  async setPin(
+    @Req() req: any,
+    @Body() pinRequest: PinRequestDto,
+  ): Promise<{ message: string; }> {
+    await this.userService.setPin(req.user.sub, pinRequest.pin);
+    return {
+      message: 'pin created successfully'
+    };
+  }
+
+  @Post('verify-pin')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  async verifyPin(
+    @Req() req: any,
+    @Body() pinRequest: PinRequestDto,
+  ): Promise<{ valid: boolean; }> {
+    const valid = await this.userService.verifyPin(req.user.sub, pinRequest.pin);
+    return { valid };
+  }
+
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

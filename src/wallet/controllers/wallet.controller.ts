@@ -1,10 +1,10 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { generateHash, generateRef } from 'src/core/utils/hash.util';
 import { AddMoneyToWalletDto, TransferMoneyDto } from '../dto/transfer-money.dto';
 import { WalletService } from '../services/wallet.service';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 @Controller('wallet')
 @ApiBearerAuth()
@@ -19,21 +19,33 @@ export class WalletController {
     }
 
   @ApiBearerAuth()
+  @Get('qr')
+  async getWalletQr(@Req() req: any, @Res() res: Response) {
+    const content = await  this.walletService.getWalletQRCode({user: {id: req.user.sub}});
+    res.set({
+      'Content-Type': 'text/html'
+    });
+    res.send(content)
+  }
+
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Endpoint to get wallet details by wallet id' })
   @Get('/:id')
-  async getWalletDetails(@Param('id') walletId: number) {
-    // const walletDetails = await this.walletService.getBalance(walletId);
-    // return { data: walletDetails, statusCode: 200 };
+  async getWalletDetailsByWalletId(@Param('id') walletId: string) {
+    return await this.walletService.getWallet({
+      walletAccountNo: walletId
+    });
   }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Endpoint to get wallet details by phone' })
   @Get('/mobile/:number')
-  async getBalanceByUserID(@Param('number') phoneNumber: string) {
-    // const walletDetails = await this.walletService.getWalletDetailsByPhoneNumber(phoneNumber);
-    // return { data: walletDetails, statusCode: 200 };
+  async getWalletDetailsByPhone(@Param('number') phoneNumber: string) {
+    return await this.walletService.getWallet({
+      user: {phoneNumber: phoneNumber}
+    });
   }
 
   @Get()

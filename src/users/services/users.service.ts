@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,9 +24,11 @@ import { UserRequestDto } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UserMapper } from '../mapper/user-mapper';
 import { UploadFileService } from './updaload-file.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
+  private readonly saltRounds = 10;
   constructor(
     private tokenService: TokenService,
     private configService: ConfigService,
@@ -157,6 +160,19 @@ export class UsersService {
       user,
       tokens,
     };
+  }
+
+  async setPin(userId: string, pin: string): Promise<void> {
+    const hashedPin = await bcrypt.hash(pin, this.saltRounds);
+    await this.userRepository.update(userId, { pin: hashedPin });
+  }
+
+  async verifyPin(userId: string, pin: string): Promise<boolean> {
+    const user = await this.userRepository.findOne({where: {id: userId}});
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    return bcrypt.compare(pin, user.pin);
   }
 
   async validateUserCardAssignment(userId: string, otp: string) {
