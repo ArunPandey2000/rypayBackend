@@ -2,7 +2,8 @@ import {
   BadRequestException,
   HttpException,
   HttpStatus,
-  Injectable
+  Injectable,
+  NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceTypes } from 'src/core/constants/service-types.constant';
@@ -22,6 +23,7 @@ import * as qrcode from 'qrcode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as Handlebars from 'handlebars';
+import { WalletQRFormat } from '../constant/wallet-qr.constant';
 
 @Injectable()
 export class WalletService {
@@ -104,14 +106,17 @@ export class WalletService {
     if (!wallet) {
       throw new BadRequestException('Wallet not found');
     }
-    const data = `rypaywallet:${wallet.walletAccountNo},mobile:${wallet.user.phoneNumber}`
+    const name = `${wallet.user.firstName} ${wallet.user.lastName}`;
+    const data = WalletQRFormat
+    .replace('<walletId>', wallet.walletAccountNo)
+    .replace('<WalletUserName>', encodeURIComponent(name))
+    .replace('<walletUserPhone>', wallet.user.phoneNumber);
     const qrCode = await qrcode.toDataURL(data);
     const templatePath = path.resolve(__dirname, '../templates', 'wallet.hbs');
     const template = fs.readFileSync(templatePath, 'utf-8');
     const logoPath = path.resolve(__dirname, '../templates', 'new-logo.png');
     const logo = fs.readFileSync(logoPath, 'base64');
     const dataURL = `data:png;base64,${logo}`
-    const name = `${wallet.user.firstName} ${wallet.user.lastName}`;
     const Initials = `${wallet.user.firstName.at(0).toUpperCase()}${wallet.user.lastName.at(0).toUpperCase()}`
     const context = {
       qrCode,
@@ -321,25 +326,29 @@ export class WalletService {
   ): Promise<Wallet> {
     return this.handleTransaction(async (queryRunner) => {
       const order = await this.orderRepository.findOne({where: {order_id: orderId}});
-      const user = order.user;
-      const wallet = await this.findWalletByUserId(user.id);
-      if (!wallet) {
-        throw new BadRequestException('wallet not found for user');
-      }
-      if (order.amount < 0) {
-        throw new BadRequestException('Amount cannot be negative');
-      }
-      if (order.status !== OrderStatus.PENDING) {
-        throw new BadRequestException('Order is not in pending state');
-      }
-      order.status = OrderStatus.FAILED;
-      const transaction = await this.transactionRepo.findOne({where: {reference: orderId}});
-      transaction.status = TransactionStatus.FAILED;
-      await queryRunner.manager.save<Transaction>(transaction);
-      await queryRunner.manager.save<Order>(order);
-      await this.updateWalletBalance(wallet, order.amount, queryRunner, true);
+      if (order) {
+        const user = order.user;
+        const wallet = await this.findWalletByUserId(user.id);
+        if (!wallet) {
+          throw new BadRequestException('wallet not found for user');
+        }
+        if (order.amount < 0) {
+          throw new BadRequestException('Amount cannot be negative');
+        }
+        if (order.status !== OrderStatus.PENDING) {
+          throw new BadRequestException('Order is not in pending state');
+        }
+        order.status = OrderStatus.FAILED;
+        const transaction = await this.transactionRepo.findOne({where: {reference: orderId}});
+        transaction.status = TransactionStatus.FAILED;
+        await queryRunner.manager.save<Transaction>(transaction);
+        await queryRunner.manager.save<Order>(order);
+        await this.updateWalletBalance(wallet, order.amount, queryRunner, true);
 
-      return wallet;
+        return wallet;
+      } else{
+        throw new NotFoundException('order not found');
+      }
     });
   }
 
