@@ -1,18 +1,19 @@
 import { Body, Controller, FileTypeValidator, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Patch, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
-import { UserKYCDocumentInfo } from '../dto/kyc-file-info.dto';
 import { PinRequestDto } from '../dto/pin-request.dto';
 import { UserAdminRequestDto, UserRequestDto } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UsersService } from '../services/users.service';
+import { UploadFileService } from '../services/updaload-file.service';
+import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
 
 @Controller('user')
 @ApiTags('User')
 export class UsersController {
-  constructor(private userService: UsersService) { }
+  constructor(private userService: UsersService, private uploadFileService: UploadFileService) { }
 
   @ApiOperation({ summary: 'Endpoint to register the user' })
   @Post('/signup')
@@ -139,9 +140,20 @@ export class UsersController {
     };
   }
 
-  @Post('/kyc/documents')
+  @Post('/upload/documents')
   @ApiOperation({ summary: 'Endpoint to upload user documents /n Max size of the file is 1 MB' })
   @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        }
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile(
@@ -156,32 +168,19 @@ export class UsersController {
         fileIsRequired: true,
       }),
     )
-    file: Express.Multer.File,
-    @Body() userDocInfo: UserKYCDocumentInfo
+    file: Express.Multer.File
   ) {
-    return this.userService.updateUserKycDetails(file, userDocInfo);
+    const fileData = await this.uploadFileService.uploadSingleFile(file);
+    return fileData;
   }
 
-  @Patch('/update/kyc/document')
-  @ApiOperation({ summary: 'Endpoint to upload user documents /n Max size of the file is 1 MB' })
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
-  async updateUserDocument(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf)' }),
-          new MaxFileSizeValidator({
-            maxSize: (1024 * 1024 * 1024), // 1MB
-            message: 'File is too large. Max file size is 10MB',
-          }),
-        ],
-        fileIsRequired: true,
-      }),
-    )
-    file: Express.Multer.File,
-    @Body() userDocInfo: UserKYCDocumentInfo
+  @Post('/KYC/document')
+  async updateKYCDocument(
+    @Body() userDocInfo: UpdateKycDetailUploadDto
   ) {
-    return this.userService.updateUserKYCDocuments(file, userDocInfo);
+    const fileData = await this.userService.updateUserKycDetails(userDocInfo);
+    return {
+      success: !!fileData
+    };
   }
 }
