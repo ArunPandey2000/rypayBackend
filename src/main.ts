@@ -20,7 +20,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({ transform: true, stopAtFirstError: true }),
   );
-  app.useGlobalFilters(new ValidationExceptionFilter())
+  app.useGlobalFilters(new ValidationExceptionFilter());
   app.enableCors();
   app.use(json());
   SwaggerModule.setup('api', app, document);

@@ -25,15 +25,18 @@ import { HttpModule } from '@nestjs/axios';
 import { AccessTokenClientService } from 'src/integration/busybox/external-system-client/access-token-client.service';
 import { CacheModule } from '@nestjs/cache-manager';
 import { CardsModule } from 'src/cards/cards.module';
+import { UploadFileService } from 'src/users/services/updaload-file.service';
+import { UserDocument } from 'src/core/entities/document.entity';
 
 @Global()
 @Module({
   imports: [
     JwtModule.register({ global: true }),
-    TypeOrmModule.forFeature([User, RefreshToken, OtpInfo, Wallet, Transaction, Order]),
+    TypeOrmModule.forFeature([User, RefreshToken, OtpInfo, Wallet, Transaction, Order, UserDocument]),
     PdfModule,
     CacheModule.register(),
     HttpModule,
+    IntegrationModule,
     OtpFlowModule,
     CardsModule
   ],
@@ -43,6 +46,7 @@ import { CardsModule } from 'src/cards/cards.module';
     WalletService,
     TransactionsService,
     UsersService,
+    UploadFileService,
     AccessTokenStrategy,
     AccessTokenClientService,
     MerchantClientService,
@@ -53,4 +57,4 @@ import { CardsModule } from 'src/cards/cards.module';
   controllers: [AuthController],
   exports: [TokenService],
 })
-export class AuthModule {}
+export class AuthModule { }
