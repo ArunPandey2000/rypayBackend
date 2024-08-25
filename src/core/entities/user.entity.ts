@@ -7,9 +7,9 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { KycVerificationStatus } from '../enum/kyc-verification-status.enum';
+import { UserDocument } from './document.entity';
 import { UserRole } from '../enum/user-role.enum';
 import { Address } from './address.entity';
-import { Document } from './document.entity';
 import { Merchant } from './merchant.entity';
 import { Order } from './order.entity';
 import { Card } from './card.entity';
@@ -40,8 +40,8 @@ export class User {
   @Column({ name: 'card_holder_id', type: 'varchar', unique: true })
   cardHolderId: string;
 
-  @OneToMany(() => Document, (document) => document.user)
-  documents: Document[];
+  @OneToMany(() => UserDocument, (document) => document.user)
+  documents: UserDocument[];
 
   @Column({
     name: 'created_at',

@@ -7,12 +7,16 @@ import { User } from 'src/core/entities/user.entity';
 import { IntegrationModule } from 'src/integration/integration.module';
 import { ConfigModule } from '@nestjs/config';
 import { WalletModule } from 'src/wallet/wallet.module';
+import { UploadFileService } from './services/updaload-file.service';
+import { UserDocument } from 'src/core/entities/document.entity';
+import { ConfigService } from '@nestjs/config';
 import { CardsModule } from 'src/cards/cards.module';
 
+
 @Module({
-  imports: [AuthModule, IntegrationModule, CardsModule, WalletModule, ConfigModule, TypeOrmModule.forFeature([User]), forwardRef(() => WalletModule)],
-  providers: [UsersService],
+  imports: [AuthModule, IntegrationModule, CardsModule, WalletModule, ConfigModule, forwardRef(() => WalletModule), TypeOrmModule.forFeature([User, UserDocument])],
+  providers: [UsersService, ConfigService, UploadFileService],
   controllers: [UsersController],
-  exports: [UsersService],
+  exports: [UsersService, UploadFileService],
 })
-export class UsersModule {}
+export class UsersModule { }

@@ -24,19 +24,26 @@ import { TransactionsClientService } from './busybox/external-system-client/tran
 import { ExternalController } from './busybox/external/controllers/external.controller';
 import { ExternalService } from './busybox/external/services/external.service';
 import { Card } from 'src/core/entities/card.entity';
+import { UploadFileService } from 'src/users/services/updaload-file.service';
+import { UserDocument } from 'src/core/entities/document.entity';
 
 @Module({
-  imports: [ CacheModule.register({ 
-    store: redisStore as any, 
+  imports: [
+    CacheModule.register({
+    store: redisStore as any,
     host: 'localhost', //default host
     port: 6379 //default port
-  }), HttpModule, ConfigModule, TypeOrmModule.forFeature([Wallet, User, Order, Transaction, Card, BusyBoxWebhookResponse, WebhookResponse])],
+  }),
+    HttpModule, ConfigModule,
+    TypeOrmModule.forFeature([Wallet, User, Order, Transaction, Card, BusyBoxWebhookResponse, WebhookResponse, UserDocument])
+  ],
   providers: [
     MerchantClientService,
     CardsClientService,
     WalletService,
     PdfService,
     UsersService,
+    UploadFileService,
     CardsService,
     TransactionsService,
     AccessTokenClientService,
@@ -53,4 +60,4 @@ import { Card } from 'src/core/entities/card.entity';
     RechargeClientService
   ],
 })
-export class IntegrationModule {}
+export class IntegrationModule { }

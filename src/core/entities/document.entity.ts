@@ -6,11 +6,12 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity({ name: 'user_doc_record' })
-export class Document {
+export class UserDocument {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
@@ -33,4 +34,12 @@ export class Document {
   @ManyToOne(() => User, (user) => user.documents)
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  
+  @BeforeInsert()
+  addCreatedDate() {
+    this.createdDate = new Date();
+  }
 }
+
+
