@@ -110,7 +110,7 @@ export class TokenService {
     if (!subId) {
       throw new UnprocessableEntityException('Refresh token malformed');
     }
-    return this.userRepo.findOne({ where: { id: subId } });
+    return this.userRepo.findOne({ where: { id: subId }, relations: {card: true, address: true, merchant: true} });
   }
 
   private async getStoredTokenFromRefreshTokenPayload(

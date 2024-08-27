@@ -91,6 +91,8 @@ export class UserRequestCommonDto {
   merchantInfo: MerchantRequestDto;
 
   cardHolderId: string
+
+  userSession: string;
 }
 
 export class UserRequestDto extends UserRequestCommonDto {
@@ -103,4 +105,10 @@ export class UserAdminRequestDto extends UserRequestCommonDto {
   @IsIn([UserRole.ADMIN])
   @ApiProperty()
   userType: UserRole;
+}
+
+export class ValidateOTPAfterCardCreationDTO {
+  @IsNotEmpty()
+  @ApiProperty()
+  otp: string;
 }

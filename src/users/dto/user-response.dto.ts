@@ -1,10 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TokenResponse } from 'src/auth/dto/token-response.dto';
 import { Address } from 'src/core/entities/address.entity';
+import { Card } from 'src/core/entities/card.entity';
 import { User } from 'src/core/entities/user.entity';
 import { Wallet } from 'src/core/entities/wallet.entity';
 import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
 
+export class CardResponse {
+  @ApiProperty()
+  cardId: string;
+  @ApiProperty()
+  lastFourDigit: string;
+  @ApiProperty()
+  status: string;
+
+  constructor(card: Card) {
+    if (card) {
+      this.cardId = card.cardNumber;
+      this.status = card.status;
+      this.lastFourDigit = card.lastFourDigits;
+    }
+  }
+}
 export class UserResponse {
   @ApiProperty()
   userid: string;
@@ -41,6 +58,10 @@ export class UserResponse {
 
   @ApiProperty()
   isPinCreated: boolean;
+
+  @ApiProperty()
+  cardDetails: CardResponse;
+
   constructor(user: User) {
     this.userid = user.id;
     this.firstName = user.firstName;
@@ -52,6 +73,7 @@ export class UserResponse {
     this.phoneNumber = user.phoneNumber;
     this.kycVerificationStatus = KycVerificationStatus[user.kycVerificationStatus].toString();
     this.isPinCreated = !!user.pin;
+    this.cardDetails = new CardResponse(user.card);
   }
 }
 

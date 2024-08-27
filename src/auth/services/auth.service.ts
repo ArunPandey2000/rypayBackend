@@ -62,7 +62,7 @@ export class AuthService {
           where: {
             phoneNumber: userPhoneInfo.phoneNumber,
           },
-          relations: { address: true, merchant: true },
+          relations: { address: true, merchant: true, card: true },
         });
         if (!userData) {
           return <UserApiResponseDto>{

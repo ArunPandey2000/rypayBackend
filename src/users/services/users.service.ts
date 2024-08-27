@@ -26,6 +26,7 @@ import { UserMapper } from '../mapper/user-mapper';
 import { UploadFileService } from './updaload-file.service';
 import * as bcrypt from 'bcrypt';
 import { UserDocumentResponseDto } from '../dto/user-documents.dto';
+import { CardStatus } from 'src/core/entities/card.entity';
 
 @Injectable()
 export class UsersService {
@@ -88,7 +89,7 @@ export class UsersService {
       const cardDto = {
         user: savedUser,
         cardNumber: cardDetails.cardId,
-        status: ''
+        status: CardStatus.InActive
       };
       const card = await this.cardService.createCardAndAssignKitNumberToUser(cardDto, queryRunner);
 
@@ -102,7 +103,8 @@ export class UsersService {
 
       // const user = await this.userRepository.save(newUser);
       await queryRunner.commitTransaction();
-      return new UserResponse(savedUser);
+      const userModel = {...savedUser, card: card};
+      return new UserResponse(userModel);
     } catch (err) {
       if (queryRunner.isTransactionActive) {
         await queryRunner.rollbackTransaction();
@@ -117,20 +119,11 @@ export class UsersService {
     userRequestDto: UserRequestDto,
   ): Promise<UserApiResponseDto> {
     const orgId = this.configService.get('BUSY_BOX_ORG_ID');
-    // const issueCardDto = UserMapper.mapUserRequestDtoToMerchantRegistrationDto(userRequestDto, orgId);
-    // const userResponse = await this.merchantClientService.issueCard(issueCardDto);
-    // hardcoded untill busybox api's work
-    const userResponse = {
-      "statusCode": "S0200",
-      "status": "SUCCESS",
-      "data": {
-        "message": "Card creation is in progress",
-        "cardHolderId": `221117123231408ID1CUSTID${Math.floor(Math.random() * 10000000)}`
-      },
-      "sessionId": "YES"
-    };
+    const issueCardDto = UserMapper.mapUserRequestDtoToMerchantRegistrationDto(userRequestDto, orgId);
+    const userResponse = await this.merchantClientService.issueCard(issueCardDto);
     if (userResponse.status === "SUCCESS") {
       userRequestDto.cardHolderId = userResponse.data.cardHolderId;
+      userRequestDto.userSession = userResponse.sessionId;
       const user = await this.registerUser(userRequestDto);
       const tokenPayload = <IAccessTokenUserPayload>{
         userId: user.userid,
@@ -181,11 +174,14 @@ export class UsersService {
     const response = await this.merchantClientService.verifyRegistrationOtp({
       otp: otp,
       mobile_number: user.phoneNumber,
-      sessionId: 'YES'
+      sessionId: user.userSession || "YES"
     });
-    if (response.data.code) {
+    if (response.statusCode == "S0200") {
       // update card data
+      const card = await this.cardService.activateUserCard(user.id);
+      return card;
     }
+    throw new InternalServerErrorException('Failed to validate OTP');
   }
 
   async updateUserKycStatus(userId: string, updateKycStatus: keyof typeof KycVerificationStatus) {

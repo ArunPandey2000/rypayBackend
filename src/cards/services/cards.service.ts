@@ -6,7 +6,7 @@ import { KitNumber } from 'src/core/entities/kit-number.entity';
 import { User } from 'src/core/entities/user.entity';
 import { CardsClientService } from 'src/integration/busybox/external-system-client/cards-client.service';
 import { CardAssignmentDto } from 'src/integration/busybox/external/interfaces/card-assignment.interface';
-import { QueryRunner, Repository } from 'typeorm';
+import { Like, QueryRunner, Repository } from 'typeorm';
 import { CardCreationDto } from '../dto/card-creation-info.dto';
 import { CardLockDto } from 'src/integration/busybox/external/interfaces/lock-unlock.interface';
 
@@ -62,13 +62,28 @@ export class CardsService {
 
     async createCardAndAssignKitNumberToUser(cardInfo: CardCreationDto, queryRunner: QueryRunner) {
         const card = this.cardRepository.create(cardInfo);
-        const kitNumber = await this.kitNumberRepo.findOne({where: {
-            isAssigned: false
-        }});
+        const isSandBox = JSON.parse(this.configService.get('ENABLE_SANDBOX'));
+        const kitNumber = await queryRunner.manager.findOne(KitNumber, {
+            where: {
+                isAssigned: false,
+            ...(isSandBox ? {kitNumber: Like('K%')} : {})
+            }
+        });
         card.kitNumber = kitNumber;
         card.lastFourDigits = kitNumber.lastFourDigits;
         kitNumber.isAssigned = true;
-        await queryRunner.manager.save(kitNumber);
-        return queryRunner.manager.save(card);
+        await queryRunner.manager.save<KitNumber>(kitNumber);
+        return queryRunner.manager.save<Card>(card);
+    }
+
+    async activateUserCard(userId: string) {
+        const card = await this.cardRepository.findOne({where: {user: {id: userId}}});
+        if (card) {
+            card.status = CardStatus.Active;
+            await this.cardRepository.save(card);
+        } else {
+            throw new BadRequestException('user does not have card associated with him');
+        }
+        return card;
     }
 }

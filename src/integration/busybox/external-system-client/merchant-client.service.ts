@@ -6,6 +6,9 @@ import { firstValueFrom } from 'rxjs';
 import { AccessTokenClientService } from './access-token-client.service';
 import { CardIssuanceResponse } from '../external/interfaces/card-issuence-response.interface';
 import { CustomerStatusResponse } from '../external/interfaces/customer-status.interface';
+import { getFakeCardStatusResponse } from '../external/constants/card-status-fake-response.constant';
+import { getFakeCardVerificationResponse } from '../external/constants/card-verification-fake-response.constant';
+import { getFakeIssueCardResponse } from '../external/constants/issue-card-fake-response.constant';
 
 @Injectable()
 export class MerchantClientService {
@@ -25,7 +28,9 @@ export class MerchantClientService {
     data: CardIssuanceDto,
   ): Promise<CardIssuanceResponse> {
     const config = await this.accessTokenService.getHeaderConfig();
-
+    if (JSON.parse(this.configService.get('ENABLE_SANDBOX'))) {
+      return getFakeIssueCardResponse()
+    }
     try {
       const response = await firstValueFrom(
         this.httpService.post(
@@ -55,7 +60,9 @@ export class MerchantClientService {
     data: OtpVerificationDto,
   ): Promise<OtpVerificationResponse> {
     const config = await this.accessTokenService.getHeaderConfig();
-
+    if (JSON.parse(this.configService.get('ENABLE_SANDBOX'))) {
+      return getFakeCardVerificationResponse();
+    }
     try {
       const response = await firstValueFrom(
         this.httpService.post<OtpVerificationResponse>(
@@ -81,6 +88,9 @@ export class MerchantClientService {
     mobileNumber: string,
   ): Promise<CustomerStatusResponse> {
     const config = await this.accessTokenService.getHeaderConfig();
+    if (JSON.parse(this.configService.get('ENABLE_SANDBOX'))) {
+      return getFakeCardStatusResponse();
+    }
     try {
       const response = await firstValueFrom(
         this.httpService.get<CustomerStatusResponse>(

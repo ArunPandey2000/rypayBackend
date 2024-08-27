@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiRespons
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
 import { PinRequestDto } from '../dto/pin-request.dto';
-import { UserAdminRequestDto, UserRequestDto } from '../dto/user-request.dto';
+import { UserAdminRequestDto, UserRequestDto, ValidateOTPAfterCardCreationDTO } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UsersService } from '../services/users.service';
 import { UploadFileService } from '../services/updaload-file.service';
@@ -133,10 +133,11 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Endpoint to validate otp for card after card creation' })
   @Post('/validate/card')
-  async validateCard(@Req() req: any, @Body('otp') otp: string) {
-    const cardDetails = await this.userService.validateUserCardAssignment(req.user.sub, otp);
+  async validateCard(@Req() req: any, @Body() otpRequest: ValidateOTPAfterCardCreationDTO) {
+    const cardDetails = await this.userService.validateUserCardAssignment(req.user.sub, otpRequest.otp);
     return {
-      isVerified: true
+      isVerified: true,
+      cardDetails
     };
   }
 

@@ -83,6 +83,9 @@ export class User {
   @Column({ name: 'pin', nullable: true })
   pin: string;
 
+  @Column({ name: 'user-session', nullable: true, default: "YES" })
+  userSession: string;
+
   @OneToOne(() => Merchant, (merchant) => merchant.id, { cascade: true })
   @JoinColumn({ name: 'merchant_id' })
   merchant: Merchant;
