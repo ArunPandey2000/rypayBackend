@@ -4,6 +4,7 @@ import { TransactionNotifyPayload } from '../interfaces/transaction-notify.inter
 import { KycWebhookPayload } from '../interfaces/kyc-webhook-payload.interface';
 import { WalletService } from 'src/wallet/services/wallet.service';
 import { ExternalService } from '../services/external.service';
+import { TransactionDto } from '../interfaces/upi-transaction-payload.dto';
 
 @Controller('external')
 @ApiTags('External')
@@ -23,6 +24,18 @@ export class ExternalController {
   @Post('kyc-events')
   async handleKycEvents(@Body() payload: KycWebhookPayload) {
     return this.externalService.handleKycEvents(payload);
+    // webhook processing logic
+  }
+
+  @Post('debit')
+  async handleDebitEvents(@Body() payload: TransactionDto) {
+    return this.externalService.handleDebitEvents(payload);
+    // webhook processing logic
+  }
+
+  @Post('upi')
+  async handleUpiEvents(@Body() payload: TransactionDto) {
+    return this.externalService.handleUpiEvents(payload);
     // webhook processing logic
   }
 }

@@ -20,11 +20,37 @@ import { RechargeModule } from './recharge/recharge.module';
     LoggerModule.forRoot({
       pinoHttp: {
         transport: {
-          target: 'pino-pretty',
-          options: {
-            singleLine: true,
+          level: 'trace',
+          targets: [{
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              singleLine: true,
+              levelFirst: false,
+              translateTime: "yyyy-MM-dd'T'HH:mm:ss.l'Z'",
+              messageFormat: '{req.headers.x-correlation-id} [{context}] {msg}',
+              ignore: 'pid,hostname,res,context,req',
+              errorLikeObjectKeys: ['err', 'error'],
+            },
           },
-        },
+          {
+            target: 'pino/file',
+            level: 'trace',
+            options: {
+              destination: './logs/app.log',
+              mkdir: true,
+            },
+          },
+          {
+            target: 'pino/file',
+            level: 'error',
+            options: {
+              destination: './logs/app-error.log',
+              mkdir: true,
+            },
+          },
+        ] 
+        }
       },
     }),
     ConfigModule.forRoot(),
