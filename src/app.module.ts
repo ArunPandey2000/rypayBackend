@@ -35,14 +35,6 @@ import { RechargeModule } from './recharge/recharge.module';
           },
           {
             target: 'pino/file',
-            level: 'trace',
-            options: {
-              destination: './logs/app.log',
-              mkdir: true,
-            },
-          },
-          {
-            target: 'pino/file',
             level: 'error',
             options: {
               destination: './logs/app-error.log',
