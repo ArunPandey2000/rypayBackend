@@ -6,9 +6,10 @@ import { Transaction } from 'src/core/entities/transactions.entity';
 import { PdfModule } from 'src/pdf/pdf.module';
 import { BullModule } from '@nestjs/bull';
 import { TransactionProcessor } from './procesor/transaction-report.processor';
+import { User } from 'src/core/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Transaction]),
+  imports: [TypeOrmModule.forFeature([Transaction, User]),
     BullModule.forRoot({
       redis: {
         port: 6379,

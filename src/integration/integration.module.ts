@@ -26,6 +26,8 @@ import { ExternalService } from './busybox/external/services/external.service';
 import { Card } from 'src/core/entities/card.entity';
 import { UploadFileService } from 'src/users/services/updaload-file.service';
 import { UserDocument } from 'src/core/entities/document.entity';
+import { SseService } from './busybox/external/services/sse-service';
+import { SseController } from './busybox/external/controllers/recharge-sse.controller';
 
 @Module({
   imports: [
@@ -49,9 +51,10 @@ import { UserDocument } from 'src/core/entities/document.entity';
     AccessTokenClientService,
     TransactionsClientService,
     ExternalService,
+    SseService,
     RechargeClientService
   ],
-  controllers: [ExternalController, RechargeExternalController],
+  controllers: [ExternalController, RechargeExternalController, SseController],
   exports: [
     MerchantClientService,
     CardsClientService,

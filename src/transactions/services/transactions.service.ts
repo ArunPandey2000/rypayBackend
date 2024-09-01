@@ -1,19 +1,21 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from 'src/core/entities/transactions.entity';
-import { Between, Like, QueryRunner, Repository } from 'typeorm';
+import { Between, In, Like, QueryRunner, Repository } from 'typeorm';
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { TransactionQueryDto } from '../dto/get-transactions.dto';
-import { Pagination } from '../dto/pagination-response.dto';
+import { PaginatedResponseDto, Pagination } from '../dto/pagination-response.dto';
 import { PdfService } from 'src/pdf/services/pdf.service';
 import { formatAmountToINR, formatDateToIST } from 'src/core/utils/date.util';
-import { Address } from 'src/core/entities/address.entity';
+import { User } from 'src/core/entities/user.entity';
+import { TransactionResponseDto, UserTransactionDto } from '../dto/transaction-response.dto';
 
 @Injectable()
 export class TransactionsService {
     constructor(
         @InjectRepository(Transaction)
     private readonly transactionsRepository: Repository<Transaction>,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
     private pdfService: PdfService
     ){ }
 
@@ -36,136 +38,140 @@ export class TransactionsService {
     
         return transactions;
       }
-    
-      async getWalletTransactions(req: any, queryDto: TransactionQueryDto) {
-        const userId = req.user.sub;
-    
-        const pagination = new Pagination();
-        const page = Math.floor(queryDto.pagination?.page) || 1;
-        const pageSize = Math.floor(queryDto.pagination?.pageSize) || 10;
-        const skipRecords = pageSize * (page - 1);
 
-        const { search , transactionType, toDate, fromDate, sortDirection} = queryDto;
-    
-    
-        let result: any[];
-        let total = 0;
-    
-        if (search) {
-          const query = await this.transactionsRepository.find({
-            where: {
-              user: { id: userId },
-              transactionHash: Like(`%${search}%`),
-              type: transactionType,
-              ...(queryDto.fromDate &&
-                queryDto.toDate && {
-                  transactionDate: Between(new Date(fromDate), new Date(toDate)),
-                }),
-            },
-            order: { createdAt: sortDirection },
-            take: pageSize,
-            skip: skipRecords,
-          });
-    
-          result = query.map((transaction) => ({
-            id: transaction.id,
-            amount: transaction.amount,
-            sender: transaction.sender,
-            receiver: transaction.receiver,
-            reference: transaction.reference,
-            description: transaction.description,
-            transactionHash: transaction.transactionHash,
-            transactionType: transaction.type,
-            transactionDate: transaction.transactionDate,
-            createdAt: transaction.createdAt,
-            updatedAt: transaction.updatedAt
-          }));
-    
-          total = await this.transactionsRepository.count({
-            where: {
-              user: { id: userId },
-              transactionHash: Like(`%${search}%`),
-              type: transactionType,
-              ...(fromDate &&
-                toDate && {
-                  transactionDate: Between(new Date(fromDate), new Date(toDate)),
-                }),
-            },
-          });
-        } else {
-          const query = await this.transactionsRepository.find({
-            where: {
-              user: { id: userId },
-              ...(transactionType && {type: transactionType}),
-              ...(fromDate &&
-                toDate && {
-                  transactionDate: Between(new Date(fromDate), new Date(toDate)),
-                }),
-            },
-            order: { createdAt: sortDirection },
-            take: pageSize,
-            skip: skipRecords,
-          });
-    
-          result = query.map((transaction) => ({
-            id: transaction.id,
-            amount: transaction.amount,
-            walletBalanceBefore: transaction.walletBalanceBefore,
-            walletBalanceAfter: transaction.walletBalanceAfter,
-            sender: transaction.sender,
-            receiver: transaction.receiver,
-            reference: transaction.reference,
-            description: transaction.description,
-            transactionHash: transaction.transactionHash,
-            transactionType: transaction.type,
-            transactionDate: transaction.transactionDate,
-            createdAt: transaction.createdAt,
-            updatedAt: transaction.updatedAt,
-          }));
-    
-          total = await this.transactionsRepository.count({
-            where: { user: { id: userId }, type: transactionType },
-          });
-        }
-    
-        return pagination.PaginateResponse(result, total, page, pageSize);
-      }
+  async getWalletTransactions(req: any, queryDto: TransactionQueryDto) {
+    const userId = req.user.sub;
+    const { page = 1, pageSize = 10 } = queryDto.pagination || {};
+    const skipRecords = pageSize * (page - 1);
 
-      async getPrintableTransactionRecords(req: any, queryDto: TransactionQueryDto) {
-        const result = await this.getWalletTransactions(req, queryDto);
-        const transaction = await this.transactionsRepository.findOne({
-          where: {
-            user: {
-              id: req.user.sub
-            },
-          },
-          relations: ['user', 'user.address']
-        });
-        const user = transaction?.user;
-        const pdfPayload =  {
-          dateRange: {
-            to: formatDateToIST(new Date(queryDto.toDate), false),
-            from: formatDateToIST(new Date(queryDto.fromDate), false)
-          },
-          generatedDate: formatDateToIST(new Date()),
-          user: {
-            name: `${user.firstName} ${user.lastName}`,
-            cardNumber: '*********1234',
-            panNumber: user.panNumber,
-            accountNumber: '4658511009',
-            ifscCode: 'YESB0000136',
-            address: `${user.address.address1} ${user.address.address2} ${user.address.city} ${user.address.state} ${user.address.pincode}`
-          },
-          statement: result.data.map((record) => ({
-            date: formatDateToIST(record.transactionDate),
-            description: record.description,
-            reference: record.reference,
-            amount: formatAmountToINR(record.amount),
-            transactionType: record.transactionType,
-            transactionHash: record.transactionHash,
-            balance: formatAmountToINR(record.walletBalanceAfter)
-          }))
-        }
-        return this.pdfService.generatePDF(pdfPayload);
+    const { search, transactionType, fromDate, toDate, sortDirection } = queryDto;
+
+    // Build the base query
+    const baseWhere: any = {
+      user: { id: userId },
+      ...(transactionType && { type: transactionType }),
+      ...(fromDate && toDate && { transactionDate: Between(new Date(fromDate), new Date(toDate)) }),
+    };
+
+    // Add search condition if available
+    if (search) {
+      baseWhere.transactionHash = Like(`%${search}%`);
+    }
+
+    // Fetch paginated transactions
+    const transactions = await this.transactionsRepository.find({
+      where: baseWhere,
+      order: { createdAt: sortDirection },
+      take: pageSize,
+      skip: skipRecords,
+    });
+
+    // Count the total number of transactions for pagination
+    const total = await this.transactionsRepository.count({ where: baseWhere });
+
+    // Fetch user data for wallet transactions
+    const walletTransactionUserIds = Array.from(new Set(transactions.map((transaction) => this.getRelevantUserId(transaction))));
+
+    const userData = await this.userRepo.find({
+      where: { id: In(walletTransactionUserIds) },
+    });
+
+    // Map the transactions to TransactionResponseDto
+    const result = transactions.map((transaction): TransactionResponseDto => {
+      const counterPartyUser = this.getCounterpartyUser(transaction, userData);
+
+      return {
+        id: transaction.id,
+        amount: transaction.amount,
+        walletBalanceBefore: transaction.walletBalanceBefore,
+        walletBalanceAfter: transaction.walletBalanceAfter,
+        sender: transaction.sender,
+        receiver: transaction.receiver,
+        reference: transaction.reference,
+        description: transaction.description,
+        transactionHash: transaction.transactionHash,
+        transactionType: transaction.type,
+        transactionDate: transaction.transactionDate,
+        createdAt: transaction.createdAt,
+        serviceUsed: transaction.serviceUsed,
+        updatedAt: transaction.updatedAt,
+        counterPartyUser,
+      };
+    });
+
+    // Return the paginated response using your custom Pagination class
+    return new Pagination().PaginateResponse(result, total, page, pageSize);
+  }
+
+  private getRelevantUserId(transaction: Transaction): string | null {
+    if (transaction.serviceUsed === "WALLET") {
+        // Determine the relevant user based on the transaction type
+      if (transaction.type === "CREDIT") { // Credit
+        return transaction.sender || transaction.receiver;
+      } else { // Debit
+        return transaction.receiver || transaction.sender;
       }
+    }
+    return null
+  }
+
+  private getCounterpartyUser(transaction: any, userData: User[]): UserTransactionDto | null {
+    const userId = this.getRelevantUserId(transaction);
+    if (!userId) {
+      return null
+    }
+    const user = userData.find((user) => user.id.toString() === userId);
+
+    return user ? {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    } : null;
+  }
+
+    
+
+  async getPrintableTransactionRecords(req: any, queryDto: TransactionQueryDto) {
+    if (!queryDto.pagination) {
+      queryDto.pagination = {
+        page: 1,
+        pageSize: Number.MAX_SAFE_INTEGER
+      }
+    }
+    const result = await this.getWalletTransactions(req, queryDto);
+    const transaction = await this.transactionsRepository.findOne({
+      where: {
+        user: {
+          id: req.user.sub
+        },
+      },
+      relations: ['user', 'user.address']
+    });
+    const user = transaction?.user;
+    const pdfPayload =  {
+      dateRange: {
+        to: formatDateToIST(new Date(queryDto.toDate), false),
+        from: formatDateToIST(new Date(queryDto.fromDate), false)
+      },
+      generatedDate: formatDateToIST(new Date()),
+      user: {
+        name: `${user.firstName} ${user.lastName}`,
+        cardNumber: '*********1234',
+        panNumber: user.panNumber,
+        accountNumber: '4658511009',
+        ifscCode: 'YESB0000136',
+        address: `${user.address.address1} ${user.address.address2} ${user.address.city} ${user.address.state} ${user.address.pincode}`
+      },
+      statement: result.data.map((record) => ({
+        date: formatDateToIST(record.transactionDate),
+        description: record.description,
+        reference: record.reference,
+        amount: formatAmountToINR(record.amount),
+        transactionType: record.transactionType,
+        transactionHash: record.transactionHash,
+        balance: formatAmountToINR(record.walletBalanceAfter)
+      }))
+    }
+    return this.pdfService.generatePDF(pdfPayload);
+  }
 }

@@ -1,12 +1,13 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Transaction } from 'typeorm';
-import { TransactionQueryDto } from '../dto/get-transactions.dto';
+import { PrintableTransactionQueryDto, TransactionQueryDto } from '../dto/get-transactions.dto';
 import { TransactionsService } from '../services/transactions.service';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { PaginatedResponseDto } from '../dto/pagination-response.dto';
 
 @Controller('transactions')
 @ApiBearerAuth()
@@ -22,6 +23,11 @@ export class TransactionsController {
     }
   @Post('/')
   @HttpCode(HttpStatus.OK)
+  @ApiResponse({
+    status: 200,
+    description: 'List of transactions with pagination',
+    type: PaginatedResponseDto, // Specify the paginated response DTO
+  })
   async GetWalletTransactions(
     @Req() req: Request,
     @Body() transcationQuery: TransactionQueryDto
@@ -31,7 +37,7 @@ export class TransactionsController {
   }
 
   @Post('generate')
-  async generatePDF(@Req() req: any, @Body() data: TransactionQueryDto, @Res() res: Response): Promise<void> {
+  async generatePDF(@Req() req: any, @Body() data: PrintableTransactionQueryDto, @Res() res: Response): Promise<void> {
     const queuePayload = {
       payload: data,
       user: req.user
