@@ -44,10 +44,12 @@ export class AccessTokenClientService {
     }
   }
 
-  async getHeaderConfig() {
+  async getHeaderConfig(isBearerAuth = false) {
     const token = await this.getToken();
     return {
-      headers: {
+      headers: isBearerAuth ? {
+        Authorization: `Bearer ${token}`
+      } : {
         Token: token
       },
     };

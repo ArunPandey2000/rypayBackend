@@ -13,6 +13,14 @@ export const generateRef = (length: number) => {
     const dateString = date.replace(/"/g, '');
     return dateString;
   }
+
+  export function maskAccount(account: string): string {
+    const visibleDigits = 4;  // Number of visible characters at the end (e.g., ".00")
+    const maskedPart = '*'.repeat(account.length - visibleDigits);
+    
+    return maskedPart + account.slice(-visibleDigits);
+  }
+  
   
   export const generateHash = () => {
     const key = `RYPAY_TX_REF${generateRef(12)}`.toUpperCase();

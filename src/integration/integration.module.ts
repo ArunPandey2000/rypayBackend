@@ -28,6 +28,9 @@ import { UploadFileService } from 'src/users/services/updaload-file.service';
 import { UserDocument } from 'src/core/entities/document.entity';
 import { SseService } from './busybox/external/services/sse-service';
 import { SseController } from './busybox/external/controllers/recharge-sse.controller';
+import { PayoutService } from './busybox/external/services/payout.service';
+import { PayoutController } from './busybox/external/controllers/payout.controller';
+import { PayoutClientService } from './busybox/external-system-client/payout-client.service';
 
 @Module({
   imports: [
@@ -52,15 +55,19 @@ import { SseController } from './busybox/external/controllers/recharge-sse.contr
     TransactionsClientService,
     ExternalService,
     SseService,
-    RechargeClientService
+    RechargeClientService,
+    PayoutClientService,
+    PayoutService
   ],
-  controllers: [ExternalController, RechargeExternalController, SseController],
+  controllers: [ExternalController, PayoutController, RechargeExternalController, SseController],
   exports: [
     MerchantClientService,
     CardsClientService,
     TransactionsClientService,
     ExternalService,
-    RechargeClientService
+    PayoutService,
+    RechargeClientService,
+    PayoutClientService
   ],
 })
 export class IntegrationModule { }
