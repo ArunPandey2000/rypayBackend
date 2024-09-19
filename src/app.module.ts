@@ -13,6 +13,7 @@ import { CardsModule } from './cards/cards.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { PdfModule } from './pdf/pdf.module';
 import { RechargeModule } from './recharge/recharge.module';
+import { BeneficiaryModule } from './beneficiary/beneficiary.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { RechargeModule } from './recharge/recharge.module';
     TransactionsModule,
     PdfModule,
     RechargeModule,
+    BeneficiaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

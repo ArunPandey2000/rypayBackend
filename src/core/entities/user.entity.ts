@@ -13,6 +13,7 @@ import { Address } from './address.entity';
 import { Merchant } from './merchant.entity';
 import { Order } from './order.entity';
 import { Card } from './card.entity';
+import { Beneficiary } from './beneficiery.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -79,6 +80,9 @@ export class User {
 
   @OneToMany(() => Order, order => order.user)
   orders: Order[];
+
+  @OneToMany(() => Beneficiary, beneficiary => beneficiary.user)
+  beneficiaries: Beneficiary[];
 
   @Column({ name: 'pin', nullable: true })
   pin: string;
