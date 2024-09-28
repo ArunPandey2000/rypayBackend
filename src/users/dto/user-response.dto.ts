@@ -30,6 +30,8 @@ export class AccountResponse {
   ifscCode: string;
   @ApiProperty()
   nameInBank: string;
+  @ApiProperty()
+  upi: string;
 
   constructor(user: User) {
     if (user) {
@@ -37,6 +39,7 @@ export class AccountResponse {
       this.accountNumber = '1005896487';
       this.ifscCode = 'YESB012455';
       this.nameInBank = `${user.firstName} ${user.lastName}`;
+      this.upi = '8168938167@ptsbi'
     }
   }
 }

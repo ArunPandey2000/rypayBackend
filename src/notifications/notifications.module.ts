@@ -4,20 +4,26 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { SmsClientService } from './sms-client.service';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { MailController } from './controllers/mail.controller';
+import { MailService } from './services/mail.service';
 
 @Module({
   imports: [HttpModule, ConfigModule, 
     MailerModule.forRoot({
       transport: {
-        host: process.env.EMAIL_HOST,
+        service: 'gmail',
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
         auth: {
-          user: process.env.EMAIL_USERNAME,
-          pass: process.env.EMAIL_PASSWORD,
+          user: "riyadhmicrofinance@gmail.com",
+          pass: "xqjryatlvvyemecy",
         },
       },
     })
   ],
-  providers: [OtpFlowService, SmsClientService],
+  controllers: [MailController],
+  providers: [OtpFlowService, SmsClientService, MailService],
   exports: [OtpFlowService],
 })
 export class NotificationsModule {}

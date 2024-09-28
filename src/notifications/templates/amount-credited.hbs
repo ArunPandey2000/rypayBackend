@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #007BFF;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header img {
+            max-width: 100px;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .content h3 {
+            color: #007BFF;
+        }
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid #e0e0e0;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            .container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <img src="https://th.bing.com/th/id/OIP.SGjgBnxOXYb2CQ_LryIVCQAAAA?rs=1&pid=ImgDetMain" alt="RYPAY Logo">
+            <h1>{{header}}</h1>
+        </div>
+        <div class="content">
+            <p>Dear {{userName}},</p>
+            <p>We are pleased to inform you that an amount of <strong>Rs. {{amount}}</strong> has been successfully credited to your RYPAY Account <strong>{{accountNumber}}</strong>.</p>
+
+            <h3>Transaction Details:</h3>
+            <ul>
+                <li><strong>Amount:</strong> Rs. {{amount}}</li>
+                <li><strong>Account Number:</strong> {{accountNumber}}</li>
+                <li><strong>UPI ID:</strong> {{upiId}}</li>
+            </ul>
+
+            <p>Thank you for banking with us! If you have any questions or need further assistance, please feel free to reach out to our customer support.</p>
+        </div>
+        <div class="footer">
+            <hr>
+            <p>&copy; {{year}} RYPAY. All rights reserved.</p>
+            <p>Shop No 24, Gurunanak Marg, Sector 7, Gurugram, Haryana, 122001, IN</p>
+            <p>Email: <a href="mailto:riydmicrofinance@gmail.com">riydmicrofinance@gmail.com</a></p>
+            <p>Note: Please do not share your account details with anyone to ensure your account's security.</p>
+        </div>
+    </div>
+
+</body>
+</html>
