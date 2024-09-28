@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/core/entities/user.entity';
-import { OtpFlowService } from 'src/otp-flow/services/otp-flow.service';
 import {
   UserApiResponseDto,
   UserResponse,
@@ -18,6 +17,7 @@ import { TokenService } from './token.service';
 import { ConfigService } from '@nestjs/config';
 import { sendOtpResponseDto } from '../dto/send-otp-response.dto';
 import * as otpGenerator from 'otp-generator';
+import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
 
 @Injectable()
 export class AuthService {

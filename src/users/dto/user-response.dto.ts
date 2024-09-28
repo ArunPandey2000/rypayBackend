@@ -22,6 +22,24 @@ export class CardResponse {
     }
   }
 }
+
+export class AccountResponse {
+  @ApiProperty()
+  accountNumber: string;
+  @ApiProperty()
+  ifscCode: string;
+  @ApiProperty()
+  nameInBank: string;
+
+  constructor(user: User) {
+    if (user) {
+      // will get this info from api
+      this.accountNumber = '1005896487';
+      this.ifscCode = 'YESB012455';
+      this.nameInBank = `${user.firstName} ${user.lastName}`;
+    }
+  }
+}
 export class UserResponse {
   @ApiProperty()
   userid: string;
@@ -62,6 +80,9 @@ export class UserResponse {
   @ApiProperty()
   cardDetails: CardResponse;
 
+  @ApiProperty()
+  accountDetails: AccountResponse;
+
   constructor(user: User) {
     this.userid = user.id;
     this.firstName = user.firstName;
@@ -74,6 +95,7 @@ export class UserResponse {
     this.kycVerificationStatus = KycVerificationStatus[user.kycVerificationStatus].toString();
     this.isPinCreated = !!user.pin;
     this.cardDetails = new CardResponse(user.card);
+    this.accountDetails = new AccountResponse(user);
   }
 }
 

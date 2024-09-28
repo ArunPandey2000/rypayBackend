@@ -3,7 +3,6 @@ import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { TokenService } from './services/token.service';
-import { OtpFlowModule } from 'src/otp-flow/otp-flow.module';
 import { UsersService } from 'src/users/services/users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/core/entities/user.entity';
@@ -27,6 +26,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { CardsModule } from 'src/cards/cards.module';
 import { UploadFileService } from 'src/users/services/updaload-file.service';
 import { UserDocument } from 'src/core/entities/document.entity';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Global()
 @Module({
@@ -37,7 +37,7 @@ import { UserDocument } from 'src/core/entities/document.entity';
     CacheModule.register(),
     HttpModule,
     IntegrationModule,
-    OtpFlowModule,
+    NotificationsModule,
     CardsModule
   ],
   providers: [

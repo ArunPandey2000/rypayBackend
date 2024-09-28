@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { CoreModule } from './core/core.module';
 import { IntegrationModule } from './integration/integration.module';
-import { OtpFlowModule } from './otp-flow/otp-flow.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
@@ -50,7 +50,7 @@ import { BeneficiaryModule } from './beneficiary/beneficiary.module';
     AuthModule,
     IntegrationModule,
     UsersModule,
-    OtpFlowModule,
+    NotificationsModule,
     IntegrationModule,
     WalletModule,
     CardsModule,
