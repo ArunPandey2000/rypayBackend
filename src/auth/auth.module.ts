@@ -9,7 +9,7 @@ import { User } from 'src/core/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { RefreshToken } from 'src/core/entities/refresh-token.entity';
 import { OtpInfo } from 'src/core/entities/otp-info.entity';
-import { OtpRepository } from './repository/otp.repository';
+import { OtpRepository } from '../notifications/repository/otp.repository';
 import { AccessTokenStrategy } from './strategies/access-token.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { IntegrationModule } from 'src/integration/integration.module';

@@ -4,13 +4,15 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { IAccessTokenUserPayload } from 'src/auth/interfaces/user-token-request-payload.interface';
 import { TokenService } from 'src/auth/services/token.service';
 import { CardsService } from 'src/cards/services/cards.service';
+import { CardStatus } from 'src/core/entities/card.entity';
 import { UserDocument } from 'src/core/entities/document.entity';
 import { User } from 'src/core/entities/user.entity';
 import { Wallet } from 'src/core/entities/wallet.entity';
@@ -19,14 +21,14 @@ import { generateRef } from 'src/core/utils/hash.util';
 import { MerchantClientService } from 'src/integration/busybox/external-system-client/merchant-client.service';
 import { WalletService } from 'src/wallet/services/wallet.service';
 import { DataSource, EntityManager, Repository } from 'typeorm';
+import { UserDocumentResponseDto } from '../dto/user-documents.dto';
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
 import { UserRequestDto } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UserMapper } from '../mapper/user-mapper';
 import { UploadFileService } from './updaload-file.service';
-import * as bcrypt from 'bcrypt';
-import { UserDocumentResponseDto } from '../dto/user-documents.dto';
-import { CardStatus } from 'src/core/entities/card.entity';
+import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
+import { OtpRepository } from 'src/notifications/repository/otp.repository';
 
 @Injectable()
 export class UsersService {
@@ -39,6 +41,8 @@ export class UsersService {
     private cardService: CardsService,
     private _connection: DataSource,
     private uploadFileService: UploadFileService,
+    private otpFlowService: OtpFlowService,
+    private otpRepository: OtpRepository,
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(UserDocument) private documentRepository: Repository<UserDocument>,
   ) { }
@@ -104,7 +108,7 @@ export class UsersService {
       // const user = await this.userRepository.save(newUser);
       await queryRunner.commitTransaction();
       const userModel = {...savedUser, card: card};
-      return new UserResponse(userModel);
+      return this.addProfileIconInUserResponse(savedUser, new UserResponse(userModel));
     } catch (err) {
       if (queryRunner.isTransactionActive) {
         await queryRunner.rollbackTransaction();
@@ -154,6 +158,14 @@ export class UsersService {
       user,
       tokens,
     };
+  }
+
+  async addProfileIconInUserResponse(userModel: User, userResponse: UserResponse) {
+    if (userModel.profileIcon) {
+      const fileInfo = await this.uploadFileService.getPresignedSignedUrl(userModel.profileIcon);
+      userResponse.profileUrl = fileInfo.url;
+    }
+    return userResponse;
   }
 
   async setPin(userId: string, pin: string): Promise<void> {
@@ -225,6 +237,31 @@ export class UsersService {
     return this.userRepository.findOne({ where: { id: userId } });
   }
 
+  async sendVerificationCode(userId: string) {
+    const user = await this.findUserById(userId);
+    if (!user) {
+        throw new BadRequestException('User not found');
+    }
+    await this.otpFlowService.requestOtp(user.phoneNumber, user.email)
+  }
+
+  async verifyCodeAndUpdateUserPin(userId: string, otp: string, pin: string) {
+    const user = await this.findUserById(userId);
+    if (!user) {
+      throw new BadRequestException('user not found');
+    }
+    try {
+      await this.otpRepository.validateUserOtp(user.phoneNumber, otp);
+      await this.setPin(userId, pin);
+      return {
+        message: "Pin Reset successfully!!!"
+      }
+    } catch {
+      throw new BadRequestException('Failed to validate OTP');
+    }
+    
+  }
+
   async updateUserKycDetails(userId: string, fileInfos: UpdateKycDetailUploadDto[]): Promise<boolean> {
 
     const userInfo = await this.userRepository.findOne({
@@ -292,5 +329,19 @@ export class UsersService {
     }
 
     return await entityManager.save(documentInfo);
+  }
+
+  async updateProfileIcon(userId: string, file: Express.Multer.File) {
+    const user = await this.findUserById(userId);
+    if (!user) {
+      throw new BadRequestException('user not found');
+    }
+    const fileInfo = await this.uploadFileService.uploadSingleFile(file);
+    user.profileIcon = fileInfo.key;
+    await this.userRepository.save(user);
+    return {
+      message: 'Profile icon updated successfully!',
+      fileUrl: fileInfo.url
+    }
   }
 }

@@ -1,58 +1,31 @@
 import {
-  BadRequestException,
   Injectable,
-  InternalServerErrorException,
+  InternalServerErrorException
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { User } from 'src/core/entities/user.entity';
+import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
 import {
   UserApiResponseDto,
   UserResponse,
 } from 'src/users/dto/user-response.dto';
+import { UsersService } from 'src/users/services/users.service';
 import { Repository } from 'typeorm';
+import { OtpRepository } from '../../notifications/repository/otp.repository';
 import { VerifyPhoneRequestDto } from '../dto/verify-phone-request.dto';
-import { OtpRepository } from '../repository/otp.repository';
 import { AuthUtil } from '../utils/auth.util';
 import { TokenService } from './token.service';
-import { ConfigService } from '@nestjs/config';
-import { sendOtpResponseDto } from '../dto/send-otp-response.dto';
-import * as otpGenerator from 'otp-generator';
-import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private tokenService: TokenService,
-    private otpFlowService: OtpFlowService,
     private otpRepository: OtpRepository,
-    private configService: ConfigService,
+    private userService: UsersService,
     @InjectRepository(User) private userRepo: Repository<User>,
   ) {}
-
-  async requestOtp(phoneNumber: string) {
-    const otpLength = this.configService.get('OTP_LENGTH');
-    const generatedOtp = otpGenerator.generate(otpLength, {
-      lowerCaseAlphabets: false,
-      upperCaseAlphabets: false,
-      specialChars: false,
-    });
-    /*
-      send SMS message service code comes here
-    */
-    await this.otpFlowService.sendOtp(phoneNumber, generatedOtp);
-    let otpRecord = this.otpRepository.upsertOtpInfo(phoneNumber, generatedOtp);
-    return otpRecord
-      .then(() => {
-        return {
-          message: 'success',
-        } as sendOtpResponseDto;
-      })
-      .catch((err) => {
-        return {
-          message: err.message,
-        } as sendOtpResponseDto;
-      });
-  }
 
   async validateOTP(userPhoneInfo: VerifyPhoneRequestDto) {
     return await this.otpRepository
@@ -74,7 +47,7 @@ export class AuthService {
           AuthUtil.getAccessTokenPayloadFromUserModel(userData);
         const tokens = await this.tokenService.generateTokens(tokenPayload);
         return <UserApiResponseDto>{
-          user: new UserResponse(userData),
+          user: await this.userService.addProfileIconInUserResponse(userData, new UserResponse(userData)),
           tokens: tokens,
         };
       })

@@ -31,6 +31,12 @@ import { SseController } from './busybox/external/controllers/recharge-sse.contr
 import { PayoutService } from './busybox/external/services/payout.service';
 import { PayoutController } from './busybox/external/controllers/payout.controller';
 import { PayoutClientService } from './busybox/external-system-client/payout-client.service';
+import { NotificationsModule } from 'src/notifications/notifications.module';
+import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
+import { SmsClientService } from 'src/notifications/sms-client.service';
+import { MailService } from 'src/notifications/services/mail.service';
+import { OtpInfo } from 'src/core/entities/otp-info.entity';
+import { OtpRepository } from 'src/notifications/repository/otp.repository';
 
 @Module({
   imports: [
@@ -40,7 +46,8 @@ import { PayoutClientService } from './busybox/external-system-client/payout-cli
     port: 6379 //default port
   }),
     HttpModule, ConfigModule,
-    TypeOrmModule.forFeature([Wallet, User, Order, Transaction, Card, BusyBoxWebhookResponse, WebhookResponse, UserDocument])
+    NotificationsModule,
+    TypeOrmModule.forFeature([Wallet, User, Order, Transaction, Card, BusyBoxWebhookResponse, WebhookResponse, UserDocument, OtpInfo])
   ],
   providers: [
     MerchantClientService,
@@ -57,7 +64,11 @@ import { PayoutClientService } from './busybox/external-system-client/payout-cli
     SseService,
     RechargeClientService,
     PayoutClientService,
-    PayoutService
+    PayoutService,
+    OtpFlowService,
+    SmsClientService,
+    MailService,
+    OtpRepository
   ],
   controllers: [ExternalController, PayoutController, RechargeExternalController, SseController],
   exports: [

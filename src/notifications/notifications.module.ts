@@ -6,9 +6,13 @@ import { SmsClientService } from './sms-client.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailController } from './controllers/mail.controller';
 import { MailService } from './services/mail.service';
+import { OtpRepository } from './repository/otp.repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { OtpInfo } from 'src/core/entities/otp-info.entity';
 
 @Module({
   imports: [HttpModule, ConfigModule, 
+    TypeOrmModule.forFeature([OtpInfo]),
     MailerModule.forRoot({
       transport: {
         service: 'gmail',
@@ -23,7 +27,7 @@ import { MailService } from './services/mail.service';
     })
   ],
   controllers: [MailController],
-  providers: [OtpFlowService, SmsClientService, MailService],
+  providers: [OtpFlowService, SmsClientService, MailService, OtpRepository],
   exports: [OtpFlowService],
 })
 export class NotificationsModule {}

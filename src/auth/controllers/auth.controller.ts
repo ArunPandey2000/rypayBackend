@@ -20,18 +20,21 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { VerifyPhoneRequestDto } from '../dto/verify-phone-request.dto';
-import { sendOtpResponseDto } from '../dto/send-otp-response.dto';
+import { sendOtpResponseDto } from '../../notifications/dto/send-otp-response.dto';
 import { UserApiResponseDto } from 'src/users/dto/user-response.dto';
-import { sendOtpRequestDto } from '../dto/send-otp-request.dto';
+import { sendOtpRequestDto } from '../../notifications/dto/send-otp-request.dto';
 import { RefreshAccessTokenResponseDto } from '../dto/refresh-access-token-request.dto';
 import { RefreshAccessTokenRequestDto } from '../dto/refresh-access-token-response.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { UserRole } from 'src/core/enum/user-role.enum';
+import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
 
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService,
+    private otpFlowService: OtpFlowService
+  ) {}
 
   @ApiResponse({ type: sendOtpResponseDto })
   @HttpCode(HttpStatus.OK)
@@ -41,7 +44,7 @@ export class AuthController {
     type: sendOtpRequestDto,
   })
   async requestOtp(@Body() userPhone: sendOtpRequestDto) {
-    return this.authService.requestOtp(userPhone.phone);
+    return this.otpFlowService.requestOtp(userPhone.phone);
   }
 
   @ApiResponse({ type: UserApiResponseDto })

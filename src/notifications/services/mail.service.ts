@@ -1,7 +1,12 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { Global, Injectable, Scope } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Handlebars from 'handlebars';
 
-@Injectable()
+@Injectable({
+    scope: Scope.DEFAULT
+})
 export class MailService {
   constructor(private readonly mailService: MailerService) {}
 
@@ -12,5 +17,15 @@ export class MailService {
       subject,
       html: template,
     });
+  }
+
+  async sendOtpMailToUser(to: string, subject: string, otp: string) {
+    const context = {
+        header: 'Your OTP Code',
+        otp
+    }
+    const templatePath = path.resolve(__dirname, '../templates', 'otp.hbs');
+    const template = fs.readFileSync(templatePath, 'utf-8');
+    this.sendMail(to, subject, Handlebars.compile(template)(context));
   }
 }

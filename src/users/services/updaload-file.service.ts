@@ -43,7 +43,7 @@ export class UploadFileService {
           originalName: file.originalname,
         },
       });
-      const uploadResult = await this.client.send(command);
+      await this.client.send(command);
       return {
         url: (await this.getPresignedSignedUrl(key)).url,
         key

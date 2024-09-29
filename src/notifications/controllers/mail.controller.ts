@@ -19,7 +19,7 @@ export class MailController {
         header: 'Transaction Alert',
         accountNumber: 'XXXXXX1234',
         upiId: 'mdaarif@ybl'
-      }
+    }
     const templatePath = path.resolve(__dirname, '../templates', 'amount-credited.hbs');
     const template = fs.readFileSync(templatePath, 'utf-8');
     const mail = await this.mailService.sendMail(['arun03178@gmail.com','aarifmd8587@gmail.com' ], 'Amount Credited', Handlebars.compile(template)(context) );

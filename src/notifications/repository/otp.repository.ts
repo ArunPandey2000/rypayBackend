@@ -5,15 +5,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OtpInfo } from 'src/core/entities/otp-info.entity';
-import { User } from 'src/core/entities/user.entity';
 import { Repository } from 'typeorm';
-import { OTPValidateStatus } from '../enum/otp-verification-status.enum';
-import { NotFoundError } from 'rxjs';
+import { OTPValidateStatus } from '../../auth/enum/otp-verification-status.enum';
 
 @Injectable()
 export class OtpRepository {
   constructor(
-    @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(OtpInfo) private otpRepo: Repository<OtpInfo>,
   ) {}
 

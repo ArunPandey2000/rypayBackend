@@ -1,9 +1,9 @@
-import { Body, Controller, FileTypeValidator, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Patch, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, FileTypeValidator, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Patch, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
-import { PinRequestDto } from '../dto/pin-request.dto';
+import { PinRequestDto, UpdateForgotPin } from '../dto/pin-request.dto';
 import { UserAdminRequestDto, UserRequestDto, ValidateOTPAfterCardCreationDTO } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UsersService } from '../services/users.service';
@@ -57,6 +57,31 @@ export class UsersController {
     return this.userService.registerAdminAndGenerateToken(signUpDto);
   }
 
+  @Put('update-profile-icon')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update user profile icon' })
+  @ApiResponse({ status: 200, description: 'Profile icon updated successfully.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+      description: 'File to upload and user ID',
+      type: 'multipart/form-data',
+      schema: {
+          type: 'object',
+          properties: {
+              file: {
+                  type: 'string',
+                  format: 'binary',
+              }
+          },
+      },
+  })
+  async updateProfileIcon(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
+      return this.userService.updateProfileIcon(req.user.sub, file);
+  }
+
   @Post('set-pin')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -81,6 +106,27 @@ export class UsersController {
   ): Promise<{ valid: boolean; }> {
     const valid = await this.userService.verifyPin(req.user.sub, pinRequest.pin);
     return { valid };
+  }
+
+    @Post('reset-pin')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Request PIN reset' })
+    @ApiResponse({ status: 200, description: 'Verification code sent to user.' })
+    @ApiResponse({ status: 400, description: 'Bad Request.' })
+    async requestResetPin(@Req() req: any) {
+        await this.userService.sendVerificationCode(req.user.sub);
+        return { message: 'Verification code sent to your email.' };
+  }
+
+  @Post('forgot/update-pin')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'updates pin' })
+  @ApiResponse({ status: 200, description: 'Code verified successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid code or expired.' })
+  async updateForgotPin(@Req() req: any, @Body() body: UpdateForgotPin) {
+      return await this.userService.verifyCodeAndUpdateUserPin(req.user.sub, body.otp, body.newPin);
   }
 
 

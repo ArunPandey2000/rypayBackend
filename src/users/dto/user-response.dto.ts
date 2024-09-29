@@ -84,6 +84,9 @@ export class UserResponse {
   cardDetails: CardResponse;
 
   @ApiProperty()
+  profileUrl: String
+
+  @ApiProperty()
   accountDetails: AccountResponse;
 
   constructor(user: User) {

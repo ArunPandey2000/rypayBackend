@@ -87,6 +87,9 @@ export class User {
   @Column({ name: 'pin', nullable: true })
   pin: string;
 
+  @Column({ name: 'profileIcon', nullable: true })
+  profileIcon: string;
+
   @Column({ name: 'user-session', nullable: true, default: "YES" })
   userSession: string;
 
