@@ -14,10 +14,17 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { PdfModule } from './pdf/pdf.module';
 import { RechargeModule } from './recharge/recharge.module';
 import { BeneficiaryModule } from './beneficiary/beneficiary.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     CoreModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'assets'),
+      serveRoot: '/assets/',
+      exclude: ['/api/(.*)'],
+    }),
     LoggerModule.forRoot({
       pinoHttp: {
         transport: {

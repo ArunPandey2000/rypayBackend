@@ -22,7 +22,7 @@ export class MailController {
     }
     const templatePath = path.resolve(__dirname, '../templates', 'amount-credited.hbs');
     const template = fs.readFileSync(templatePath, 'utf-8');
-    const mail = await this.mailService.sendMail(['arun03178@gmail.com','aarifmd8587@gmail.com' ], 'Amount Credited', Handlebars.compile(template)(context) );
+    const mail = await this.mailService.sendMail(['arun03178@gmail.com'], 'Amount Credited', Handlebars.compile(template)(context) );
 
     return response.status(200).json({
       message: 'success',
