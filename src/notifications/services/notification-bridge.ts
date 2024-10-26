@@ -1,5 +1,5 @@
 import { InjectQueue } from "@nestjs/bull";
-import { JobOptions, Queue } from "bull";
+import { Queue } from "bull";
 
 export class NotificationBridge {
     constructor(@InjectQueue('notification') private notificationQueue: Queue) {

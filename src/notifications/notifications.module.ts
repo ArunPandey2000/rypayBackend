@@ -17,6 +17,7 @@ import { NotificationService } from './services/notification.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { User } from 'src/core/entities/user.entity';
 import { NotificationCronJob } from './services/notification-delete-cron.service';
+import { NotificationProcessor } from './procesor/notification.processor';
 
 @Module({
   imports: [HttpModule, ConfigModule, 
@@ -39,7 +40,7 @@ import { NotificationCronJob } from './services/notification-delete-cron.service
     })
   ],
   controllers: [NotificationController, MailController],
-  providers: [OtpFlowService, NotificationCronJob, NotificationBridge, NotificationService, SmsClientService, MailService, OtpRepository],
+  providers: [OtpFlowService, NotificationCronJob, NotificationProcessor, NotificationBridge, NotificationService, SmsClientService, MailService, OtpRepository],
   exports: [OtpFlowService, NotificationBridge],
 })
 export class NotificationsModule {}
