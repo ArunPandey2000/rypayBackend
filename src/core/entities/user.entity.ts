@@ -14,6 +14,7 @@ import { Merchant } from './merchant.entity';
 import { Order } from './order.entity';
 import { Card } from './card.entity';
 import { Beneficiary } from './beneficiery.entity';
+import { Notification } from './notification.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -96,4 +97,7 @@ export class User {
   @OneToOne(() => Merchant, (merchant) => merchant.id, { cascade: true })
   @JoinColumn({ name: 'merchant_id' })
   merchant: Merchant;
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[];
 }

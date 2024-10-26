@@ -10,12 +10,6 @@ import { User } from 'src/core/entities/user.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Transaction, User]),
-    BullModule.forRoot({
-      redis: {
-        port: 6379,
-        host: 'localhost'
-      }
-    }),
     BullModule.registerQueue({
       name: 'transaction-report',
     }),

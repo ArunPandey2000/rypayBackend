@@ -16,6 +16,7 @@ import { RechargeModule } from './recharge/recharge.module';
 import { BeneficiaryModule } from './beneficiary/beneficiary.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -24,6 +25,12 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'assets'),
       serveRoot: '/assets/',
       exclude: ['/api/(.*)'],
+    }),
+    BullModule.forRoot({
+      redis: {
+        port: 6379,
+        host: 'localhost'
+      }
     }),
     LoggerModule.forRoot({
       pinoHttp: {

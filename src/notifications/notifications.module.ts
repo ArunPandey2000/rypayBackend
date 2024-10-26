@@ -9,10 +9,22 @@ import { MailService } from './services/mail.service';
 import { OtpRepository } from './repository/otp.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OtpInfo } from 'src/core/entities/otp-info.entity';
+import { Notification } from 'src/core/entities/notification.entity';
+import { NotificationController } from './controllers/notification.controller';
+import { BullModule } from '@nestjs/bull';
+import { NotificationBridge } from './services/notification-bridge';
+import { NotificationService } from './services/notification.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { User } from 'src/core/entities/user.entity';
+import { NotificationCronJob } from './services/notification-delete-cron.service';
 
 @Module({
   imports: [HttpModule, ConfigModule, 
-    TypeOrmModule.forFeature([OtpInfo]),
+    TypeOrmModule.forFeature([OtpInfo, Notification, User]),
+    ScheduleModule.forRoot(),
+    BullModule.registerQueue({
+      name: 'notification',
+    }),
     MailerModule.forRoot({
       transport: {
         service: 'gmail',
@@ -26,8 +38,8 @@ import { OtpInfo } from 'src/core/entities/otp-info.entity';
       },
     })
   ],
-  controllers: [MailController],
-  providers: [OtpFlowService, SmsClientService, MailService, OtpRepository],
-  exports: [OtpFlowService],
+  controllers: [NotificationController, MailController],
+  providers: [OtpFlowService, NotificationCronJob, NotificationBridge, NotificationService, SmsClientService, MailService, OtpRepository],
+  exports: [OtpFlowService, NotificationBridge],
 })
 export class NotificationsModule {}

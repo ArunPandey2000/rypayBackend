@@ -6,24 +6,26 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as fs from 'fs';
+import * as Handlebars from 'handlebars';
+import * as path from 'path';
+import * as qrcode from 'qrcode';
 import { ServiceTypes } from 'src/core/constants/service-types.constant';
+import { NotificationType } from 'src/core/entities/notification.entity';
 import { Order, OrderStatus } from 'src/core/entities/order.entity';
 import { Transaction, TransactionStatus } from 'src/core/entities/transactions.entity';
 import { User } from 'src/core/entities/user.entity';
 import { Wallet } from 'src/core/entities/wallet.entity';
 import { generateHash, generateRef } from 'src/core/utils/hash.util';
 import { TransactionNotifyPayload } from 'src/integration/busybox/external/interfaces/transaction-notify.interface';
+import { NotificationBridge } from 'src/notifications/services/notification-bridge';
 import { CreateTransactionDto } from 'src/transactions/dto/create-transaction.dto';
 import { TransactionType } from 'src/transactions/enum/transaction-type.enum';
 import { TransactionsService } from 'src/transactions/services/transactions.service';
 import { DataSource, FindOptionsWhere, QueryRunner, Repository } from 'typeorm';
+import { WalletQRFormat } from '../constant/wallet-qr.constant';
 import { CreateWalletDto } from '../dto/create-wallet.dto';
 import { AddMoneyToWalletDto, DeductWalletBalanceRechargeDto, TransferMoneyDto } from '../dto/transfer-money.dto';
-import * as qrcode from 'qrcode';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as Handlebars from 'handlebars';
-import { WalletQRFormat } from '../constant/wallet-qr.constant';
 
 @Injectable()
 export class WalletService {
@@ -34,6 +36,7 @@ export class WalletService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Order) private orderRepository: Repository<Order>,
     @InjectRepository(Transaction) private transactionRepo: Repository<Transaction>,
+    private readonly notificationBridge: NotificationBridge,
   ) {}
 
   private async handleTransaction<T>(
@@ -157,7 +160,10 @@ export class WalletService {
 
       await this.updateWalletBalance(wallet, addMoneyWalletDto.amount, queryRunner, true);
       await this.transactionsService.saveTransaction(transaction, queryRunner);
-
+      await this.notificationBridge.add('transaction', {
+        transaction,
+        type: NotificationType.TRANSACTION_CREDIT
+      });
       return wallet;
     });
   }
@@ -189,7 +195,10 @@ export class WalletService {
 
       await this.updateWalletBalance(wallet, fundMyAccountDto.amount, queryRunner, false);
       await this.transactionsService.saveTransaction(transaction, queryRunner);
-
+      await this.notificationBridge.add('transaction', {
+        transaction,
+        type: NotificationType.TRANSACTION_DEBIT
+      });
       return wallet;
     });
   }
@@ -345,7 +354,11 @@ export class WalletService {
         await queryRunner.manager.save<Transaction>(transaction);
         await queryRunner.manager.save<Order>(order);
         await this.updateWalletBalance(wallet, order.amount, queryRunner, true);
-
+        await this.notificationBridge.add('recharge', {
+          order,
+          transaction,
+          type: NotificationType.RECHARGE_FAILED
+        });
         return wallet;
       } else{
         throw new NotFoundException('order not found');
@@ -366,7 +379,11 @@ export class WalletService {
       order.transaction_id = transactionId;
       await queryRunner.manager.save<Transaction>(transaction);
       await queryRunner.manager.save<Order>(order);
-
+      await this.notificationBridge.add('recharge', {
+        order,
+        transaction,
+        type: NotificationType.RECHARGE_SUCCESS
+      });
       return true
     });
   }
