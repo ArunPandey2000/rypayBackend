@@ -1,15 +1,28 @@
-import { Injectable } from "@nestjs/common";
-import { Cron, CronExpression } from "@nestjs/schedule";
+import { Injectable, OnModuleInit } from "@nestjs/common";
+import { Cron, CronExpression, SchedulerRegistry } from "@nestjs/schedule";
 import { NotificationService } from "./notification.service";
+import { CronJob } from "cron";
 
 @Injectable()
-export class NotificationCronJob {
-
-    constructor(private notificationService: NotificationService) {
-
+export class NotificationCronJob implements OnModuleInit {
+    constructor(private notificationService: NotificationService,private schedulerRegistry: SchedulerRegistry) { 
     }
-    @Cron(CronExpression.EVERY_DAY_AT_10AM)
+    onModuleInit() {
+        if (this.shouldRegisterCron()) {
+          const job = new CronJob(CronExpression.EVERY_5_SECONDS, () => {
+            this.handleCron();
+          });
+    
+          this.schedulerRegistry.addCronJob('conditionalCronJob', job);
+          job.start();
+        }
+      }
+    
+      shouldRegisterCron(): boolean {
+        return process.env.DELETE_NOTIFICATIONS_14DAYS === "true"; 
+    }
     async handleCron() {
+        console.log(process.env.DELETE_NOTIFICATIONS_14DAYS === "true")
         console.log('deleting old notifications.........');
         await this.notificationService.deleteOldNotifications();
         console.log('deleting old notifications success.........');
