@@ -10,6 +10,7 @@ import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UploadFileService } from '../services/updaload-file.service';
 import { UsersService } from '../services/users.service';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
+import { KycVerificationStatusResponse } from '../dto/kyc-status.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -196,6 +197,32 @@ export class UsersController {
     @Param('kycStatus') kycStatus: keyof typeof KycVerificationStatus
   ): Promise<UserResponse[]> {
     return this.userService.getUsersByKycStatus(kycStatus);
+  }
+
+  @ApiOperation({ summary: 'Endpoint to get kyc status of user' })
+  @Get('/kyc')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: KycVerificationStatusResponse,
+    description: 'The kyc status of user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Forbidden.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request exception',
+  })
+  async getKycStatusOfUser(
+    @Req() req: any
+  ): Promise<KycVerificationStatusResponse> {
+    const status = await this.userService.getKycStatusOfUser(req.user.sub);
+    return {
+      status
+    }
   }
 
   @ApiBearerAuth()

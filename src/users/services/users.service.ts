@@ -31,6 +31,7 @@ import { UploadFileService } from './updaload-file.service';
 import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
 import { OtpRepository } from 'src/notifications/repository/otp.repository';
 import { UserRole } from 'src/core/enum/user-role.enum';
+import { KycRequiredDocTypes } from '../constants/kyc-required-doc-types.constant';
 
 @Injectable()
 export class UsersService {
@@ -251,6 +252,16 @@ export class UsersService {
     return users.map((user) => new UserResponse(user));
   }
 
+  async getKycStatusOfUser(userId: string) {
+    const user = await this.userRepository.findOneBy({
+      id: userId
+    });
+    if (user) {
+      return KycVerificationStatus[user.kycVerificationStatus].toString();
+    }
+    throw new ForbiddenException('user does not have enough permission');
+  }
+
   findUserById(userId: string) {
     return this.userRepository.findOne({ where: { id: userId } });
   }
@@ -300,10 +311,18 @@ export class UsersService {
         const documentInfo = await queryRunner.manager.findOne(UserDocument, {
           where: { user: userInfo, documentType: fileInfo.docType },
         });
-
         await this.saveDocumentInfo(fileInfo, userInfo, documentInfo, queryRunner.manager);
       }
-
+      const userUploadedDocs = await queryRunner.manager.find(UserDocument, {
+        where: { user: {
+          id: userId
+        } },
+      });
+      if (this.isKycVerificationDocumentsUploaded(fileInfos, userUploadedDocs)) {
+        await queryRunner.manager.update(User, {}, {
+          kycVerificationStatus: KycVerificationStatus.REQUESTED
+        });
+      }
       await queryRunner.commitTransaction();
       return true;
     } catch (err) {
@@ -316,6 +335,13 @@ export class UsersService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  private isKycVerificationDocumentsUploaded(docs: UpdateKycDetailUploadDto[], uploadedDocs: UserDocument[]) {
+    const uploadedDocsTypes = docs.map(doc => doc.docType.toString());
+    const alreadyUploadedDocs = uploadedDocs?.map(doc => doc.documentType);
+    const mergedDocs = Array.from(new Set([...uploadedDocsTypes, ...alreadyUploadedDocs]))
+    return mergedDocs.every(doc => KycRequiredDocTypes.includes(doc));
   }
 
   async getUserDocuments(userId: string) {
@@ -345,7 +371,7 @@ export class UsersService {
         user: userInfo
       });
     }
-
+    
     return await entityManager.save(documentInfo);
   }
 
