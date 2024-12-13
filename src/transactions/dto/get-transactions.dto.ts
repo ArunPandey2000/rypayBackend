@@ -22,6 +22,7 @@ export class TransactionQueryDto {
   
     @ValidateIf(o => o.fromDate !== undefined && o.fromDate !== '')
     @IsDateString()
+    @ApiPropertyOptional()
     fromDate: string;
   
     @ApiPropertyOptional()

@@ -17,6 +17,7 @@ import { BeneficiaryModule } from './beneficiary/beneficiary.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { BullModule } from '@nestjs/bull';
+import { LoansModule } from './loans/loans.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { BullModule } from '@nestjs/bull';
     PdfModule,
     RechargeModule,
     BeneficiaryModule,
+    LoansModule,
   ],
   controllers: [AppController],
   providers: [AppService],

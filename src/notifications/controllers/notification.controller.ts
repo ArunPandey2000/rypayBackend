@@ -42,6 +42,16 @@ export class NotificationController {
     }
   }
 
+  @Post('/read/all')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Mark Notification as Read' })
+  async markAllNotificationRead(@Req() req: any) {
+    await this.notificationService.markAllRead(req.res.sub);
+    return {
+      message: "Success"
+    }
+  }
+
   @Post('list')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'get notifications' })

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -20,7 +21,7 @@ import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enu
 import { generateRef } from 'src/core/utils/hash.util';
 import { MerchantClientService } from 'src/integration/busybox/external-system-client/merchant-client.service';
 import { WalletService } from 'src/wallet/services/wallet.service';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, Not, Repository } from 'typeorm';
 import { UserDocumentResponseDto } from '../dto/user-documents.dto';
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
 import { UserRequestDto } from '../dto/user-request.dto';
@@ -29,6 +30,7 @@ import { UserMapper } from '../mapper/user-mapper';
 import { UploadFileService } from './updaload-file.service';
 import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
 import { OtpRepository } from 'src/notifications/repository/otp.repository';
+import { UserRole } from 'src/core/enum/user-role.enum';
 
 @Injectable()
 export class UsersService {
@@ -158,6 +160,22 @@ export class UsersService {
       user,
       tokens,
     };
+  }
+
+  async getAllUsers(userId: string) {
+    const user = await this.userRepository.findOneBy({id: userId});
+    if (!user) {
+      throw new BadRequestException('user not found')
+    }
+    if (user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('User does not have enough permissions');
+    }
+    const users =  await this.userRepository.find({
+      where: {
+        role: Not(UserRole.ADMIN),
+      },
+    });
+    return users.map(user => new UserResponse(user));
   }
 
   async addProfileIconInUserResponse(userModel: User, userResponse: UserResponse) {

@@ -15,6 +15,7 @@ import { Order } from './order.entity';
 import { Card } from './card.entity';
 import { Beneficiary } from './beneficiery.entity';
 import { Notification } from './notification.entity';
+import { Loan } from './loan.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -100,4 +101,7 @@ export class User {
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];
+
+  @OneToMany(() => Loan, (loan) => loan.user)
+  loans: Loan[];
 }

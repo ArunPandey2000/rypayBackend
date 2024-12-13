@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Notification, NotificationType } from 'src/core/entities/notification.entity';
 import { User } from 'src/core/entities/user.entity';
@@ -71,6 +71,15 @@ export class NotificationService {
         const pagination = new Pagination();
         return pagination.PaginateResponse(notifications, total, page, limit);
       }
+
+    async markAllRead(userId: string): Promise<boolean> {
+        const user = await this.userRepo.findOneBy({id: userId});
+        if (!user) {
+            throw new ForbiddenException('User does not have enough permissions');
+        }
+        await this.notificationRepository.update({}, {isRead: true});
+        return true;
+    }
 
     async markAsRead(notificationId: number): Promise<Notification> {
         const notification = await this.notificationRepository.findOne({where: {id: notificationId}});

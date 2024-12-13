@@ -1,14 +1,15 @@
-import { BadRequestException, Body, Controller, FileTypeValidator, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Patch, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, FileTypeValidator, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
 import { PinRequestDto, UpdateForgotPin } from '../dto/pin-request.dto';
+import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
 import { UserAdminRequestDto, UserRequestDto, ValidateOTPAfterCardCreationDTO } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
-import { UsersService } from '../services/users.service';
 import { UploadFileService } from '../services/updaload-file.service';
-import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
+import { UsersService } from '../services/users.service';
+import { AdminGuard } from 'src/auth/guards/admin.guard';
 
 @Controller('user')
 @ApiTags('User')
@@ -55,6 +56,28 @@ export class UsersController {
     @Body() signUpDto: UserAdminRequestDto,
   ): Promise<UserApiResponseDto> {
     return this.userService.registerAdminAndGenerateToken(signUpDto);
+  }
+
+  @ApiOperation({ summary: 'Endpoint to get all users' })
+  @Post('/list')
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiResponse({ 
+    status: HttpStatus.OK,
+    type: [UserResponse],
+    description: 'The record has been successfully retrieved.',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Forbidden.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request exception',
+  })
+  async getAllUsers(
+    @Req() req: any
+  ): Promise<UserResponse[]> {
+    return this.userService.getAllUsers(req.user.sub);
   }
 
   @Put('update-profile-icon')
