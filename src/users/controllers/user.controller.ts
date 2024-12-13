@@ -242,7 +242,6 @@ export class UsersController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf)' }),
           new MaxFileSizeValidator({
             maxSize: (1024 * 1024 * 1024), // 1MB
             message: 'File is too large. Max file size is 10MB',
