@@ -307,9 +307,9 @@ export class UsersService {
 
     try {
       for (const fileInfo of fileInfos) {
-
+        debugger
         const documentInfo = await queryRunner.manager.findOne(UserDocument, {
-          where: { user: userInfo, documentType: fileInfo.docType },
+          where: { user: {id: userId}, documentType: fileInfo.docType },
         });
         await this.saveDocumentInfo(fileInfo, userInfo, documentInfo, queryRunner.manager);
       }
@@ -345,14 +345,14 @@ export class UsersService {
   }
 
   async getUserDocuments(userId: string) {
-    const documents = await this.documentRepository.find({where: {user: {id: userId}}});
-    if (documents.length) {
-      for (const document of documents) {
-        document.documentUrl = (await this.uploadFileService.getPresignedSignedUrl(document.documentUrl)).url;
-      }
-      return documents.map((doc) => new UserDocumentResponseDto(doc));
+    const documents = await this.documentRepository.find({where: {user: {id: userId}}}) ?? [];
+    for (const document of documents) {
+      document.documentUrl = (await this.uploadFileService.getPresignedSignedUrl(document.documentUrl)).url;
     }
-    return [];
+    return documents.reduce((acc, item) => {
+      acc[item.documentType] = new UserDocumentResponseDto(item); 
+      return acc;
+    }, {});
   }
 
   async saveDocumentInfo(fileInfo: UpdateKycDetailUploadDto, userInfo: User, documentInfo?: UserDocument, entityManager?: EntityManager) {
@@ -363,6 +363,12 @@ export class UsersService {
     if (documentInfo) {
       documentInfo.description = fileInfo.description;
       documentInfo.documentUrl = fileInfo.fileKey;
+      await entityManager.update(UserDocument, {user: userInfo, documentType: documentInfo.documentType},
+        {
+          description: fileInfo.description,
+          documentUrl: fileInfo.fileKey
+        }
+      )
     } else {
       documentInfo = this.documentRepository.create({
         description: fileInfo.description,
@@ -370,9 +376,10 @@ export class UsersService {
         documentType: fileInfo.docType,
         user: userInfo
       });
+      await entityManager.save(documentInfo);
     }
     
-    return await entityManager.save(documentInfo);
+    return true;
   }
 
   async updateProfileIcon(userId: string, file: Express.Multer.File) {

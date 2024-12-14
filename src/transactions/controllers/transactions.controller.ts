@@ -8,6 +8,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { PaginatedResponseDto } from '../dto/pagination-response.dto';
+import { AdminGuard } from 'src/auth/guards/admin.guard';
 
 @Controller('transactions')
 @ApiBearerAuth()
@@ -33,6 +34,21 @@ export class TransactionsController {
     @Body() transcationQuery: TransactionQueryDto
   ): Promise<Transaction[] | any> {
     const result = await this.transactionService.getWalletTransactions(req, transcationQuery);
+    return result;
+  }
+
+  @Post('/all')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AdminGuard)
+  @ApiResponse({
+    status: 200,
+    description: 'List of transactions with pagination',
+    type: PaginatedResponseDto,
+  })
+  async GetAllWalletTransactions(
+    @Body() transcationQuery: TransactionQueryDto
+  ): Promise<Transaction[] | any> {
+    const result = await this.transactionService.getAllWalletTransactions(transcationQuery);
     return result;
   }
 

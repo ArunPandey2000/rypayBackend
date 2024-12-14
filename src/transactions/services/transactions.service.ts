@@ -103,6 +103,68 @@ export class TransactionsService {
     return new Pagination().PaginateResponse(result, total, page, pageSize);
   }
 
+  async getAllWalletTransactions(queryDto: TransactionQueryDto) {
+    const { page = 1, pageSize = 10 } = queryDto.pagination || {};
+    const skipRecords = pageSize * (page - 1);
+
+    const { search, transactionType, fromDate, toDate, sortDirection } = queryDto;
+
+    // Build the base query
+    const baseWhere: any = {
+      ...(transactionType && { type: transactionType }),
+      ...(fromDate && toDate && { transactionDate: Between(new Date(fromDate), new Date(toDate)) }),
+    };
+
+    // Add search condition if available
+    if (search) {
+      baseWhere.transactionHash = Like(`%${search}%`);
+    }
+
+    // Fetch paginated transactions
+    const transactions = await this.transactionsRepository.find({
+      where: baseWhere,
+      order: { createdAt: sortDirection },
+      take: pageSize,
+      skip: skipRecords,
+    });
+
+    // Count the total number of transactions for pagination
+    const total = await this.transactionsRepository.count({ where: baseWhere });
+
+    // Fetch user data for wallet transactions
+    const walletTransactionUserIds = Array.from(new Set(transactions.map((transaction) => this.getRelevantUserId(transaction))));
+
+    const userData = await this.userRepo.find({
+      where: { id: In(walletTransactionUserIds) },
+    });
+
+    // Map the transactions to TransactionResponseDto
+    const result = transactions.map((transaction): TransactionResponseDto => {
+      const counterPartyUser = this.getCounterpartyUser(transaction, userData);
+
+      return {
+        id: transaction.id,
+        amount: transaction.amount,
+        walletBalanceBefore: transaction.walletBalanceBefore,
+        walletBalanceAfter: transaction.walletBalanceAfter,
+        sender: transaction.sender,
+        receiver: transaction.receiver,
+        reference: transaction.reference,
+        description: transaction.description,
+        transactionHash: transaction.transactionHash,
+        transactionType: transaction.type,
+        transactionDate: transaction.transactionDate,
+        createdAt: transaction.createdAt,
+        serviceUsed: transaction.serviceUsed,
+        updatedAt: transaction.updatedAt,
+        counterPartyUser,
+      };
+    });
+
+    // Return the paginated response using your custom Pagination class
+    return new Pagination().PaginateResponse(result, total, page, pageSize);
+  }
+
   private getRelevantUserId(transaction: Transaction): string | null {
     if (transaction.serviceUsed === "WALLET") {
         // Determine the relevant user based on the transaction type
