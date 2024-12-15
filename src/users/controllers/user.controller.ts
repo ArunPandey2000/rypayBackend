@@ -283,6 +283,27 @@ export class UsersController {
     return fileData;
   }
 
+  @Get(':userid')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiOperation({ summary: 'Endpoint to get user profile data, ADMIN' })
+  @ApiParam({ name: 'id', type: String, description: 'Unique ID of the user' }) // Describing the ID parameter
+  @ApiResponse({
+    status: 200,
+    description: 'User details retrieved successfully',
+    type: UserResponse, // Documenting the response type
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  async getUserProfile(
+    @Param('userid') userId: string
+  ) {
+    const fileData = await this.userService.getUserProfile(userId);
+    return fileData;
+  }
+
   @Post('/KYC/document')
   @ApiOperation({ summary: 'Update KYC documents for users' })
   @ApiBearerAuth()

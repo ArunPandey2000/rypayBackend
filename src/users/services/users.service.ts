@@ -32,6 +32,8 @@ import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
 import { OtpRepository } from 'src/notifications/repository/otp.repository';
 import { UserRole } from 'src/core/enum/user-role.enum';
 import { KycRequiredDocTypes } from '../constants/kyc-required-doc-types.constant';
+import { Merchant } from 'src/core/entities/merchant.entity';
+import { Loan } from 'src/core/entities/loan.entity';
 
 @Injectable()
 export class UsersService {
@@ -353,6 +355,27 @@ export class UsersService {
       acc[item.documentType] = new UserDocumentResponseDto(item); 
       return acc;
     }, {});
+  }
+
+  async getUserProfile(userId: string) {
+    const user = await this.userRepository.findOne({where:{id: userId},
+    relations: ['merchant', 'card', 'address', 'loans', 'documents', 'beneficiaries']} );
+    if (!user) {
+      throw new BadRequestException('user not found');
+    }
+    // @ToDo add DTO
+    if (user.profileIcon) {
+      const fileInfo = await this.uploadFileService.getPresignedSignedUrl(user.profileIcon);
+      (user as any).profileUrl = fileInfo.url;
+    }
+    if (user.documents?.length) {
+      for (const document of user.documents) {
+        const fileInfo = await this.uploadFileService.getPresignedSignedUrl(document.documentUrl);
+        document.documentUrl = fileInfo.url;
+      }
+    }
+    (user as any).kycVerificationStatus = KycVerificationStatus[user.kycVerificationStatus].toString()
+    return user;
   }
 
   async saveDocumentInfo(fileInfo: UpdateKycDetailUploadDto, userInfo: User, documentInfo?: UserDocument, entityManager?: EntityManager) {
