@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order, OrderStatus, OrderType } from 'src/core/entities/order.entity';
 import { TransactionStatus } from 'src/core/entities/transactions.entity';
@@ -92,6 +92,9 @@ export class PayoutService {
                 nameInBank: data.NameInBank
             };
         }
+        else if(data.resp_code === "E0404") {
+            throw new NotFoundException(data.message);
+        }
         throw new BadRequestException(data.message);
     }
 
@@ -107,6 +110,8 @@ export class PayoutService {
                 ifscCode: data.ifsc_code,
                 nameInBank: data.NameInBank
             };
+        } else if(data.resp_code === "E0404") {
+            throw new NotFoundException(data.message);
         }
         throw new BadRequestException(data.message);
     }
