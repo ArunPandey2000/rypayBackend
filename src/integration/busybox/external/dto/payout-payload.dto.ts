@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsMobilePhone, IsNotEmpty } from "class-validator"
+import { IsIn, IsMobilePhone, IsNotEmpty } from "class-validator"
 
 export class AccountPayoutPayload {
     @ApiProperty()
@@ -17,5 +17,10 @@ export class AccountPayoutPayload {
     @ApiProperty()
     @IsNotEmpty()
     @IsMobilePhone('en-IN')
-    mobile: number
+    mobile: string
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsIn(['IMPS', 'RTGS', 'NEFT'])
+    mode: string
 }

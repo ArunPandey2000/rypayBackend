@@ -2,6 +2,6 @@ export interface IAccountPayoutRequestBody {
     account_number: string,
     ifsc_code: string,
     amount: number,
-    mobile: number,
+    mobile: string,
     mode: string // IMPS
 }

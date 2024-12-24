@@ -165,6 +165,18 @@ export class UsersService {
     };
   }
 
+  async checkPhoneNumberExists(phoneNumber: string) {
+    if (!phoneNumber) {
+      throw new BadRequestException('Invalid phone number')
+    }
+    const user = await this.userRepository.findOneBy({
+      phoneNumber: phoneNumber
+    });
+    return {
+      isUserExist: !!user
+    }
+  }
+
   async getAllUsers(userId: string) {
     const user = await this.userRepository.findOneBy({id: userId});
     if (!user) {

@@ -11,6 +11,7 @@ import { UploadFileService } from '../services/updaload-file.service';
 import { UsersService } from '../services/users.service';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
 import { KycVerificationStatusResponse } from '../dto/kyc-status.dto';
+import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -75,10 +76,33 @@ export class UsersController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Bad request exception',
   })
-  async getAllUsers(
+  async getAllUser(
     @Req() req: any
   ): Promise<UserResponse[]> {
     return this.userService.getAllUsers(req.user.sub);
+  }
+
+  @ApiOperation({ summary: 'Endpoint to check phone number exist' })
+  @Post('/exist/:phoneNumber')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiResponse({ 
+    status: HttpStatus.OK,
+    type: PhoneNumberExists,
+    description: 'Returns if phone number exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Forbidden.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request exception',
+  })
+  async checkUserExist(
+    @Param('phoneNumber') phoneNumber: string
+  ): Promise<PhoneNumberExists> {
+    return this.userService.checkPhoneNumberExists(phoneNumber);
   }
 
   @Put('update-profile-icon')

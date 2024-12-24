@@ -39,7 +39,7 @@ export class PayoutService {
             amount: requestDto.amount,
             ifsc_code: requestDto.ifsc,
             mobile: requestDto.mobile,
-            mode: 'IMPS'
+            mode: requestDto.mode
         }
         const response = (await this.payloutClientService.payoutUsingAccount(requestBody));
 
