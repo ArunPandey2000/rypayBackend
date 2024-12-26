@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from 'src/core/entities/transactions.entity';
 import { Between, In, Like, QueryRunner, Repository } from 'typeorm';
@@ -9,6 +9,7 @@ import { PdfService } from 'src/pdf/services/pdf.service';
 import { formatAmountToINR, formatDateToIST } from 'src/core/utils/date.util';
 import { User } from 'src/core/entities/user.entity';
 import { TransactionResponseDto, UserTransactionDto } from '../dto/transaction-response.dto';
+import { TransactionDetailDto } from '../dto/transaction-detail.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -103,6 +104,25 @@ export class TransactionsService {
     return new Pagination().PaginateResponse(result, total, page, pageSize);
   }
 
+  async getTransactionDetail(transactionId: string | undefined) {
+    if (!transactionId || Number.isNaN(Number.parseInt(transactionId))) {
+      throw new BadRequestException('TransactionId is mandatory')
+    }
+    const transaction = await this.transactionsRepository.findOneBy({
+      id: Number.parseInt(transactionId)
+    })
+    if (!transaction) {
+      throw new NotFoundException('transaction not found')
+    }
+    const senderUser = transaction.sender ? await this.userRepo.findOneBy({
+      id: transaction.sender
+    }): null;
+    const receiverUser = transaction.receiver && transaction.serviceUsed === "WALLET" ? await this.userRepo.findOneBy({
+      id: transaction.receiver
+    }): null;
+
+    return new TransactionDetailDto(transaction, senderUser, receiverUser);
+  }
   async getAllWalletTransactions(queryDto: TransactionQueryDto) {
     const { page = 1, pageSize = 10 } = queryDto.pagination || {};
     const skipRecords = pageSize * (page - 1);
@@ -118,6 +138,8 @@ export class TransactionsService {
     // Add search condition if available
     if (search) {
       baseWhere.transactionHash = Like(`%${search}%`);
+      baseWhere.description = Like(`%${search}%`)
+      baseWhere.reference = Like(`%${search}%`)
     }
 
     // Fetch paginated transactions

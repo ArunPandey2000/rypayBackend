@@ -23,4 +23,7 @@ export class AccountPayoutPayload {
     @IsNotEmpty()
     @IsIn(['IMPS', 'RTGS', 'NEFT'])
     mode: string
+
+    @ApiProperty()
+    message: string
 }

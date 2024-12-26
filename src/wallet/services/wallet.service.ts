@@ -252,6 +252,8 @@ export class WalletService {
       if (transferAccountDto.amount > senderWallet.balance) {
         throw new BadRequestException('Insufficient funds');
       }
+      const senderMessage = transferAccountDto.description ? transferAccountDto.description : `INR${transferAccountDto.amount} was debited from your wallet`;
+      const receiverMessage = transferAccountDto.description ? transferAccountDto.description : `INR${transferAccountDto.amount}/${user.firstName} ${user.lastName}`;
 
       await Promise.all([
         this.updateWalletBalance(senderWallet, transferAccountDto.amount, queryRunner, false),
@@ -260,7 +262,7 @@ export class WalletService {
             ...transferAccountDto,
             user,
             type: TransactionType.DEBIT,
-            description: `INR${transferAccountDto.amount} was debited from your wallet`,
+            description: senderMessage,
             transactionDate: new Date(),
             walletBalanceBefore: senderWallet.balance,
             walletBalanceAfter: senderWallet.balance - transferAccountDto.amount,
@@ -275,9 +277,9 @@ export class WalletService {
         this.transactionsService.saveTransaction(
           {
             ...transferAccountDto,
-            user,
+            user: receiver,
             type: TransactionType.CREDIT,
-            description: `INR${transferAccountDto.amount}/${user.firstName} ${user.lastName}`,
+            description: receiverMessage,
             transactionDate: new Date(),
             walletBalanceBefore: receiverWallet.balance,
             walletBalanceAfter: receiverWallet.balance + transferAccountDto.amount,

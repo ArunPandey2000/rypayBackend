@@ -34,6 +34,7 @@ import { UserRole } from 'src/core/enum/user-role.enum';
 import { KycRequiredDocTypes } from '../constants/kyc-required-doc-types.constant';
 import { Merchant } from 'src/core/entities/merchant.entity';
 import { Loan } from 'src/core/entities/loan.entity';
+import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
 
 @Injectable()
 export class UsersService {
@@ -172,8 +173,10 @@ export class UsersService {
     const user = await this.userRepository.findOneBy({
       phoneNumber: phoneNumber
     });
-    return {
-      isUserExist: !!user
+    return <PhoneNumberExists>{
+      isUserExist: !!user,
+      userName: `${user.firstName} ${user.lastName}`,
+      phoneNumber: user.phoneNumber
     }
   }
 

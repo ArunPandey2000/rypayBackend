@@ -48,7 +48,7 @@ export class PayoutService {
         }
         const user = await this.userRepository.findOne({where: {id: userId}});
         const maskedAccount = maskAccount(requestBody.account_number);
-        const description = PayoutDescription.replace('{maskedAccount}', maskedAccount);
+        const description = requestDto.message ? requestDto.message : PayoutDescription.replace('{maskedAccount}', maskedAccount);
         const orderId = generateRef(6);
         const order = {
             order_id: orderId,

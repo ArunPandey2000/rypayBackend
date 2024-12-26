@@ -55,6 +55,9 @@ export class AddMoneyToWalletDto {
   
     transactionHash: string;
   
+    @ApiProperty()
+    message: string | null
+    
     description: string;
   
     reference: string;

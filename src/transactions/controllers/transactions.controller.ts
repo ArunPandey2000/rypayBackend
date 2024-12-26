@@ -9,6 +9,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { PaginatedResponseDto } from '../dto/pagination-response.dto';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
+import { TransactionDetailDto } from '../dto/transaction-detail.dto';
 
 @Controller('transactions')
 @ApiBearerAuth()
@@ -34,6 +35,20 @@ export class TransactionsController {
     @Body() transcationQuery: TransactionQueryDto
   ): Promise<Transaction[] | any> {
     const result = await this.transactionService.getWalletTransactions(req, transcationQuery);
+    return result;
+  }
+
+  @Post('/:transactionId')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({
+    status: 200,
+    description: 'detail of transaction',
+    type: TransactionDetailDto, 
+  })
+  async GetTransactionDetail(
+    @Param('transactionId') transactionId: string
+  ): Promise<Transaction | any> {
+    const result = await this.transactionService.getTransactionDetail(transactionId);
     return result;
   }
 
