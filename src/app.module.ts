@@ -18,6 +18,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { BullModule } from '@nestjs/bull';
 import { LoansModule } from './loans/loans.module';
+import { MoneyRequestModule } from './money-request/money-request.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { LoansModule } from './loans/loans.module';
     RechargeModule,
     BeneficiaryModule,
     LoansModule,
+    MoneyRequestModule,
   ],
   controllers: [AppController],
   providers: [AppService],

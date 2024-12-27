@@ -54,21 +54,29 @@ export class TransactionsService {
       ...(fromDate && toDate && { transactionDate: Between(new Date(fromDate), new Date(toDate)) }),
     };
 
-    // Add search condition if available
+    // Add search condition with `OR` logic
+    let searchConditions = [];
     if (search) {
-      baseWhere.transactionHash = Like(`%${search}%`);
+      searchConditions = [
+        { transactionHash: Like(`%${search}%`) },
+        { description: Like(`%${search}%`) },
+        { reference: Like(`%${search}%`) },
+      ];
     }
+
+    // Combine baseWhere with searchConditions
+    const where = search ? [baseWhere, ...searchConditions] : baseWhere;
 
     // Fetch paginated transactions
     const transactions = await this.transactionsRepository.find({
-      where: baseWhere,
+      where: where,
       order: { createdAt: sortDirection },
       take: pageSize,
       skip: skipRecords,
     });
 
     // Count the total number of transactions for pagination
-    const total = await this.transactionsRepository.count({ where: baseWhere });
+    const total = await this.transactionsRepository.count({ where: where });
 
     // Fetch user data for wallet transactions
     const walletTransactionUserIds = Array.from(new Set(transactions.map((transaction) => this.getRelevantUserId(transaction))));
@@ -135,23 +143,29 @@ export class TransactionsService {
       ...(fromDate && toDate && { transactionDate: Between(new Date(fromDate), new Date(toDate)) }),
     };
 
-    // Add search condition if available
+    // Add search condition with `OR` logic
+    let searchConditions = [];
     if (search) {
-      baseWhere.transactionHash = Like(`%${search}%`);
-      baseWhere.description = Like(`%${search}%`)
-      baseWhere.reference = Like(`%${search}%`)
+      searchConditions = [
+        { transactionHash: Like(`%${search}%`) },
+        { description: Like(`%${search}%`) },
+        { reference: Like(`%${search}%`) },
+      ];
     }
+
+    // Combine baseWhere with searchConditions
+    const where = search ? [baseWhere, ...searchConditions] : baseWhere;
 
     // Fetch paginated transactions
     const transactions = await this.transactionsRepository.find({
-      where: baseWhere,
+      where: where,
       order: { createdAt: sortDirection },
       take: pageSize,
       skip: skipRecords,
     });
 
     // Count the total number of transactions for pagination
-    const total = await this.transactionsRepository.count({ where: baseWhere });
+    const total = await this.transactionsRepository.count({ where: where });
 
     // Fetch user data for wallet transactions
     const walletTransactionUserIds = Array.from(new Set(transactions.map((transaction) => this.getRelevantUserId(transaction))));

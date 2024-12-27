@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TransactionNotifyPayload } from '../interfaces/transaction-notify.interface';
 import { KycWebhookPayload } from '../interfaces/kyc-webhook-payload.interface';
