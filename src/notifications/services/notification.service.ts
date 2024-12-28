@@ -9,13 +9,15 @@ import { GeneralNotification } from '../dto/announcement-notification.dto';
 import { Pagination } from 'src/transactions/dto/pagination-response.dto';
 import { createRechargeMessage } from '../constant/recharge-notification-message.constant';
 import { createTransactionMessage } from '../constant/transaction-message.constant';
+import { FirebaseClientService } from 'src/integration/firebase/firebase.client.service';
 
 @Injectable()
 export class NotificationService {
     constructor(
         @InjectRepository(Notification)
         private notificationRepository: Repository<Notification>,
-        @InjectRepository(User) private userRepo: Repository<User>
+        @InjectRepository(User) private userRepo: Repository<User>,
+        private firebaseService: FirebaseClientService
     ) {}
 
     async insertInAppNotification(message: string, type: NotificationType, userId?: string): Promise<Notification> {
@@ -23,8 +25,20 @@ export class NotificationService {
         if (userId) {
             user = await this.userRepo.findOne({where: {id: userId}});
         }
+        await this.sendPushNotificationToUser(user.mobileDevices, type, message, undefined);
         const notification = this.notificationRepository.create({ message, type, user });
         return this.notificationRepository.save(notification);
+    }
+
+    async sendPushNotificationToUser(tokens: string[], title: string, message: string, icon: string) {
+        if (tokens.length) {
+            await this.firebaseService.sendNotificationToMultipleTokens({
+                tokens,
+                icon,
+                title,
+                body: message
+            });
+        }
     }
 
     async processRechargeNotification(notificationData: RechargeNotificationDto){
@@ -56,7 +70,17 @@ export class NotificationService {
             ...notificationData,
             user: null,
             isRead: true // no need to have this field as announcements are for each user
-         });
+        });
+        const users = await this.userRepo.findBy({});
+        const tokens = users.map((user => user.mobileDevices)).filter(token => !!token).flat(1);
+        if (tokens.length) {
+            await this.firebaseService.sendNotificationToMultipleTokens({
+                tokens,
+                title: 'Announcement',
+                body: notificationData.message?.replace(/<[^>]*>/g, ''),
+                icon: undefined
+            });
+        }
         return this.notificationRepository.save(notification);
     }
 

@@ -43,6 +43,11 @@ export class AuthService {
             tokens: null,
           };
         }
+        if (userPhoneInfo.fcmToken) {
+          const mobileDevices = userData.mobileDevices ?? [];
+          const updatedTokens = Array.from(new Set([...mobileDevices, userPhoneInfo.fcmToken]));
+          await this.userRepo.update({id: userData.id}, {mobileDevices: updatedTokens})
+        }
         const tokenPayload =
           AuthUtil.getAccessTokenPayloadFromUserModel(userData);
         const tokens = await this.tokenService.generateTokens(tokenPayload);

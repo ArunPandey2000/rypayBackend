@@ -102,6 +102,9 @@ export class User {
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];
 
+  @Column({ name: 'user-devices', type: 'text', array: true, nullable: true })
+  mobileDevices: string[];
+
   @OneToMany(() => Loan, (loan) => loan.user)
   loans: Loan[];
 }

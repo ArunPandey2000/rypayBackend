@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMobilePhone, IsNotEmpty, Length } from 'class-validator';
+import { IsMobilePhone, IsNotEmpty, IsOptional, Length } from 'class-validator';
 
 export class VerifyPhoneRequestDto {
   @ApiProperty()
@@ -11,4 +11,8 @@ export class VerifyPhoneRequestDto {
   @IsNotEmpty()
   @Length(6, 6)
   otp: string;
+
+  @ApiProperty()
+  @IsOptional()
+  fcmToken: string;
 }
