@@ -1,12 +1,18 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateLoanDto } from './create-loan.dto';
-import { IsNumber } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsIn, IsNotEmpty, IsOptional } from 'class-validator';
 
-export class UpdateLoanDto extends PartialType(CreateLoanDto) {
-    @IsNumber()
-    @ApiProperty({
-        description: 'payment done by user',
-        example: 50000,
-    })
-    paymentAmount: number = 0;
+export class UpdateLoanDto {
+    @ApiProperty()
+    @IsIn(['Pending', 'PartiallyPaid', 'Paid'])
+    loanStatus: 'Pending' | 'PartiallyPaid' | 'Paid'
+
+    @ApiProperty()
+    @IsOptional()
+    @IsNotEmpty()
+    overdueAmount: number
+
+    @ApiProperty()
+    @IsOptional()
+    @IsNotEmpty()
+    installmentAmount: number
 }

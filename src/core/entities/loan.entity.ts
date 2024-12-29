@@ -6,11 +6,8 @@ export class Loan {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
-  loanId: string;
-
   @Column()
-  name: string;
+  loanAccount: string;
 
   @Column('decimal', { precision: 10, scale: 2 })
   installmentAmount: number;
@@ -18,11 +15,15 @@ export class Loan {
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   overdueAmount: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
-  totalAmount: number; // Total loan amount
-
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
-  paidAmount: number; // Amount paid by the user
+  totalAmount: number;
+
+  @Column({
+    name: 'dueDate',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  dueDate: Date;
 
   @Column({ type: 'enum', enum: ['Pending', 'PartiallyPaid', 'Paid'], default: 'Pending' })
   loanStatus: 'Pending' | 'PartiallyPaid' | 'Paid';

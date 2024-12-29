@@ -1,6 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsPositive, IsString, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsPositive, IsString, IsOptional, IsDate, Validate, ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments, IsDateString } from 'class-validator';
 
+
+@ValidatorConstraint({ async: false })
+export class IsDateInFuture implements ValidatorConstraintInterface {
+  validate(date: Date, args: ValidationArguments) {
+    // Ensure the date is not in the past
+    return date ? new Date(date).getTime() > Date.now() : true;
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return 'Overdue date should not be in the past';
+  }
+}
 export class CreateLoanDto {
   @ApiProperty({
     description: 'Unique ID from another system',
@@ -9,14 +21,6 @@ export class CreateLoanDto {
   @IsNotEmpty()
   @IsString()
   loanId: string;
-
-  @ApiProperty({
-    description: 'Name or description of the loan',
-    example: 'Home Loan',
-  })
-  @IsNotEmpty()
-  @IsString()
-  name: string;
 
   @ApiProperty({
     description: 'Amount for each installment',
@@ -35,6 +39,15 @@ export class CreateLoanDto {
   @IsOptional()
   @IsNumber()
   overdueAmount?: number;
+
+  @ApiProperty({
+    description: 'Overdue date',
+  })
+  @IsDateString()
+  @Validate(IsDateInFuture, {
+    message: 'Overdue date should not be in the past',
+  })
+  installmentDate: Date;
 
   @ApiProperty({
     description: 'Total amount of the loan',
