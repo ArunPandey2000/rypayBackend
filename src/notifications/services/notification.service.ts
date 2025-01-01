@@ -10,6 +10,7 @@ import { Pagination } from 'src/transactions/dto/pagination-response.dto';
 import { createRechargeMessage } from '../constant/recharge-notification-message.constant';
 import { createTransactionMessage } from '../constant/transaction-message.constant';
 import { FirebaseClientService } from 'src/integration/firebase/firebase.client.service';
+import { TransactionType } from 'src/transactions/enum/transaction-type.enum';
 
 @Injectable()
 export class NotificationService {
@@ -61,7 +62,7 @@ export class NotificationService {
             contact: notificationData.transaction.receiver,
             transactionType: notificationData.transaction.type
         });
-        const type = notificationData.transaction.status === "SUCCESS" ? NotificationType.RECHARGE_SUCCESS : NotificationType.RECHARGE_FAILED;
+        const type = notificationData.transaction.type === TransactionType.CREDIT ? NotificationType.TRANSACTION_CREDIT : NotificationType.TRANSACTION_DEBIT;
         await this.insertInAppNotification(message, type, notificationData.transaction.user.id);
     }
 
