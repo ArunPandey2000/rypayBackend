@@ -326,8 +326,11 @@ export class WalletService {
       };
 
       await this.updateWalletBalance(wallet, deductBalanceData.amount, queryRunner, false);
-      await this.transactionsService.saveTransaction(rechargeDto, queryRunner);
-
+      const transaction = await this.transactionsService.saveTransaction(rechargeDto, queryRunner);
+      await this.notificationBridge.add('transaction', {
+        transaction,
+        type: NotificationType.TRANSACTION_DEBIT
+      });
       return wallet;
     });
   }
@@ -387,6 +390,42 @@ export class WalletService {
         type: NotificationType.RECHARGE_SUCCESS
       });
       return true
+    });
+  }
+
+  async processLoanPayment(
+    deductBalanceData: DeductWalletBalanceRechargeDto,
+    userId: string,
+  ): Promise<Wallet> {
+    return this.handleTransaction(async (queryRunner) => {
+      const user = await this.findUserById(userId);
+      const wallet = await this.findWalletByUserId(userId);
+
+      if (deductBalanceData.amount < 0) {
+        throw new BadRequestException('Amount cannot be negative');
+      }
+      if (deductBalanceData.amount > wallet.balance) {
+        throw new BadRequestException('Insufficient funds');
+      }
+
+      const rechargeDto = {
+        ...deductBalanceData,
+        transactionHash: generateHash(),
+        user: user,
+        type: TransactionType.DEBIT,
+        transactionDate: new Date(),
+        walletBalanceBefore: wallet.balance,
+        walletBalanceAfter: wallet.balance - deductBalanceData.amount,
+        wallet,
+        sender: user.id,
+        receiver: deductBalanceData.receiverId,
+        serviceUsed: deductBalanceData.serviceUsed,
+      };
+
+      await this.updateWalletBalance(wallet, deductBalanceData.amount, queryRunner, false);
+      await this.transactionsService.saveTransaction(rechargeDto, queryRunner);
+
+      return wallet;
     });
   }
 }

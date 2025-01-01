@@ -6,6 +6,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
 import { LoanAdminResponseDto, LoanResponseDto } from './dto/loan.dto';
+import { PayloanDto } from './dto/pay-loan.dto';
 
 @ApiTags('Loans')
 @ApiBearerAuth()
@@ -62,5 +63,13 @@ export class LoansController {
   @ApiResponse({ status: 404, description: 'Loan not found.' })
   remove(@Param('id') id: string) {
     return this.loansService.remove(+id);
+  }
+
+  @Post('/pay')
+  @ApiOperation({ summary: 'pay loan' })
+  @ApiResponse({ status: 200, description: 'Loan amount paid by user.' })
+  @ApiResponse({ status: 404, description: 'Loan Id not found.' })
+  PayLoan(@Req() req: any, @Body() loanPaymentDto: PayloanDto) {
+    return this.loansService.payLoan(req.user.sub, loanPaymentDto);
   }
 }

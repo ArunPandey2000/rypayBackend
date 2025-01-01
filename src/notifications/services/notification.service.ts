@@ -25,7 +25,7 @@ export class NotificationService {
         if (userId) {
             user = await this.userRepo.findOne({where: {id: userId}});
         }
-        await this.sendPushNotificationToUser(user.mobileDevices, type, message, undefined);
+        await this.sendPushNotificationToUser(user.mobileDevices, type, message?.replace(/<[^>]*>/g, ''), undefined);
         const notification = this.notificationRepository.create({ message, type, user });
         return this.notificationRepository.save(notification);
     }

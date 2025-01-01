@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,10 +6,18 @@ import { Loan } from 'src/core/entities/loan.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/core/entities/user.entity';
 import { LoanAdminResponseDto, LoanResponseDto } from './dto/loan.dto';
+import { WalletService } from 'src/wallet/services/wallet.service';
+import { Order, OrderStatus, OrderType } from 'src/core/entities/order.entity';
+import { generateRef } from 'src/core/utils/hash.util';
+import { TransactionStatus } from 'src/core/entities/transactions.entity';
+import { PayloanDto } from './dto/pay-loan.dto';
+import { LoanStatus } from './enums/loan-status.enum';
 
 @Injectable()
 export class LoansService {
   constructor(@InjectRepository(Loan) private loanRepo: Repository<Loan>,
+  private walletService: WalletService,
+  @InjectRepository(Order) private orderRepository: Repository<Order>,
   @InjectRepository(User) private userRepo: Repository<User>
 ) {
     
@@ -85,6 +93,9 @@ export class LoansService {
         user: {
           id: userId
         }
+      },
+      order: {
+        dueDate: 'ASC'
       }
     })) ?? [];
     return loans.map(loan => new LoanResponseDto(loan));
@@ -128,5 +139,82 @@ export class LoansService {
       throw new BadRequestException('loan Id not found')
     }
     await this.loanRepo.remove(loan);
+  }
+
+
+  async payLoan(userId: string, loanPaymentDto: PayloanDto) {
+          if (!loanPaymentDto.loanId) {
+            throw new BadRequestException('loanId is mandatory');
+          }
+          const loan = await this.loanRepo.findOneBy({
+            id: +loanPaymentDto.loanId
+          });
+          if (!loan) {
+            throw new NotFoundException('Loan not found against this loan Id');
+          }
+          const user = await this.userRepo.findOne({where: {id: userId}}); 
+          if (!user || loan.user.id !== userId) {
+            throw new ForbiddenException('User not found');
+          }
+
+          const wallet = await this.walletService.getWallet({user: {id: userId}});
+          if (wallet.balance < loanPaymentDto.amount) {
+              throw new BadRequestException('Insufficient Balance')
+          }
+          const description = `Loan Payment ${loan.loanAccount}`
+          const orderId = generateRef(6);
+          const order = {
+              order_id: orderId,
+              order_type: OrderType.PAYMENT,
+              gateway_response: '',
+              amount: loanPaymentDto.amount,
+              status: OrderStatus.SUCCESS,
+              transaction_id: loan.loanAccount,
+              user: user,
+              description: description,
+              payment_method: 'WALLET',
+          }
+          const SavedOrder = this.orderRepository.create(order);
+          this.orderRepository.save(SavedOrder);
+  
+          await this.walletService.processRechargePayment({amount: loanPaymentDto.amount,
+               receiverId: loan.loanAccount,
+               serviceUsed: 'LoanPayment',
+               description: description,
+               status: TransactionStatus.SUCCESS,
+               reference: orderId }, userId);
+          await this.handleLoanPayment(loan, loanPaymentDto);
+          
+          return {
+              referenceId: SavedOrder.order_id,
+              amount: loanPaymentDto.amount,
+              message: description
+          }
+      }
+  
+  private async handleLoanPayment(loan: Loan, loanPaymentDto: PayloanDto) {
+    const installmentAmount = +loan.installmentAmount,
+      overdueAmount = +loan.overdueAmount;
+    const totalAmount = installmentAmount + overdueAmount;
+    const newStatus = loanPaymentDto.amount >= totalAmount ? LoanStatus.Paid : LoanStatus.PartiallyPending;
+      const isExtraAmountThenInstallment = loanPaymentDto.amount > installmentAmount;
+      let newInstallmentAmount = installmentAmount - loanPaymentDto.amount;
+      let newOverdueAmount = overdueAmount;
+      if (loanPaymentDto.amount > totalAmount) {
+        throw new BadRequestException('Loan Payment amount is greater than loan amount');
+      }
+      if (loan.loanStatus === LoanStatus.Paid){
+        throw new BadRequestException('Loan Payment already done');
+      }
+      if (isExtraAmountThenInstallment) {
+        loan.installmentAmount = 0;
+        const extraAmount = loanPaymentDto.amount - installmentAmount;
+        newOverdueAmount = overdueAmount - extraAmount;
+      }
+      await this.loanRepo.update({id: +loanPaymentDto.loanId}, {
+        loanStatus: newStatus,
+        installmentAmount: newInstallmentAmount,
+        overdueAmount: newOverdueAmount
+      })
   }
 }

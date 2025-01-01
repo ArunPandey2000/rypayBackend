@@ -67,7 +67,6 @@ import { MoneyRequestModule } from './money-request/money-request.module';
     IntegrationModule,
     UsersModule,
     NotificationsModule,
-    IntegrationModule,
     WalletModule,
     CardsModule,
     TransactionsModule,
