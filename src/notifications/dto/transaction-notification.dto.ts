@@ -8,7 +8,7 @@ import { TransactionType } from "src/transactions/enum/transaction-type.enum"
 export class TransactionNotification {
     transaction: {
         user: User,
-        type: TransactionType.DEBIT,
+        type: TransactionType,
         amount: number,
         description: string,
         transactionDate: Date,
