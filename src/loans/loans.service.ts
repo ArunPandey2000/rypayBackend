@@ -161,7 +161,7 @@ export class LoansService {
           if (wallet.balance < loanPaymentDto.amount) {
               throw new BadRequestException('Insufficient Balance')
           }
-          const description = `Loan Payment ${loan.loanAccount}`
+          const description = loanPaymentDto.remarks ? loanPaymentDto.remarks : `Loan Payment ${loan.loanAccount}`
           const orderId = generateRef(6);
           const order = {
               order_id: orderId,

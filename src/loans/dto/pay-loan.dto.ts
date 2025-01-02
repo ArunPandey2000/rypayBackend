@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, Min } from "class-validator";
+import { IsNotEmpty, IsOptional, Min } from "class-validator";
 
 export class PayloanDto {
     @ApiProperty()
@@ -9,4 +9,8 @@ export class PayloanDto {
     @ApiProperty()
     @Min(0)
     amount: number;
+
+    @ApiProperty()
+    @IsOptional()
+    remarks: string;
 }
