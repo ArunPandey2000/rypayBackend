@@ -107,6 +107,20 @@ export class UserAdminRequestDto extends UserRequestCommonDto {
   userType: UserRole;
 }
 
+export class UserUpdateRequestDto extends UserRequestCommonDto {
+  @IsIn([UserRole.ADMIN])
+  @ApiProperty()
+  userType: UserRole;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  isBlocked: boolean;
+}
+
+export class UserUpdateResponse {
+  @ApiProperty()
+  success: boolean
+}
 export class ValidateOTPAfterCardCreationDTO {
   @IsNotEmpty()
   @ApiProperty()

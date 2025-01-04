@@ -57,6 +57,9 @@ export class UserResponse {
   phoneNumber: string;
 
   @ApiProperty()
+  isBlocked: boolean;
+
+  @ApiProperty()
   dob: string;
 
   @ApiProperty()
@@ -97,6 +100,7 @@ export class UserResponse {
     this.dob = user.dob;
     this.userRole = user.role;
     this.address = user.address;
+    this.isBlocked = !!user.isBlocked;
     this.phoneNumber = user.phoneNumber;
     this.kycVerificationStatus = KycVerificationStatus[user.kycVerificationStatus].toString();
     this.isPinCreated = !!user.pin;

@@ -38,4 +38,10 @@ export class ExternalController {
     return this.externalService.handleUpiEvents(payload);
     // webhook processing logic
   }
+
+  @Post('webhooks/payouts')
+  async handlePayoutEvents(@Body() payload: TransactionDto) {
+    return this.externalService.handlePayoutEvents(payload);
+    // webhook processing logic
+  }
 }

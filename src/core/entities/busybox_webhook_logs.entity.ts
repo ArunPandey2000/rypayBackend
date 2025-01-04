@@ -4,7 +4,8 @@ export enum Webhook_Type {
     KYC_EVENT = 'KYC_EVENT',
     TRANSACTION = 'TRANSACTION',
     UPI = 'UPI',
-    DEBIT = 'DEBIT'
+    DEBIT = 'DEBIT',
+    Payout = 'PAYOUT'
   }
 
 @Entity('busybox_webhook_responses')

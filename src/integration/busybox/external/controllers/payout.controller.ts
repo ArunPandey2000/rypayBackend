@@ -11,6 +11,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { VerifyAccountResponseDTO } from '../dto/verify-account-response.dto';
 import { VerifyAccountRequestDTO } from '../dto/verify-account-request.dto';
 import { VerifyUpiRequestDTO } from '../dto/verify-upi-request.dto';
+import { UPIPayoutPayload } from '../dto/upi-account-payload.dto';
+import { PayoutResponseDTO } from '../dto/payout-response.dto';
 
 @Controller('account')
 @ApiTags('Account')
@@ -25,8 +27,24 @@ export class PayoutController {
   }
 
   @Post('payout')
+  @ApiOperation({ summary: 'payout to given account number' })
+  @ApiResponse({
+    status: 200,
+    description: 'The UPI payment result',
+    type: PayoutResponseDTO,
+  })
   async handleTransactions(@Req() req: any, @Body() payload: AccountPayoutPayload) {
     return this.payoutService.payoutAccount(req.user.sub, payload);
+  }
+  @Post('payout/upi')
+  @ApiOperation({ summary: 'payout to given upi id' })
+  @ApiResponse({
+    status: 200,
+    description: 'The UPI payment result',
+    type: PayoutResponseDTO,
+  })
+  async handleUpiPayout(@Req() req: any, @Body() payload: UPIPayoutPayload) {
+    return this.payoutService.payoutUPI(req.user.sub, payload);
   }
 
   @Post('verify')

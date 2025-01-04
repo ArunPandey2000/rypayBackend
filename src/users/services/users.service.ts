@@ -24,7 +24,7 @@ import { WalletService } from 'src/wallet/services/wallet.service';
 import { DataSource, EntityManager, Not, Repository } from 'typeorm';
 import { UserDocumentResponseDto } from '../dto/user-documents.dto';
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
-import { UserRequestDto } from '../dto/user-request.dto';
+import { UserRequestDto, UserUpdateRequestDto, UserUpdateResponse } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UserMapper } from '../mapper/user-mapper';
 import { UploadFileService } from './updaload-file.service';
@@ -165,6 +165,18 @@ export class UsersService {
       tokens,
     };
   }
+
+  async updateUserProfile(
+    userRequestDto: UserUpdateRequestDto,
+  ): Promise<UserUpdateResponse> {
+    const updatedUserEntity = UserMapper.mapUserRequestDtoToEntity(userRequestDto);
+    const updatedUser = this.userRepository.merge(updatedUserEntity);
+    await this.userRepository.save(updatedUser);
+    return {
+      success: true
+    }
+  }
+
 
   async checkPhoneNumberExists(phoneNumber: string) {
     if (!phoneNumber) {

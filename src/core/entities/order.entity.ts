@@ -5,7 +5,8 @@ export enum OrderType {
   RECHARGE = 'RECHARGE',
   TRANSFER = 'TRANSFER',
   PAYMENT = 'PAYMENT',
-  PAYOUT = 'PAYOUT'
+  PAYOUT = 'PAYOUT',
+  UPI_PAYOUT = 'UPI_PAYOUT'
   // Add more order types as needed
 }
 

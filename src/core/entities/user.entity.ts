@@ -43,6 +43,9 @@ export class User {
   @Column({ name: 'card_holder_id', type: 'varchar', unique: true })
   cardHolderId: string;
 
+  @Column({ type: 'boolean', default: false })
+  isBlocked: boolean;
+
   @OneToMany(() => UserDocument, (document) => document.user)
   documents: UserDocument[];
 

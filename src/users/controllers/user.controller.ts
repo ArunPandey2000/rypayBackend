@@ -5,7 +5,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
 import { PinRequestDto, UpdateForgotPin } from '../dto/pin-request.dto';
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
-import { UserAdminRequestDto, UserRequestDto, ValidateOTPAfterCardCreationDTO } from '../dto/user-request.dto';
+import { UserAdminRequestDto, UserRequestDto, UserUpdateRequestDto, UserUpdateResponse, ValidateOTPAfterCardCreationDTO } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UploadFileService } from '../services/updaload-file.service';
 import { UsersService } from '../services/users.service';
@@ -58,6 +58,27 @@ export class UsersController {
     @Body() signUpDto: UserAdminRequestDto,
   ): Promise<UserApiResponseDto> {
     return this.userService.registerAdminAndGenerateToken(signUpDto);
+  }
+
+  @ApiOperation({ summary: 'Endpoint to register the user as Admin' })
+  @Post('/update/user')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: UserUpdateResponse,
+    description: 'The record has been successfully created.',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Forbidden.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request exception',
+  })
+  async updateUser(
+    @Body() updateDto: UserUpdateRequestDto,
+  ): Promise<UserUpdateResponse> {
+    return this.userService.updateUserProfile(updateDto);
   }
 
   @ApiOperation({ summary: 'Endpoint to get all users' })
