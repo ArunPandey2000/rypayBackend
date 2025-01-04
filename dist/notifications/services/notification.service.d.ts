@@ -1,0 +1,32 @@
+import { Notification, NotificationType } from 'src/core/entities/notification.entity';
+import { User } from 'src/core/entities/user.entity';
+import { Repository } from 'typeorm';
+import { RechargeNotificationDto } from '../dto/recharge-notification.dto';
+import { TransactionNotification } from '../dto/transaction-notification.dto';
+import { GeneralNotification } from '../dto/announcement-notification.dto';
+import { FirebaseClientService } from 'src/integration/firebase/firebase.client.service';
+export declare class NotificationService {
+    private notificationRepository;
+    private userRepo;
+    private firebaseService;
+    constructor(notificationRepository: Repository<Notification>, userRepo: Repository<User>, firebaseService: FirebaseClientService);
+    insertInAppNotification(message: string, type: NotificationType, userId?: string): Promise<Notification>;
+    sendPushNotificationToUser(tokens: string[], title: string, message: string, icon: string): Promise<void>;
+    processRechargeNotification(notificationData: RechargeNotificationDto): Promise<void>;
+    processTransactionNotification(notificationData: TransactionNotification): Promise<void>;
+    processAnnouncementNotification(notificationData: GeneralNotification): Promise<Notification>;
+    findAllPaginated(userId: string, page: number, limit: number): Promise<{
+        data: any[];
+        pagination: {
+            page: number;
+            pageSize: number;
+            totalRecords: number;
+            pageCount: number;
+            hasPreviousPage: boolean;
+            hasNextPage: boolean;
+        };
+    }>;
+    markAllRead(userId: string): Promise<boolean>;
+    markAsRead(notificationId: number): Promise<Notification>;
+    deleteOldNotifications(): Promise<void>;
+}

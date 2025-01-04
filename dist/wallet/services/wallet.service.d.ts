@@ -1,0 +1,45 @@
+import { Order } from 'src/core/entities/order.entity';
+import { Transaction } from 'src/core/entities/transactions.entity';
+import { User } from 'src/core/entities/user.entity';
+import { Wallet } from 'src/core/entities/wallet.entity';
+import { TransactionNotifyPayload } from 'src/integration/busybox/external/interfaces/transaction-notify.interface';
+import { NotificationBridge } from 'src/notifications/services/notification-bridge';
+import { TransactionsService } from 'src/transactions/services/transactions.service';
+import { DataSource, FindOptionsWhere, QueryRunner, Repository } from 'typeorm';
+import { CreateWalletDto } from '../dto/create-wallet.dto';
+import { AddMoneyToWalletDto, DeductWalletBalanceRechargeDto, TransferMoneyDto } from '../dto/transfer-money.dto';
+export declare class WalletService {
+    private walletRepository;
+    private _connection;
+    private readonly transactionsService;
+    private userRepository;
+    private orderRepository;
+    private transactionRepo;
+    private readonly notificationBridge;
+    constructor(walletRepository: Repository<Wallet>, _connection: DataSource, transactionsService: TransactionsService, userRepository: Repository<User>, orderRepository: Repository<Order>, transactionRepo: Repository<Transaction>, notificationBridge: NotificationBridge);
+    private handleTransaction;
+    private findUserById;
+    private findWalletByUserId;
+    private updateWalletBalance;
+    createWallet(createWalletDto: CreateWalletDto, queryRunner: QueryRunner): Promise<Wallet>;
+    getOne(query: FindOptionsWhere<Wallet>): Promise<Wallet>;
+    getWallet(query: FindOptionsWhere<Wallet>): Promise<{
+        email: string;
+        firstName: string;
+        lastName: string;
+        id: number;
+        balance: number;
+        status: string;
+        walletAccountNo: string;
+    }>;
+    getWalletQRCode(query: FindOptionsWhere<Wallet>): Promise<string>;
+    generateWalletAccountNo(): Promise<string>;
+    AddMoneyToWallet(addMoneyWalletDto: AddMoneyToWalletDto, req: any): Promise<Wallet>;
+    debitMyAccount(fundMyAccountDto: AddMoneyToWalletDto, req: any): Promise<Wallet>;
+    debitAmountOnCardTransaction(cardTransaction: TransactionNotifyPayload): Promise<Wallet>;
+    processFundTransfer(transferAccountDto: TransferMoneyDto, req: any): Promise<Wallet>;
+    processRechargePayment(deductBalanceData: DeductWalletBalanceRechargeDto, userId: string): Promise<Wallet>;
+    processRechargeRefundPayment(orderId: string): Promise<Wallet>;
+    processRechargeSuccess(orderId: string, transactionId: string, gatewayId: string): Promise<boolean>;
+    processLoanPayment(deductBalanceData: DeductWalletBalanceRechargeDto, userId: string): Promise<Wallet>;
+}
