@@ -9,6 +9,17 @@ export declare class WalletController {
         email: string;
         firstName: string;
         lastName: string;
+        updatedAt: Date;
+        id: number;
+        balance: number;
+        status: string;
+        walletAccountNo: string;
+    }>;
+    getWalletDetailsByUserId(userId: string): Promise<{
+        email: string;
+        firstName: string;
+        lastName: string;
+        updatedAt: Date;
         id: number;
         balance: number;
         status: string;
@@ -18,6 +29,7 @@ export declare class WalletController {
         email: string;
         firstName: string;
         lastName: string;
+        updatedAt: Date;
         id: number;
         balance: number;
         status: string;
@@ -27,14 +39,13 @@ export declare class WalletController {
         email: string;
         firstName: string;
         lastName: string;
+        updatedAt: Date;
         id: number;
         balance: number;
         status: string;
         walletAccountNo: string;
     }>;
-    addMoneyToWallet(req: Request, fundMyAccountDto: AddMoneyToWalletDto): Promise<{
-        transaction: import("../../core/entities/wallet.entity").Wallet;
-    }>;
+    updateMoneyToWallet(userId: string, fundMyAccountDto: AddMoneyToWalletDto): Promise<import("../../core/entities/wallet.entity").Wallet>;
     transferToUserByPhone(req: Request, transferAccountDto: TransferMoneyDto): Promise<{
         message: string;
         isSuccess: boolean;

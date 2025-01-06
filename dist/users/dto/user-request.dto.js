@@ -130,7 +130,7 @@ class UserUpdateRequestDto extends UserRequestCommonDto {
 }
 exports.UserUpdateRequestDto = UserUpdateRequestDto;
 __decorate([
-    (0, class_validator_1.IsIn)([user_role_enum_1.UserRole.ADMIN]),
+    (0, class_validator_1.IsIn)([user_role_enum_1.UserRole.MERCHANT, user_role_enum_1.UserRole.USER]),
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)
 ], UserUpdateRequestDto.prototype, "userType", void 0);

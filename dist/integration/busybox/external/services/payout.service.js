@@ -42,7 +42,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
             mode: requestDto.mode
         };
         const response = (await this.payloutClientService.payoutUsingAccount(requestBody));
-        if (response.status === 'FAILED') {
+        if (response.status === 'FAILURE') {
             throw new common_1.BadRequestException(response.message);
         }
         const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -93,7 +93,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
             mode: "UPI"
         };
         const response = (await this.payloutClientService.payoutUsingUPI(requestBody));
-        if (response.status === 'FAILED') {
+        if (response.status === 'FAILURE') {
             throw new common_1.BadRequestException(response.message);
         }
         const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -115,7 +115,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
         this.orderRepository.save(SavedOrder);
         await this.walletService.processRechargePayment({ amount: requestDto.amount,
             receiverId: requestDto.upiId,
-            serviceUsed: 'Payout',
+            serviceUsed: 'UPI',
             description: description,
             status: transactions_entity_1.TransactionStatus.PENDING,
             reference: orderId }, userId);

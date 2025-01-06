@@ -12,6 +12,7 @@ import { UsersService } from '../services/users.service';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
 import { KycVerificationStatusResponse } from '../dto/kyc-status.dto';
 import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
+import { User } from 'src/core/entities/user.entity';
 
 @Controller('user')
 @ApiTags('User')
@@ -60,11 +61,11 @@ export class UsersController {
     return this.userService.registerAdminAndGenerateToken(signUpDto);
   }
 
-  @ApiOperation({ summary: 'Endpoint to register the user as Admin' })
-  @Post('/update/user')
+  @ApiOperation({ summary: 'Endpoint to update user profile' })
+  @Post('/update/user/:userId')
   @ApiResponse({
     status: HttpStatus.OK,
-    type: UserUpdateResponse,
+    type: User,
     description: 'The record has been successfully created.',
   })
   @ApiResponse({
@@ -76,9 +77,10 @@ export class UsersController {
     description: 'Bad request exception',
   })
   async updateUser(
+    @Param('userId') userId: string,
     @Body() updateDto: UserUpdateRequestDto,
-  ): Promise<UserUpdateResponse> {
-    return this.userService.updateUserProfile(updateDto);
+  ): Promise<User> {
+    return this.userService.updateUserProfile(userId,updateDto);
   }
 
   @ApiOperation({ summary: 'Endpoint to get all users' })

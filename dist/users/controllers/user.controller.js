@@ -26,6 +26,7 @@ const users_service_1 = require("../services/users.service");
 const admin_guard_1 = require("../../auth/guards/admin.guard");
 const kyc_status_dto_1 = require("../dto/kyc-status.dto");
 const phone_number_exists_dto_1 = require("../dto/phone-number-exists.dto");
+const user_entity_1 = require("../../core/entities/user.entity");
 let UsersController = class UsersController {
     constructor(userService, uploadFileService) {
         this.userService = userService;
@@ -37,8 +38,8 @@ let UsersController = class UsersController {
     async registerAdmin(signUpDto) {
         return this.userService.registerAdminAndGenerateToken(signUpDto);
     }
-    async updateUser(updateDto) {
-        return this.userService.updateUserProfile(updateDto);
+    async updateUser(userId, updateDto) {
+        return this.userService.updateUserProfile(userId, updateDto);
     }
     async getAllUser(req) {
         return this.userService.getAllUsers(req.user.sub);
@@ -150,11 +151,11 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "registerAdmin", null);
 __decorate([
-    (0, swagger_1.ApiOperation)({ summary: 'Endpoint to register the user as Admin' }),
-    (0, common_1.Post)('/update/user'),
+    (0, swagger_1.ApiOperation)({ summary: 'Endpoint to update user profile' }),
+    (0, common_1.Post)('/update/user/:userId'),
     (0, swagger_1.ApiResponse)({
         status: common_1.HttpStatus.OK,
-        type: user_request_dto_1.UserUpdateResponse,
+        type: user_entity_1.User,
         description: 'The record has been successfully created.',
     }),
     (0, swagger_1.ApiResponse)({
@@ -165,9 +166,10 @@ __decorate([
         status: common_1.HttpStatus.BAD_REQUEST,
         description: 'Bad request exception',
     }),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [user_request_dto_1.UserUpdateRequestDto]),
+    __metadata("design:paramtypes", [String, user_request_dto_1.UserUpdateRequestDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateUser", null);
 __decorate([

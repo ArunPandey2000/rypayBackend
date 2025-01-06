@@ -92,6 +92,7 @@ let WalletService = class WalletService {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
+            updatedAt: updatedAt
         };
     }
     async getWalletQRCode(query) {
@@ -124,17 +125,21 @@ let WalletService = class WalletService {
         const existingWallet = await this.getOne({ walletAccountNo });
         return existingWallet ? this.generateWalletAccountNo() : walletAccountNo;
     }
-    async AddMoneyToWallet(addMoneyWalletDto, req) {
-        const userId = req.user.sub;
+    async UpdateMoneyToWallet(addMoneyWalletDto, userId) {
         return this.handleTransaction(async (queryRunner) => {
             const user = await this.findUserById(userId);
             const wallet = await this.findWalletByUserId(userId);
+            const description = addMoneyWalletDto.message ?? (addMoneyWalletDto.type === transaction_type_enum_1.TransactionType.CREDIT ?
+                `INR${addMoneyWalletDto.amount} was credited to your wallet` :
+                `INR${addMoneyWalletDto.amount} was debited from your wallet`);
+            const type = addMoneyWalletDto.type ?? transaction_type_enum_1.TransactionType.CREDIT;
+            const walletBalanceAfter = type === transaction_type_enum_1.TransactionType.CREDIT ? wallet.balance + addMoneyWalletDto.amount : wallet.balance - addMoneyWalletDto.amount;
             const transaction = {
                 ...addMoneyWalletDto,
                 user,
-                type: transaction_type_enum_1.TransactionType.CREDIT,
+                type: type,
                 amount: Number(addMoneyWalletDto.amount),
-                description: `INR${addMoneyWalletDto.amount} was credited to your wallet`,
+                description: description,
                 transactionDate: new Date(),
                 walletBalanceBefore: wallet.balance,
                 walletBalanceAfter: wallet.balance + addMoneyWalletDto.amount,
@@ -144,11 +149,14 @@ let WalletService = class WalletService {
                 status: transactions_entity_1.TransactionStatus.SUCCESS,
                 receiver: addMoneyWalletDto.receiver || null,
             };
-            await this.updateWalletBalance(wallet, addMoneyWalletDto.amount, queryRunner, true);
+            await this.updateWalletBalance(wallet, addMoneyWalletDto.amount, queryRunner, type === transaction_type_enum_1.TransactionType.CREDIT);
             await this.transactionsService.saveTransaction(transaction, queryRunner);
+            const notificationType = addMoneyWalletDto.type === transaction_type_enum_1.TransactionType.CREDIT ?
+                notification_entity_1.NotificationType.TRANSACTION_CREDIT :
+                notification_entity_1.NotificationType.TRANSACTION_DEBIT;
             await this.notificationBridge.add('transaction', {
                 transaction,
-                type: notification_entity_1.NotificationType.TRANSACTION_CREDIT
+                type: notificationType
             });
             return wallet;
         });

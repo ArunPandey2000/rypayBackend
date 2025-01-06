@@ -5,6 +5,7 @@ import { generateHash, generateRef } from 'src/core/utils/hash.util';
 import { AddMoneyToWalletDto, TransferMoneyDto } from '../dto/transfer-money.dto';
 import { WalletService } from '../services/wallet.service';
 import { Request, Response } from 'express';
+import { AdminGuard } from 'src/auth/guards/admin.guard';
 
 @Controller('wallet')
 @ApiBearerAuth()
@@ -39,6 +40,18 @@ export class WalletController {
   }
 
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiOperation({ summary: 'Endpoint to get wallet details by user id | ADMIN' })
+  @Get('/user/:userId')
+  async getWalletDetailsByUserId(@Param('userId') userId: string) {
+    return await this.walletService.getWallet({
+      user: {
+        id: userId
+      }
+    });
+  }
+
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Endpoint to get wallet details by phone' })
   @Get('/mobile/:number')
@@ -56,12 +69,12 @@ export class WalletController {
     });
   }
 
-  @Post('add-money')
+  @Post('update-money/:userId')
+  @UseGuards(AdminGuard)
   @HttpCode(HttpStatus.OK)
-  async addMoneyToWallet(
-    @Req() req: Request,
-    @Body()
-    fundMyAccountDto: AddMoneyToWalletDto,
+  async updateMoneyToWallet(
+    @Param('userId') userId: string,
+    @Body() fundMyAccountDto: AddMoneyToWalletDto,
   ) {
     const reference = generateRef(10);
     const transactionHash = generateHash();
@@ -69,13 +82,12 @@ export class WalletController {
     fundMyAccountDto.reference = reference;
     fundMyAccountDto.transactionHash = transactionHash;
 
-    const transaction = await this.walletService.AddMoneyToWallet(
-      fundMyAccountDto, req
+    const wallet = await this.walletService.UpdateMoneyToWallet(
+      fundMyAccountDto,
+      userId
     );
 
-    return {
-      transaction
-    }
+    return wallet
   }
 
   @Post('transfer-to-user')

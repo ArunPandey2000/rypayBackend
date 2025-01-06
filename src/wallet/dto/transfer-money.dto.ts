@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsIn, IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { OrderStatus } from "src/core/entities/order.entity";
 import { TransactionStatus } from "src/core/entities/transactions.entity";
 import { User } from "src/core/entities/user.entity";
@@ -17,7 +17,14 @@ export class AddMoneyToWalletDto {
     @IsNotEmpty()
     @ApiProperty()
     amount: number;
-  
+
+    @IsNotEmpty()
+    @ApiProperty()
+    message: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsIn([TransactionType.CREDIT, TransactionType.DEBIT])
     type: TransactionType;
   
     transactionHash: string;

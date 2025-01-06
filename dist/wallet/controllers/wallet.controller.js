@@ -19,6 +19,7 @@ const jwt_auth_guard_1 = require("../../auth/guards/jwt-auth.guard");
 const hash_util_1 = require("../../core/utils/hash.util");
 const transfer_money_dto_1 = require("../dto/transfer-money.dto");
 const wallet_service_1 = require("../services/wallet.service");
+const admin_guard_1 = require("../../auth/guards/admin.guard");
 let WalletController = class WalletController {
     constructor(walletService) {
         this.walletService = walletService;
@@ -35,6 +36,13 @@ let WalletController = class WalletController {
             walletAccountNo: walletId
         });
     }
+    async getWalletDetailsByUserId(userId) {
+        return await this.walletService.getWallet({
+            user: {
+                id: userId
+            }
+        });
+    }
     async getWalletDetailsByPhone(phoneNumber) {
         return await this.walletService.getWallet({
             user: { phoneNumber: phoneNumber }
@@ -45,15 +53,13 @@ let WalletController = class WalletController {
             user: { id: req.user.sub },
         });
     }
-    async addMoneyToWallet(req, fundMyAccountDto) {
+    async updateMoneyToWallet(userId, fundMyAccountDto) {
         const reference = (0, hash_util_1.generateRef)(10);
         const transactionHash = (0, hash_util_1.generateHash)();
         fundMyAccountDto.reference = reference;
         fundMyAccountDto.transactionHash = transactionHash;
-        const transaction = await this.walletService.AddMoneyToWallet(fundMyAccountDto, req);
-        return {
-            transaction
-        };
+        const wallet = await this.walletService.UpdateMoneyToWallet(fundMyAccountDto, userId);
+        return wallet;
     }
     async transferToUserByPhone(req, transferAccountDto) {
         const reference = (0, hash_util_1.generateRef)(10);
@@ -112,6 +118,16 @@ __decorate([
 ], WalletController.prototype, "getWalletDetailsByWalletId", null);
 __decorate([
     (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
+    (0, swagger_1.ApiOperation)({ summary: 'Endpoint to get wallet details by user id | ADMIN' }),
+    (0, common_1.Get)('/user/:userId'),
+    __param(0, (0, common_1.Param)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], WalletController.prototype, "getWalletDetailsByUserId", null);
+__decorate([
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiOperation)({ summary: 'Endpoint to get wallet details by phone' }),
     (0, common_1.Get)('/mobile/:number'),
@@ -129,14 +145,15 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], WalletController.prototype, "getWallet", null);
 __decorate([
-    (0, common_1.Post)('add-money'),
+    (0, common_1.Post)('update-money/:userId'),
+    (0, common_1.UseGuards)(admin_guard_1.AdminGuard),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    __param(0, (0, common_1.Req)()),
+    __param(0, (0, common_1.Param)('userId')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, transfer_money_dto_1.AddMoneyToWalletDto]),
+    __metadata("design:paramtypes", [String, transfer_money_dto_1.AddMoneyToWalletDto]),
     __metadata("design:returntype", Promise)
-], WalletController.prototype, "addMoneyToWallet", null);
+], WalletController.prototype, "updateMoneyToWallet", null);
 __decorate([
     (0, common_1.Post)('transfer-to-user'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

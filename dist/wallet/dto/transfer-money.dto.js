@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateWalletAfterRechargeDto = exports.DeductWalletBalanceRechargeDto = exports.TransferMoneyDto = exports.AddMoneyToWalletDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const transaction_type_enum_1 = require("../../transactions/enum/transaction-type.enum");
 class AddMoneyToWalletDto {
 }
 exports.AddMoneyToWalletDto = AddMoneyToWalletDto;
@@ -21,6 +22,17 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", Number)
 ], AddMoneyToWalletDto.prototype, "amount", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], AddMoneyToWalletDto.prototype, "message", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsIn)([transaction_type_enum_1.TransactionType.CREDIT, transaction_type_enum_1.TransactionType.DEBIT]),
+    __metadata("design:type", String)
+], AddMoneyToWalletDto.prototype, "type", void 0);
 class TransferMoneyDto {
 }
 exports.TransferMoneyDto = TransferMoneyDto;

@@ -7,6 +7,7 @@ export declare class AddMoneyToWalletDto {
     walletId: string;
     wallet: Wallet;
     amount: number;
+    message: string;
     type: TransactionType;
     transactionHash: string;
     description: string;

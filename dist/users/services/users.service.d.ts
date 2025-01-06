@@ -8,7 +8,7 @@ import { MerchantClientService } from 'src/integration/busybox/external-system-c
 import { WalletService } from 'src/wallet/services/wallet.service';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
-import { UserRequestDto, UserUpdateRequestDto, UserUpdateResponse } from '../dto/user-request.dto';
+import { UserRequestDto, UserUpdateRequestDto } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UploadFileService } from './updaload-file.service';
 import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
@@ -31,7 +31,7 @@ export declare class UsersService {
     registerUser(userRequestDto: UserRequestDto): Promise<UserResponse>;
     registerUserAndGenerateToken(userRequestDto: UserRequestDto): Promise<UserApiResponseDto>;
     registerAdminAndGenerateToken(userRequestDto: UserRequestDto): Promise<UserApiResponseDto>;
-    updateUserProfile(userRequestDto: UserUpdateRequestDto): Promise<UserUpdateResponse>;
+    updateUserProfile(userId: string, userRequestDto: UserUpdateRequestDto): Promise<User>;
     checkPhoneNumberExists(phoneNumber: string): Promise<PhoneNumberExists>;
     getAllUsers(userId: string): Promise<UserResponse[]>;
     addProfileIconInUserResponse(userModel: User, userResponse: UserResponse): Promise<UserResponse>;

@@ -108,7 +108,7 @@ export class UserAdminRequestDto extends UserRequestCommonDto {
 }
 
 export class UserUpdateRequestDto extends UserRequestCommonDto {
-  @IsIn([UserRole.ADMIN])
+  @IsIn([UserRole.MERCHANT, UserRole.USER])
   @ApiProperty()
   userType: UserRole;
 

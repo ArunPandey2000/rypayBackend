@@ -1,19 +1,20 @@
 import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
 import { PinRequestDto, UpdateForgotPin } from '../dto/pin-request.dto';
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
-import { UserAdminRequestDto, UserRequestDto, UserUpdateRequestDto, UserUpdateResponse, ValidateOTPAfterCardCreationDTO } from '../dto/user-request.dto';
+import { UserAdminRequestDto, UserRequestDto, UserUpdateRequestDto, ValidateOTPAfterCardCreationDTO } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UploadFileService } from '../services/updaload-file.service';
 import { UsersService } from '../services/users.service';
 import { KycVerificationStatusResponse } from '../dto/kyc-status.dto';
 import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
+import { User } from 'src/core/entities/user.entity';
 export declare class UsersController {
     private userService;
     private uploadFileService;
     constructor(userService: UsersService, uploadFileService: UploadFileService);
     register(signUpDto: UserRequestDto): Promise<UserApiResponseDto>;
     registerAdmin(signUpDto: UserAdminRequestDto): Promise<UserApiResponseDto>;
-    updateUser(updateDto: UserUpdateRequestDto): Promise<UserUpdateResponse>;
+    updateUser(userId: string, updateDto: UserUpdateRequestDto): Promise<User>;
     getAllUser(req: any): Promise<UserResponse[]>;
     checkUserExist(phoneNumber: string): Promise<PhoneNumberExists>;
     updateProfileIcon(file: Express.Multer.File, req: any): Promise<{
@@ -46,7 +47,7 @@ export declare class UsersController {
         url: string;
         key: string;
     }>;
-    getUserProfile(userId: string): Promise<import("../../core/entities/user.entity").User>;
+    getUserProfile(userId: string): Promise<User>;
     updateKYCDocument(req: any, userDocsInfo: UpdateKycDetailUploadDto[]): Promise<{
         success: boolean;
     }>;

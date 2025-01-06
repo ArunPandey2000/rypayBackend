@@ -166,15 +166,16 @@ export class UsersService {
     };
   }
 
-  async updateUserProfile(
+  async updateUserProfile(userId: string,
     userRequestDto: UserUpdateRequestDto,
-  ): Promise<UserUpdateResponse> {
-    const updatedUserEntity = UserMapper.mapUserRequestDtoToEntity(userRequestDto);
-    const updatedUser = this.userRepository.merge(updatedUserEntity);
-    await this.userRepository.save(updatedUser);
-    return {
-      success: true
+  ): Promise<User> {
+    const user = await this.userRepository.findOne({where: {id: userId}, relations: ['merchant', 'card', 'address', 'loans', 'documents', 'beneficiaries']});
+    if (!user) {
+      throw new BadRequestException('user not found');
     }
+    const updatedUserEntity = UserMapper.mapUserUpdateRequestDtoToUserEntity(user, userRequestDto);
+    await this.userRepository.save(updatedUserEntity);
+    return user;
   }
 
 

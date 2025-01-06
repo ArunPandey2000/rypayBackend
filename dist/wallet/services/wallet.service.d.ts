@@ -27,6 +27,7 @@ export declare class WalletService {
         email: string;
         firstName: string;
         lastName: string;
+        updatedAt: Date;
         id: number;
         balance: number;
         status: string;
@@ -34,7 +35,7 @@ export declare class WalletService {
     }>;
     getWalletQRCode(query: FindOptionsWhere<Wallet>): Promise<string>;
     generateWalletAccountNo(): Promise<string>;
-    AddMoneyToWallet(addMoneyWalletDto: AddMoneyToWalletDto, req: any): Promise<Wallet>;
+    UpdateMoneyToWallet(addMoneyWalletDto: AddMoneyToWalletDto, userId: string): Promise<Wallet>;
     debitMyAccount(fundMyAccountDto: AddMoneyToWalletDto, req: any): Promise<Wallet>;
     debitAmountOnCardTransaction(cardTransaction: TransactionNotifyPayload): Promise<Wallet>;
     processFundTransfer(transferAccountDto: TransferMoneyDto, req: any): Promise<Wallet>;

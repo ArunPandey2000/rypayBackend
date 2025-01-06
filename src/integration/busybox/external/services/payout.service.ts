@@ -42,7 +42,7 @@ export class PayoutService {
         }
         const response = (await this.payloutClientService.payoutUsingAccount(requestBody));
 
-        if (response.status === 'FAILED') {
+        if (response.status === 'FAILURE') {
             throw new BadRequestException(response.message)
         }
         const user = await this.userRepository.findOne({where: {id: userId}});
@@ -98,7 +98,7 @@ export class PayoutService {
         }
         const response = (await this.payloutClientService.payoutUsingUPI(requestBody));
 
-        if (response.status === 'FAILED') {
+        if (response.status === 'FAILURE') {
             throw new BadRequestException(response.message)
         }
         const user = await this.userRepository.findOne({where: {id: userId}});
@@ -121,7 +121,7 @@ export class PayoutService {
 
         await this.walletService.processRechargePayment({amount: requestDto.amount,
              receiverId: requestDto.upiId,
-             serviceUsed: 'Payout',
+             serviceUsed: 'UPI',
              description: description,
              status: TransactionStatus.PENDING,
              reference: orderId }, userId);
