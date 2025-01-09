@@ -3,13 +3,23 @@ import { Transaction } from "src/core/entities/transactions.entity";
 import { User } from "src/core/entities/user.entity";
 
 class TransactionUser {
+    @ApiProperty()
     name: string;
+    @ApiProperty()
     phoneNumber: string;
 
     constructor(user: User) {
         this.name = `${user.firstName} ${user.lastName}`;
         this.phoneNumber = user.phoneNumber;
     }
+}
+export class AccountDetails {
+    @ApiProperty()
+    accountNumber: string
+    @ApiProperty()
+    userName: string
+    @ApiProperty()
+    ifscNumber: string
 }
 export class TransactionDetailDto {
     @ApiProperty()
@@ -40,8 +50,10 @@ export class TransactionDetailDto {
     serviceUsed: string;
     @ApiProperty()
     updatedAt: Date;
+    @ApiProperty()
+    accountDetails: AccountDetails
 
-    constructor(transaction: Transaction, senderUser: User, receiver: User) {
+    constructor(transaction: Transaction, senderUser: User, receiver: User, accountDetails: AccountDetails) {
         this.amount = transaction.amount;
         this.walletBalanceBefore = transaction.walletBalanceBefore;
         this.walletBalanceAfter = transaction.walletBalanceAfter;
@@ -56,5 +68,6 @@ export class TransactionDetailDto {
         this.serviceUsed = transaction.serviceUsed;
         this.updatedAt = transaction.updatedAt;
         this.accountNumber = transaction.receiver;
+        this.accountDetails = accountDetails;
     }
 }

@@ -3,4 +3,5 @@ export declare class UPIPayoutPayload {
     amount: number;
     mobile: string;
     message: string;
+    upiUserName: string;
 }

@@ -22,9 +22,11 @@ const pdf_service_1 = require("../../pdf/services/pdf.service");
 const date_util_1 = require("../../core/utils/date.util");
 const user_entity_1 = require("../../core/entities/user.entity");
 const transaction_detail_dto_1 = require("../dto/transaction-detail.dto");
+const order_entity_1 = require("../../core/entities/order.entity");
 let TransactionsService = class TransactionsService {
-    constructor(transactionsRepository, userRepo, pdfService) {
+    constructor(transactionsRepository, orderRepo, userRepo, pdfService) {
         this.transactionsRepository = transactionsRepository;
+        this.orderRepo = orderRepo;
         this.userRepo = userRepo;
         this.pdfService = pdfService;
     }
@@ -106,7 +108,13 @@ let TransactionsService = class TransactionsService {
         const receiverUser = transaction.receiver && transaction.serviceUsed === "WALLET" ? await this.userRepo.findOneBy({
             id: transaction.receiver
         }) : null;
-        return new transaction_detail_dto_1.TransactionDetailDto(transaction, senderUser, receiverUser);
+        const order = await this.orderRepo.findOne({ where: { order_id: transaction.reference } });
+        const accountDetails = order ? {
+            accountNumber: order.accountId,
+            ifscNumber: order.ifscNumber,
+            userName: order.respectiveUserName
+        } : null;
+        return new transaction_detail_dto_1.TransactionDetailDto(transaction, senderUser, receiverUser, accountDetails);
     }
     async getAllWalletTransactions(queryDto) {
         const { page = 1, pageSize = 10 } = queryDto.pagination || {};
@@ -229,8 +237,10 @@ exports.TransactionsService = TransactionsService;
 exports.TransactionsService = TransactionsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(transactions_entity_1.Transaction)),
-    __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(1, (0, typeorm_1.InjectRepository)(order_entity_1.Order)),
+    __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         pdf_service_1.PdfService])
 ], TransactionsService);

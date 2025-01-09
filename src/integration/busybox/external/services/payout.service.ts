@@ -59,6 +59,9 @@ export class PayoutService {
             user: user,
             description: description,
             payment_method: 'WALLET',
+            respectiveUserName: "",
+            ifscNumber: requestDto.ifsc,
+            accountId: requestDto.accountNumber
         }
         const SavedOrder = this.orderRepository.create(order);
         this.orderRepository.save(SavedOrder);
@@ -79,6 +82,11 @@ export class PayoutService {
 
     async validatePayout(userId: string, amount: number) {
         const user = await this.userRepository.findOne({where: {id: userId}});
+        const poolBalance = +(await this.payloutClientService.getPoolBalance()).balance;
+
+        if (poolBalance < amount) {
+            throw new BadRequestException('System Error');
+        }
         if (!user) {
             throw new ForbiddenException('User does not exist')
         }
@@ -115,6 +123,9 @@ export class PayoutService {
             user: user,
             description: description,
             payment_method: 'WALLET',
+            respectiveUserName: requestDto.upiUserName,
+            ifscNumber: null,
+            accountId: requestDto.upiId
         }
         const SavedOrder = this.orderRepository.create(order);
         this.orderRepository.save(SavedOrder);

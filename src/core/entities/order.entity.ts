@@ -83,4 +83,13 @@ export class Order {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Column({ nullable: true })
+  respectiveUserName: string;
+
+  @Column({ nullable: true, name: 'ifsc_number' })
+  ifscNumber: string;
+
+  @Column({ nullable: true, name: 'account_id' })
+  accountId: string;
 }

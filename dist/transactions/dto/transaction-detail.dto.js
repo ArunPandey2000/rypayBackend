@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TransactionDetailDto = void 0;
+exports.TransactionDetailDto = exports.AccountDetails = void 0;
 const swagger_1 = require("@nestjs/swagger");
 class TransactionUser {
     constructor(user) {
@@ -17,8 +17,31 @@ class TransactionUser {
         this.phoneNumber = user.phoneNumber;
     }
 }
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], TransactionUser.prototype, "name", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], TransactionUser.prototype, "phoneNumber", void 0);
+class AccountDetails {
+}
+exports.AccountDetails = AccountDetails;
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], AccountDetails.prototype, "accountNumber", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], AccountDetails.prototype, "userName", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], AccountDetails.prototype, "ifscNumber", void 0);
 class TransactionDetailDto {
-    constructor(transaction, senderUser, receiver) {
+    constructor(transaction, senderUser, receiver, accountDetails) {
         this.amount = transaction.amount;
         this.walletBalanceBefore = transaction.walletBalanceBefore;
         this.walletBalanceAfter = transaction.walletBalanceAfter;
@@ -33,6 +56,7 @@ class TransactionDetailDto {
         this.serviceUsed = transaction.serviceUsed;
         this.updatedAt = transaction.updatedAt;
         this.accountNumber = transaction.receiver;
+        this.accountDetails = accountDetails;
     }
 }
 exports.TransactionDetailDto = TransactionDetailDto;
@@ -92,4 +116,8 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", Date)
 ], TransactionDetailDto.prototype, "updatedAt", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", AccountDetails)
+], TransactionDetailDto.prototype, "accountDetails", void 0);
 //# sourceMappingURL=transaction-detail.dto.js.map

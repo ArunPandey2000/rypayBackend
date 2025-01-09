@@ -7,9 +7,10 @@ import { PdfModule } from 'src/pdf/pdf.module';
 import { BullModule } from '@nestjs/bull';
 import { TransactionProcessor } from './procesor/transaction-report.processor';
 import { User } from 'src/core/entities/user.entity';
+import { Order } from 'src/core/entities/order.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Transaction, User]),
+  imports: [TypeOrmModule.forFeature([Transaction, User, Order]),
     BullModule.registerQueue({
       name: 'transaction-report',
     }),

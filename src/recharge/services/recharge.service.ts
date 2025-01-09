@@ -70,6 +70,9 @@ export class RechargeService {
             user: user,
             description: description,
             payment_method: 'WALLET',
+            respectiveUserName: null,
+            ifscNumber: null,
+            accountId: requestDto.accountNumber
         }
         const SavedOrder = this.orderRepository.create(order);
         this.orderRepository.save(SavedOrder);

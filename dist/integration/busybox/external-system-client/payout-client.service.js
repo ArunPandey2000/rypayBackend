@@ -31,6 +31,16 @@ let PayoutClientService = class PayoutClientService {
             throw error;
         }
     }
+    async getPoolBalance() {
+        const config = await this.accessTokenService.getHeaderConfig(true);
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.get(`${this.configService.get('BUSY_BOX_PAYOUT_API_BASE_URL')}/payment/balance`, config));
+            return response.data;
+        }
+        catch (error) {
+            throw error;
+        }
+    }
     async payoutUsingUPI(data) {
         const config = await this.accessTokenService.getHeaderConfig(true);
         try {

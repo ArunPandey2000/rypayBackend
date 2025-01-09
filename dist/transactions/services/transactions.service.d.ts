@@ -5,11 +5,13 @@ import { TransactionQueryDto } from '../dto/get-transactions.dto';
 import { PdfService } from 'src/pdf/services/pdf.service';
 import { User } from 'src/core/entities/user.entity';
 import { TransactionDetailDto } from '../dto/transaction-detail.dto';
+import { Order } from 'src/core/entities/order.entity';
 export declare class TransactionsService {
     private readonly transactionsRepository;
+    private readonly orderRepo;
     private readonly userRepo;
     private pdfService;
-    constructor(transactionsRepository: Repository<Transaction>, userRepo: Repository<User>, pdfService: PdfService);
+    constructor(transactionsRepository: Repository<Transaction>, orderRepo: Repository<Order>, userRepo: Repository<User>, pdfService: PdfService);
     saveTransaction(createTransactionDto: CreateTransactionDto, queryRunner: QueryRunner): Promise<Transaction>;
     getWalletTransactions(req: any, queryDto: TransactionQueryDto): Promise<{
         data: any[];

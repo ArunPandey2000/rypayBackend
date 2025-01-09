@@ -9,13 +9,16 @@ import { PdfService } from 'src/pdf/services/pdf.service';
 import { formatAmountToINR, formatDateToIST } from 'src/core/utils/date.util';
 import { User } from 'src/core/entities/user.entity';
 import { TransactionResponseDto, UserTransactionDto } from '../dto/transaction-response.dto';
-import { TransactionDetailDto } from '../dto/transaction-detail.dto';
+import { AccountDetails, TransactionDetailDto } from '../dto/transaction-detail.dto';
+import { Order } from 'src/core/entities/order.entity';
 
 @Injectable()
 export class TransactionsService {
     constructor(
         @InjectRepository(Transaction)
     private readonly transactionsRepository: Repository<Transaction>,
+    @InjectRepository(Order)
+    private readonly orderRepo: Repository<Order>,
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private pdfService: PdfService
     ){ }
@@ -129,7 +132,13 @@ export class TransactionsService {
       id: transaction.receiver
     }): null;
 
-    return new TransactionDetailDto(transaction, senderUser, receiverUser);
+    const order = await this.orderRepo.findOne({where: {order_id: transaction.reference}});
+    const accountDetails: AccountDetails = order ? {
+      accountNumber: order.accountId,
+      ifscNumber: order.ifscNumber,
+      userName: order.respectiveUserName
+    }: null
+    return new TransactionDetailDto(transaction, senderUser, receiverUser, accountDetails);
   }
   async getAllWalletTransactions(queryDto: TransactionQueryDto) {
     const { page = 1, pageSize = 10 } = queryDto.pagination || {};

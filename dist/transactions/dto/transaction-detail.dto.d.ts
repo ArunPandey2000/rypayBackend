@@ -5,6 +5,11 @@ declare class TransactionUser {
     phoneNumber: string;
     constructor(user: User);
 }
+export declare class AccountDetails {
+    accountNumber: string;
+    userName: string;
+    ifscNumber: string;
+}
 export declare class TransactionDetailDto {
     amount: number;
     walletBalanceBefore: number;
@@ -20,6 +25,7 @@ export declare class TransactionDetailDto {
     createdAt: Date;
     serviceUsed: string;
     updatedAt: Date;
-    constructor(transaction: Transaction, senderUser: User, receiver: User);
+    accountDetails: AccountDetails;
+    constructor(transaction: Transaction, senderUser: User, receiver: User, accountDetails: AccountDetails);
 }
 export {};

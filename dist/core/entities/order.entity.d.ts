@@ -24,4 +24,7 @@ export declare class Order {
     description: string;
     created_at: Date;
     updated_at: Date;
+    respectiveUserName: string;
+    ifscNumber: string;
+    accountId: string;
 }

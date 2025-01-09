@@ -59,6 +59,9 @@ let PayoutService = PayoutService_1 = class PayoutService {
             user: user,
             description: description,
             payment_method: 'WALLET',
+            respectiveUserName: "",
+            ifscNumber: requestDto.ifsc,
+            accountId: requestDto.accountNumber
         };
         const SavedOrder = this.orderRepository.create(order);
         this.orderRepository.save(SavedOrder);
@@ -76,6 +79,10 @@ let PayoutService = PayoutService_1 = class PayoutService {
     }
     async validatePayout(userId, amount) {
         const user = await this.userRepository.findOne({ where: { id: userId } });
+        const poolBalance = +(await this.payloutClientService.getPoolBalance()).balance;
+        if (poolBalance < amount) {
+            throw new common_1.BadRequestException('System Error');
+        }
         if (!user) {
             throw new common_1.ForbiddenException('User does not exist');
         }
@@ -110,6 +117,9 @@ let PayoutService = PayoutService_1 = class PayoutService {
             user: user,
             description: description,
             payment_method: 'WALLET',
+            respectiveUserName: requestDto.upiUserName,
+            ifscNumber: null,
+            accountId: requestDto.upiId
         };
         const SavedOrder = this.orderRepository.create(order);
         this.orderRepository.save(SavedOrder);

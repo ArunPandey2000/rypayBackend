@@ -160,6 +160,9 @@ let LoansService = class LoansService {
             user: user,
             description: description,
             payment_method: 'WALLET',
+            respectiveUserName: "",
+            ifscNumber: null,
+            accountId: loan.loanAccount
         };
         const SavedOrder = this.orderRepository.create(order);
         this.orderRepository.save(SavedOrder);

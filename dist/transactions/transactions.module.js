@@ -16,12 +16,13 @@ const pdf_module_1 = require("../pdf/pdf.module");
 const bull_1 = require("@nestjs/bull");
 const transaction_report_processor_1 = require("./procesor/transaction-report.processor");
 const user_entity_1 = require("../core/entities/user.entity");
+const order_entity_1 = require("../core/entities/order.entity");
 let TransactionsModule = class TransactionsModule {
 };
 exports.TransactionsModule = TransactionsModule;
 exports.TransactionsModule = TransactionsModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([transactions_entity_1.Transaction, user_entity_1.User]),
+        imports: [typeorm_1.TypeOrmModule.forFeature([transactions_entity_1.Transaction, user_entity_1.User, order_entity_1.Order]),
             bull_1.BullModule.registerQueue({
                 name: 'transaction-report',
             }),

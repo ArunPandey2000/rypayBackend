@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsMobilePhone, IsNotEmpty } from "class-validator";
+import { IsMobilePhone, IsNotEmpty, IsOptional } from "class-validator";
 
 export class UPIPayoutPayload {
     @ApiProperty()
@@ -17,4 +17,8 @@ export class UPIPayoutPayload {
 
     @ApiProperty()
     message: string
+
+    @ApiProperty()
+    @IsOptional()
+    upiUserName: string
 }

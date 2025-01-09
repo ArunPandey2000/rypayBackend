@@ -15,6 +15,7 @@ import { IVerifyAccountResponseDTO } from '../external/interfaces/validation/ver
 import { IVerifyUPIRequestDTO } from '../external/interfaces/validation/verify-upi-request.interface';
 import { IVerifyUpiResponseDTO } from '../external/interfaces/validation/verify-upi-response.interface copy';
 import { IUPIPayoutRequestBody } from '../external/interfaces/payout/payout-upi-request-body.interface';
+import { PayoutBalance } from '../external/interfaces/payout/payout-balance-response.interface';
 
 @Injectable()
 export class PayoutClientService {
@@ -38,6 +39,26 @@ export class PayoutClientService {
         this.httpService.post<IAccountPayoutResponseDTO>(
           `${this.configService.get('BUSY_BOX_PAYOUT_API_BASE_URL')}/payment/payment`,
           data,
+          config,
+        ),
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get Pool Balance of the account.
+   * @returns {Promise<IAccountPayoutResponseDTO>} - The response from the external API, containing the status and transaction details.
+   * @throws {Error} - Throws an error if the request fails.
+   */
+  async getPoolBalance(): Promise<PayoutBalance> {
+    const config = await this.accessTokenService.getHeaderConfig(true);
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get<PayoutBalance>(
+          `${this.configService.get('BUSY_BOX_PAYOUT_API_BASE_URL')}/payment/balance`,
           config,
         ),
       );
