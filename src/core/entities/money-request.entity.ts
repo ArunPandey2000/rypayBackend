@@ -21,7 +21,7 @@ export class MoneyRequest {
   @Column({ type: 'enum', enum: ['Requested', 'Rejected', 'Paid'], default: 'Requested' })
   status: 'Requested' | 'Rejected' | 'Paid';
 
-  @ManyToOne(() => User, (user) => user.loans, { onDelete: 'CASCADE', eager: true })
+  @ManyToOne(() => User, (user) => user.moneyRequest, { onDelete: 'CASCADE', eager: true })
   user: User;
 
   @CreateDateColumn()

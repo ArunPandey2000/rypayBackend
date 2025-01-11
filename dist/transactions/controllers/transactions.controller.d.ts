@@ -8,7 +8,7 @@ export declare class TransactionsController {
     private reportQueue;
     constructor(transactionService: TransactionsService, reportQueue: Queue);
     GetWalletTransactions(req: Request, transcationQuery: TransactionQueryDto): Promise<Transaction[] | any>;
-    GetTransactionDetail(transactionId: string): Promise<Transaction | any>;
     GetAllWalletTransactions(transcationQuery: TransactionQueryDto): Promise<Transaction[] | any>;
+    GetTransactionDetail(transactionId: string): Promise<Transaction | any>;
     generatePDF(req: any, data: PrintableTransactionQueryDto, res: Response): Promise<void>;
 }

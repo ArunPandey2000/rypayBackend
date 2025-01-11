@@ -21,5 +21,7 @@ export declare class MoneyRequestDto {
     status: 'Requested' | 'Rejected' | 'Paid';
     createdAt: Date;
     updatedAt: Date;
+    userId: string;
+    profile: any;
     constructor(data: MoneyRequest);
 }

@@ -68,6 +68,11 @@ class MoneyRequestDto {
         this.paidAmount = data.paidAmount;
         this.status = data.status;
         this.updatedAt = data.updatedAt;
+        this.userId = data.user.id;
+        this.profile = {
+            name: `${data.user?.firstName} ${data.user?.lastName}`,
+            phone: data.user.phoneNumber
+        };
     }
 }
 exports.MoneyRequestDto = MoneyRequestDto;
@@ -99,4 +104,12 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", Date)
 ], MoneyRequestDto.prototype, "updatedAt", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], MoneyRequestDto.prototype, "userId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", Object)
+], MoneyRequestDto.prototype, "profile", void 0);
 //# sourceMappingURL=money-request.dto.js.map

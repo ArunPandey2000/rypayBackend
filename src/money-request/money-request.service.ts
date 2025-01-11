@@ -71,6 +71,7 @@ export class MoneyRequestService {
         // Fetch paginated requests
         const requests = await this.moneyRequestRepo.find({
           where: where,
+          relations: ['user'],
           order: { createdAt: sortDirection },
           take: pageSize,
           skip: skipRecords,
@@ -112,7 +113,7 @@ export class MoneyRequestService {
       if (!Object.values(AllowedStatuses).includes(status)) {
         throw new BadRequestException(`${status} is not allowed`)
       }
-      const request = await this.moneyRequestRepo.findOneBy({id: id});
+      const request = await this.moneyRequestRepo.findOneBy({id: id},);
       if (!request) {
         throw new BadRequestException('Request Id not found');
       }

@@ -38,20 +38,6 @@ export class TransactionsController {
     return result;
   }
 
-  @Post('/:transactionId')
-  @HttpCode(HttpStatus.OK)
-  @ApiResponse({
-    status: 200,
-    description: 'detail of transaction',
-    type: TransactionDetailDto, 
-  })
-  async GetTransactionDetail(
-    @Param('transactionId') transactionId: string
-  ): Promise<Transaction | any> {
-    const result = await this.transactionService.getTransactionDetail(transactionId);
-    return result;
-  }
-
   @Post('/all')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AdminGuard)
@@ -64,6 +50,20 @@ export class TransactionsController {
     @Body() transcationQuery: TransactionQueryDto
   ): Promise<Transaction[] | any> {
     const result = await this.transactionService.getAllWalletTransactions(transcationQuery);
+    return result;
+  }
+
+  @Post('/:transactionId')
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({
+    status: 200,
+    description: 'detail of transaction',
+    type: TransactionDetailDto, 
+  })
+  async GetTransactionDetail(
+    @Param('transactionId') transactionId: string
+  ): Promise<Transaction | any> {
+    const result = await this.transactionService.getTransactionDetail(transactionId);
     return result;
   }
 

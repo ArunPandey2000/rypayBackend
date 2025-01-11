@@ -67,6 +67,12 @@ export class MoneyRequestDto {
     @ApiProperty()
     updatedAt: Date;
 
+    @ApiProperty()
+    userId: string
+
+    @ApiProperty()
+    profile: any
+
     constructor(data: MoneyRequest) {
         this.UTR = data.UTR;
         this.createdAt = data.createdAt;
@@ -74,5 +80,10 @@ export class MoneyRequestDto {
         this.paidAmount = data.paidAmount;
         this.status = data.status;
         this.updatedAt = data.updatedAt;
+        this.userId = data.user.id;
+        this.profile = {
+            name: `${data.user?.firstName} ${data.user?.lastName}`,
+            phone: data.user.phoneNumber
+        }
     }
 }

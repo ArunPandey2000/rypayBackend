@@ -25,7 +25,7 @@ export class LoansService {
   async createLoan(createLoanDto: CreateLoanDto) {
     let loanResponse: Loan[] = []
     try {
-      const user = await this.userRepo.findOneBy({id: createLoanDto.userId?.toString()});
+      const user = await this.userRepo.findOneBy({id: createLoanDto.userId});
       if (!user) {
         throw new NotFoundException(`User with ID ${createLoanDto.userId} not found`);
       }

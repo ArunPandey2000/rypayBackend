@@ -50,15 +50,23 @@ let TransactionsService = class TransactionsService {
             ...(transactionType && { type: transactionType }),
             ...(fromDate && toDate && { transactionDate: (0, typeorm_2.Between)(new Date(fromDate), new Date(toDate)) }),
         };
-        let searchConditions = [];
+        let where = baseWhere;
         if (search) {
-            searchConditions = [
-                { transactionHash: (0, typeorm_2.Like)(`%${search}%`) },
-                { description: (0, typeorm_2.Like)(`%${search}%`) },
-                { reference: (0, typeorm_2.Like)(`%${search}%`) },
+            where = [
+                {
+                    ...baseWhere,
+                    transactionHash: (0, typeorm_2.Like)(`%${search}%`),
+                },
+                {
+                    ...baseWhere,
+                    description: (0, typeorm_2.Like)(`%${search}%`),
+                },
+                {
+                    ...baseWhere,
+                    reference: (0, typeorm_2.Like)(`%${search}%`),
+                },
             ];
         }
-        const where = search ? [baseWhere, ...searchConditions] : baseWhere;
         const transactions = await this.transactionsRepository.find({
             where: where,
             order: { createdAt: sortDirection },
@@ -124,18 +132,26 @@ let TransactionsService = class TransactionsService {
             ...(transactionType && { type: transactionType }),
             ...(fromDate && toDate && { transactionDate: (0, typeorm_2.Between)(new Date(fromDate), new Date(toDate)) }),
         };
-        let searchConditions = [];
+        let where = baseWhere;
         if (search) {
-            searchConditions = [
-                { transactionHash: (0, typeorm_2.Like)(`%${search}%`) },
-                { description: (0, typeorm_2.Like)(`%${search}%`) },
-                { reference: (0, typeorm_2.Like)(`%${search}%`) },
+            where = [
+                {
+                    ...baseWhere,
+                    transactionHash: (0, typeorm_2.Like)(`%${search}%`),
+                },
+                {
+                    ...baseWhere,
+                    description: (0, typeorm_2.Like)(`%${search}%`),
+                },
+                {
+                    ...baseWhere,
+                    reference: (0, typeorm_2.Like)(`%${search}%`),
+                },
             ];
         }
-        const where = search ? [baseWhere, ...searchConditions] : baseWhere;
         const transactions = await this.transactionsRepository.find({
             where: where,
-            order: { createdAt: sortDirection },
+            order: { createdAt: sortDirection || 'DESC' },
             take: pageSize,
             skip: skipRecords,
         });

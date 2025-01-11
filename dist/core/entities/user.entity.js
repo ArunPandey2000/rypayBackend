@@ -21,6 +21,7 @@ const card_entity_1 = require("./card.entity");
 const beneficiery_entity_1 = require("./beneficiery.entity");
 const notification_entity_1 = require("./notification.entity");
 const loan_entity_1 = require("./loan.entity");
+const money_request_entity_1 = require("./money-request.entity");
 let User = class User {
 };
 exports.User = User;
@@ -143,6 +144,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => loan_entity_1.Loan, (loan) => loan.user),
     __metadata("design:type", Array)
 ], User.prototype, "loans", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => money_request_entity_1.MoneyRequest, (moneyRequest) => moneyRequest.user),
+    __metadata("design:type", Array)
+], User.prototype, "moneyRequest", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)({ name: 'users' })
 ], User);

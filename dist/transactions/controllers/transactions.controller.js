@@ -31,12 +31,12 @@ let TransactionsController = class TransactionsController {
         const result = await this.transactionService.getWalletTransactions(req, transcationQuery);
         return result;
     }
-    async GetTransactionDetail(transactionId) {
-        const result = await this.transactionService.getTransactionDetail(transactionId);
-        return result;
-    }
     async GetAllWalletTransactions(transcationQuery) {
         const result = await this.transactionService.getAllWalletTransactions(transcationQuery);
+        return result;
+    }
+    async GetTransactionDetail(transactionId) {
+        const result = await this.transactionService.getTransactionDetail(transactionId);
         return result;
     }
     async generatePDF(req, data, res) {
@@ -72,19 +72,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "GetWalletTransactions", null);
 __decorate([
-    (0, common_1.Post)('/:transactionId'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: 'detail of transaction',
-        type: transaction_detail_dto_1.TransactionDetailDto,
-    }),
-    __param(0, (0, common_1.Param)('transactionId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], TransactionsController.prototype, "GetTransactionDetail", null);
-__decorate([
     (0, common_1.Post)('/all'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, common_1.UseGuards)(admin_guard_1.AdminGuard),
@@ -98,6 +85,19 @@ __decorate([
     __metadata("design:paramtypes", [get_transactions_dto_1.TransactionQueryDto]),
     __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "GetAllWalletTransactions", null);
+__decorate([
+    (0, common_1.Post)('/:transactionId'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'detail of transaction',
+        type: transaction_detail_dto_1.TransactionDetailDto,
+    }),
+    __param(0, (0, common_1.Param)('transactionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], TransactionsController.prototype, "GetTransactionDetail", null);
 __decorate([
     (0, common_1.Post)('generate'),
     __param(0, (0, common_1.Req)()),

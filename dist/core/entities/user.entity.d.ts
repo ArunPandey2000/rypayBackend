@@ -8,6 +8,7 @@ import { Card } from './card.entity';
 import { Beneficiary } from './beneficiery.entity';
 import { Notification } from './notification.entity';
 import { Loan } from './loan.entity';
+import { MoneyRequest } from './money-request.entity';
 export declare class User {
     id: string;
     email: string;
@@ -36,4 +37,5 @@ export declare class User {
     notifications: Notification[];
     mobileDevices: string[];
     loans: Loan[];
+    moneyRequest: MoneyRequest[];
 }

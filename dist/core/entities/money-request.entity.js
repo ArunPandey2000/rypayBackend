@@ -40,7 +40,7 @@ __decorate([
     __metadata("design:type", String)
 ], MoneyRequest.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.loans, { onDelete: 'CASCADE', eager: true }),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.moneyRequest, { onDelete: 'CASCADE', eager: true }),
     __metadata("design:type", user_entity_1.User)
 ], MoneyRequest.prototype, "user", void 0);
 __decorate([

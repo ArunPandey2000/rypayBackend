@@ -57,18 +57,23 @@ export class TransactionsService {
       ...(fromDate && toDate && { transactionDate: Between(new Date(fromDate), new Date(toDate)) }),
     };
 
-    // Add search condition with `OR` logic
-    let searchConditions = [];
+    let where: any = baseWhere;
     if (search) {
-      searchConditions = [
-        { transactionHash: Like(`%${search}%`) },
-        { description: Like(`%${search}%`) },
-        { reference: Like(`%${search}%`) },
+      where = [
+        {
+          ...baseWhere,
+          transactionHash: Like(`%${search}%`),
+        },
+        {
+          ...baseWhere,
+          description: Like(`%${search}%`),
+        },
+        {
+          ...baseWhere,
+          reference: Like(`%${search}%`),
+        },
       ];
     }
-
-    // Combine baseWhere with searchConditions
-    const where = search ? [baseWhere, ...searchConditions] : baseWhere;
 
     // Fetch paginated transactions
     const transactions = await this.transactionsRepository.find({
@@ -153,25 +158,32 @@ export class TransactionsService {
     };
 
     // Add search condition with `OR` logic
-    let searchConditions = [];
+    let where: any = baseWhere;
     if (search) {
-      searchConditions = [
-        { transactionHash: Like(`%${search}%`) },
-        { description: Like(`%${search}%`) },
-        { reference: Like(`%${search}%`) },
+      where = [
+        {
+          ...baseWhere,
+          transactionHash: Like(`%${search}%`),
+        },
+        {
+          ...baseWhere,
+          description: Like(`%${search}%`),
+        },
+        {
+          ...baseWhere,
+          reference: Like(`%${search}%`),
+        },
       ];
     }
-
-    // Combine baseWhere with searchConditions
-    const where = search ? [baseWhere, ...searchConditions] : baseWhere;
 
     // Fetch paginated transactions
     const transactions = await this.transactionsRepository.find({
       where: where,
-      order: { createdAt: sortDirection },
+      order: { createdAt: sortDirection || 'DESC' },
       take: pageSize,
       skip: skipRecords,
     });
+
 
     // Count the total number of transactions for pagination
     const total = await this.transactionsRepository.count({ where: where });

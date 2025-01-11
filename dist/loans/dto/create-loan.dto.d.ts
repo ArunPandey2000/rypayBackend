@@ -9,5 +9,5 @@ export declare class CreateLoanDto {
     overdueAmount?: number;
     installmentDate: Date;
     totalAmount: number;
-    userId: number;
+    userId: string;
 }

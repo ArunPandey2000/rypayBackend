@@ -34,7 +34,7 @@ let LoansService = class LoansService {
     async createLoan(createLoanDto) {
         let loanResponse = [];
         try {
-            const user = await this.userRepo.findOneBy({ id: createLoanDto.userId?.toString() });
+            const user = await this.userRepo.findOneBy({ id: createLoanDto.userId });
             if (!user) {
                 throw new common_1.NotFoundException(`User with ID ${createLoanDto.userId} not found`);
             }

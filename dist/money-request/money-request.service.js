@@ -71,6 +71,7 @@ let MoneyRequestService = class MoneyRequestService {
         const where = search ? [baseWhere, ...searchConditions] : baseWhere;
         const requests = await this.moneyRequestRepo.find({
             where: where,
+            relations: ['user'],
             order: { createdAt: sortDirection },
             take: pageSize,
             skip: skipRecords,

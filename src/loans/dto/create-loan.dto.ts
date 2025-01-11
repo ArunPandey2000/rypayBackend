@@ -63,6 +63,5 @@ export class CreateLoanDto {
     example: 1,
   })
   @IsNotEmpty()
-  @IsNumber()
-  userId: number;
+  userId: string;
 }
