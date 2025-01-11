@@ -27,4 +27,5 @@ export declare class Order {
     respectiveUserName: string;
     ifscNumber: string;
     accountId: string;
+    paymentMode: string;
 }

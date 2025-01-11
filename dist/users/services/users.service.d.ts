@@ -8,7 +8,7 @@ import { MerchantClientService } from 'src/integration/busybox/external-system-c
 import { WalletService } from 'src/wallet/services/wallet.service';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
-import { UserRequestDto, UserUpdateRequestDto } from '../dto/user-request.dto';
+import { UserAdminRequestDto, UserRequestDto, UserUpdateRequestDto } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UploadFileService } from './updaload-file.service';
 import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
@@ -30,7 +30,7 @@ export declare class UsersService {
     constructor(tokenService: TokenService, configService: ConfigService, walletService: WalletService, merchantClientService: MerchantClientService, cardService: CardsService, _connection: DataSource, uploadFileService: UploadFileService, otpFlowService: OtpFlowService, otpRepository: OtpRepository, userRepository: Repository<User>, documentRepository: Repository<UserDocument>);
     registerUser(userRequestDto: UserRequestDto): Promise<UserResponse>;
     registerUserAndGenerateToken(userRequestDto: UserRequestDto): Promise<UserApiResponseDto>;
-    registerAdminAndGenerateToken(userRequestDto: UserRequestDto): Promise<UserApiResponseDto>;
+    registerAdminAndGenerateToken(userRequestDto: UserAdminRequestDto): Promise<UserApiResponseDto>;
     updateUserProfile(userId: string, userRequestDto: UserUpdateRequestDto): Promise<User>;
     checkPhoneNumberExists(phoneNumber: string): Promise<PhoneNumberExists>;
     getAllUsers(userId: string): Promise<UserResponse[]>;

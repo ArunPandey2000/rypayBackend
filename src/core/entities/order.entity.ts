@@ -92,4 +92,7 @@ export class Order {
 
   @Column({ nullable: true, name: 'account_id' })
   accountId: string;
+
+  @Column({ nullable: true, name: 'payment_mode' })
+  paymentMode: string;
 }

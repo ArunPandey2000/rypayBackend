@@ -20,6 +20,8 @@ export class AccountDetails {
     userName: string
     @ApiProperty()
     ifscNumber: string
+    @ApiProperty()
+    paymentMode: string
 }
 export class TransactionDetailDto {
     @ApiProperty()

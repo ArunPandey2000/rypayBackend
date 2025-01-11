@@ -120,7 +120,8 @@ let TransactionsService = class TransactionsService {
         const accountDetails = order ? {
             accountNumber: order.accountId,
             ifscNumber: order.ifscNumber,
-            userName: order.respectiveUserName
+            userName: order.respectiveUserName,
+            paymentMode: order.paymentMode
         } : null;
         return new transaction_detail_dto_1.TransactionDetailDto(transaction, senderUser, receiverUser, accountDetails);
     }

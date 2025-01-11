@@ -39,7 +39,7 @@ let NotificationService = class NotificationService {
         return this.notificationRepository.save(notification);
     }
     async sendPushNotificationToUser(tokens, title, message, icon) {
-        if (tokens.length) {
+        if (tokens?.length) {
             await this.firebaseService.sendNotificationToMultipleTokens({
                 tokens,
                 icon,
@@ -78,7 +78,7 @@ let NotificationService = class NotificationService {
         });
         const users = await this.userRepo.findBy({});
         const tokens = users.map((user => user.mobileDevices)).filter(token => !!token).flat(1);
-        if (tokens.length) {
+        if (tokens?.length) {
             await this.firebaseService.sendNotificationToMultipleTokens({
                 tokens,
                 title: 'Announcement',
@@ -89,9 +89,15 @@ let NotificationService = class NotificationService {
         return this.notificationRepository.save(notification);
     }
     async findAllPaginated(userId, page, limit) {
+        const user = await this.userRepo.findOneBy({ id: userId });
+        if (!user) {
+            throw new common_1.ForbiddenException('user not found');
+        }
+        const userCreatedDate = user.createdAt;
         const [notifications, total] = await this.notificationRepository
             .createQueryBuilder('notification')
-            .where('notification.userId = :userId OR notification.userId IS NULL', { userId })
+            .where('(notification.userId = :userId OR notification.userId IS NULL)', { userId })
+            .andWhere('notification.createdAt >= :userCreatedDate', { userCreatedDate })
             .skip((page - 1) * limit)
             .take(limit)
             .orderBy('notification.createdAt', 'DESC')

@@ -1,5 +1,6 @@
 import { UserRole } from 'src/core/enum/user-role.enum';
 import { MerchantRequestDto } from './merchecnt-request.dto';
+import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
 export declare class AddressRequestDto {
     address1: string;
     address2: string;
@@ -12,6 +13,7 @@ export declare class UserRequestCommonDto {
     lastName: string;
     gender: 'M' | 'F';
     phoneNumber: string;
+    fcmToken: string;
     dob: string;
     address: AddressRequestDto;
     email: string;
@@ -31,6 +33,7 @@ export declare class UserAdminRequestDto extends UserRequestCommonDto {
 export declare class UserUpdateRequestDto extends UserRequestCommonDto {
     userType: UserRole;
     isBlocked: boolean;
+    kycVerificationStatus: KycVerificationStatus;
 }
 export declare class UserUpdateResponse {
     success: boolean;

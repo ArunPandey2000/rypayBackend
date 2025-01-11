@@ -141,7 +141,8 @@ export class TransactionsService {
     const accountDetails: AccountDetails = order ? {
       accountNumber: order.accountId,
       ifscNumber: order.ifscNumber,
-      userName: order.respectiveUserName
+      userName: order.respectiveUserName,
+      paymentMode: order.paymentMode
     }: null
     return new TransactionDetailDto(transaction, senderUser, receiverUser, accountDetails);
   }

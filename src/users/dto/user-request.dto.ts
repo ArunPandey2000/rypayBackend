@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 import { UserRole } from 'src/core/enum/user-role.enum';
 import { MerchantRequestDto } from './merchecnt-request.dto';
+import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
 
 export class AddressRequestDto {
   @IsNotEmpty()
@@ -56,6 +57,10 @@ export class UserRequestCommonDto {
   @IsNotEmpty()
   @ApiProperty()
   phoneNumber: string;
+
+  @ApiProperty()
+  @IsOptional()
+  fcmToken: string;
 
   @IsDateString()
   @IsNotEmpty()
@@ -115,6 +120,10 @@ export class UserUpdateRequestDto extends UserRequestCommonDto {
   @ApiProperty()
   @IsNotEmpty()
   isBlocked: boolean;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  kycVerificationStatus: KycVerificationStatus
 }
 
 export class UserUpdateResponse {

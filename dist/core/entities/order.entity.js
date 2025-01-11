@@ -117,6 +117,10 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true, name: 'account_id' }),
     __metadata("design:type", String)
 ], Order.prototype, "accountId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true, name: 'payment_mode' }),
+    __metadata("design:type", String)
+], Order.prototype, "paymentMode", void 0);
 exports.Order = Order = __decorate([
     (0, typeorm_1.Entity)('orders')
 ], Order);

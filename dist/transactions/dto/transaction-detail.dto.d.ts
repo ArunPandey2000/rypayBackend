@@ -9,6 +9,7 @@ export declare class AccountDetails {
     accountNumber: string;
     userName: string;
     ifscNumber: string;
+    paymentMode: string;
 }
 export declare class TransactionDetailDto {
     amount: number;

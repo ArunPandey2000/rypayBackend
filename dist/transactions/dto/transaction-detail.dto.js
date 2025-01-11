@@ -40,6 +40,10 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)
 ], AccountDetails.prototype, "ifscNumber", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], AccountDetails.prototype, "paymentMode", void 0);
 class TransactionDetailDto {
     constructor(transaction, senderUser, receiver, accountDetails) {
         this.amount = transaction.amount;

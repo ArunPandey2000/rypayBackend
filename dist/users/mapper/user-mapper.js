@@ -29,6 +29,7 @@ class UserMapper {
         user.aadharNumber = userRequestDto.aadharNumber;
         user.panNumber = userRequestDto.panNumber;
         user.kycVerificationStatus = kyc_verification_status_enum_1.KycVerificationStatus.NOT_INITIATED;
+        user.mobileDevices = userRequestDto.fcmToken ? [userRequestDto.fcmToken] : [];
         if (userRequestDto.merchantInfo) {
             const merchantDetails = new merchant_entity_1.Merchant();
             merchantDetails.shopName = userRequestDto.merchantInfo.shopName;
@@ -59,6 +60,7 @@ class UserMapper {
         user.role = userRequestDto.userType;
         user.aadharNumber = userRequestDto.aadharNumber;
         user.panNumber = userRequestDto.panNumber;
+        user.kycVerificationStatus = kyc_verification_status_enum_1.KycVerificationStatus[userRequestDto.kycVerificationStatus];
         if (userRequestDto.merchantInfo) {
             const merchantDetails = user.merchant ?? new merchant_entity_1.Merchant();
             merchantDetails.shopName = userRequestDto.merchantInfo.shopName;

@@ -59,6 +59,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
             user: user,
             description: description,
             payment_method: 'WALLET',
+            paymentMode: requestDto.mode,
             respectiveUserName: requestDto.userName ?? "",
             ifscNumber: requestDto.ifsc,
             accountId: requestDto.accountNumber
@@ -119,6 +120,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
             payment_method: 'WALLET',
             respectiveUserName: requestDto.upiUserName,
             ifscNumber: null,
+            paymentMode: 'UPI',
             accountId: requestDto.upiId
         };
         const SavedOrder = this.orderRepository.create(order);

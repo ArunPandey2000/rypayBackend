@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Notification, NotificationType } from 'src/core/entities/notification.entity';
 import { User } from 'src/core/entities/user.entity';
@@ -32,7 +32,7 @@ export class NotificationService {
     }
 
     async sendPushNotificationToUser(tokens: string[], title: string, message: string, icon: string) {
-        if (tokens.length) {
+        if (tokens?.length) {
             await this.firebaseService.sendNotificationToMultipleTokens({
                 tokens,
                 icon,
@@ -74,7 +74,7 @@ export class NotificationService {
         });
         const users = await this.userRepo.findBy({});
         const tokens = users.map((user => user.mobileDevices)).filter(token => !!token).flat(1);
-        if (tokens.length) {
+        if (tokens?.length) {
             await this.firebaseService.sendNotificationToMultipleTokens({
                 tokens,
                 title: 'Announcement',
@@ -86,16 +86,27 @@ export class NotificationService {
     }
 
     async findAllPaginated(userId: string, page: number, limit: number) {
+        const user = await this.userRepo.findOneBy({ id: userId });
+        if (!user) {
+            throw new ForbiddenException('user not found');
+        }
+    
+        const userCreatedDate = user.createdAt;
+    
+        // Filter notifications before the user's creation date
         const [notifications, total] = await this.notificationRepository
-        .createQueryBuilder('notification')
-        .where('notification.userId = :userId OR notification.userId IS NULL', { userId })
-        .skip((page - 1) * limit)
-        .take(limit)
-        .orderBy('notification.createdAt', 'DESC')
-        .getManyAndCount();
+            .createQueryBuilder('notification')
+            .where('(notification.userId = :userId OR notification.userId IS NULL)', { userId })
+            .andWhere('notification.createdAt >= :userCreatedDate', { userCreatedDate }) // Ensure notifications are on or after user creation
+            .skip((page - 1) * limit)
+            .take(limit)
+            .orderBy('notification.createdAt', 'DESC')
+            .getManyAndCount();
+    
         const pagination = new Pagination();
         return pagination.PaginateResponse(notifications, total, page, limit);
-      }
+    }
+    
 
     async markAllRead(userId: string): Promise<boolean> {
         const user = await this.userRepo.findOneBy({id: userId});

@@ -24,7 +24,7 @@ import { WalletService } from 'src/wallet/services/wallet.service';
 import { DataSource, EntityManager, Not, Repository } from 'typeorm';
 import { UserDocumentResponseDto } from '../dto/user-documents.dto';
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
-import { UserRequestDto, UserUpdateRequestDto, UserUpdateResponse } from '../dto/user-request.dto';
+import { UserAdminRequestDto, UserRequestDto, UserUpdateRequestDto, UserUpdateResponse } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UserMapper } from '../mapper/user-mapper';
 import { UploadFileService } from './updaload-file.service';
@@ -150,7 +150,7 @@ export class UsersService {
   }
 
   async registerAdminAndGenerateToken(
-    userRequestDto: UserRequestDto,
+    userRequestDto: UserAdminRequestDto,
   ): Promise<UserApiResponseDto> {
     userRequestDto.cardHolderId = `ADMIN_${generateRef(10)}`;
     const user = await this.registerUser(userRequestDto);
@@ -175,6 +175,7 @@ export class UsersService {
     }
     const updatedUserEntity = UserMapper.mapUserUpdateRequestDtoToUserEntity(user, userRequestDto);
     await this.userRepository.save(updatedUserEntity);
+    user.kycVerificationStatus = KycVerificationStatus[user.kycVerificationStatus] as any
     return user;
   }
 
