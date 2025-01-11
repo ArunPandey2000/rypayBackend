@@ -5,4 +5,5 @@ export declare class AccountPayoutPayload {
     mobile: string;
     mode: string;
     message: string;
+    userName: string;
 }

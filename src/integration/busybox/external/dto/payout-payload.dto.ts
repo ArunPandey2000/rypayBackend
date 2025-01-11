@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsIn, IsMobilePhone, IsNotEmpty } from "class-validator"
+import { IsIn, IsMobilePhone, IsNotEmpty, IsOptional } from "class-validator"
 
 export class AccountPayoutPayload {
     @ApiProperty()
@@ -26,4 +26,8 @@ export class AccountPayoutPayload {
 
     @ApiProperty()
     message: string
+
+    @ApiProperty()
+    @IsOptional()
+    userName: string
 }

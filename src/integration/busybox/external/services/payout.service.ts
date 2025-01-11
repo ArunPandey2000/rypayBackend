@@ -59,7 +59,7 @@ export class PayoutService {
             user: user,
             description: description,
             payment_method: 'WALLET',
-            respectiveUserName: "",
+            respectiveUserName: requestDto.userName ?? "",
             ifscNumber: requestDto.ifsc,
             accountId: requestDto.accountNumber
         }

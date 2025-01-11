@@ -46,4 +46,9 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)
 ], AccountPayoutPayload.prototype, "message", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], AccountPayoutPayload.prototype, "userName", void 0);
 //# sourceMappingURL=payout-payload.dto.js.map
