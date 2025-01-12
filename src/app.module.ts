@@ -27,7 +27,12 @@ import { MoneyRequestModule } from './money-request/money-request.module';
       rootPath: join(__dirname, '..', 'assets'),
       serveRoot: '/assets/',
       exclude: ['/api/(.*)'],
-    }),
+    },
+    {
+      rootPath: join(__dirname, '..', 'public/.well-known'),
+      serveRoot: '/.well-known',
+    }
+  ),
     BullModule.forRoot({
       redis: {
         port: 6379,

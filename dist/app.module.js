@@ -39,6 +39,9 @@ exports.AppModule = AppModule = __decorate([
                 rootPath: (0, path_1.join)(__dirname, '..', 'assets'),
                 serveRoot: '/assets/',
                 exclude: ['/api/(.*)'],
+            }, {
+                rootPath: (0, path_1.join)(__dirname, '..', 'public/.well-known'),
+                serveRoot: '/.well-known',
             }),
             bull_1.BullModule.forRoot({
                 redis: {
