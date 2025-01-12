@@ -5,7 +5,8 @@ export declare enum NotificationType {
     TRANSACTION_FAILED = "TRANSACTION_FAILED",
     RECHARGE_SUCCESS = "RECHARGE_SUCCESS",
     RECHARGE_FAILED = "RECHARGE_FAILED",
-    ANNOUNCEMENT = "ANNOUNCEMENT"
+    ANNOUNCEMENT = "ANNOUNCEMENT",
+    REFERREL_BONUS = "REFERREL_BONUS"
 }
 export declare class Notification {
     id: number;

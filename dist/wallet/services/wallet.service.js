@@ -142,7 +142,7 @@ let WalletService = class WalletService {
                 description: description,
                 transactionDate: new Date(),
                 walletBalanceBefore: wallet.balance,
-                walletBalanceAfter: wallet.balance + addMoneyWalletDto.amount,
+                walletBalanceAfter: walletBalanceAfter,
                 wallet,
                 serviceUsed: service_types_constant_1.ServiceTypes.Wallet,
                 sender: user.id,
@@ -382,6 +382,99 @@ let WalletService = class WalletService {
             await this.transactionsService.saveTransaction(rechargeDto, queryRunner);
             return wallet;
         });
+    }
+    async handleReferrelBonus(referrerUserId, refreeId) {
+        return this.handleTransaction(async (queryRunner) => {
+            try {
+                const [referrer, refree, referrerWallet, refreeWallet, bonusAmount] = await Promise.all([
+                    this.findUserById(referrerUserId),
+                    this.findUserById(refreeId),
+                    this.findWalletByUserId(referrerUserId),
+                    this.findWalletByUserId(refreeId),
+                    this.getReferrelBonus()
+                ]);
+                if (!bonusAmount)
+                    return;
+                const [referrerOrder, refreeOrder] = await Promise.all([
+                    this.createAndSaveReferralOrder(bonusAmount, referrer),
+                    this.createAndSaveReferralOrder(bonusAmount, refree)
+                ]);
+                await Promise.all([
+                    this.updateWalletBalance(referrerWallet, bonusAmount, queryRunner, true),
+                    this.updateWalletBalance(refreeWallet, bonusAmount, queryRunner, true)
+                ]);
+                const [referrerTransaction, refreeTransaction] = this.createReferralTransactions(referrer, referrerOrder, referrerWallet, bonusAmount, refree, refreeOrder, refreeWallet);
+                const [t1, t2] = await Promise.all([
+                    this.transactionsService.saveTransaction(referrerTransaction, queryRunner),
+                    this.transactionsService.saveTransaction(refreeTransaction, queryRunner)
+                ]);
+                await Promise.all([
+                    this.sendReferralBonusNotification(t1, refree, true),
+                    this.sendReferralBonusNotification(t2, referrer, false)
+                ]);
+            }
+            catch (err) {
+                console.error('Failed to add referral bonus', err);
+            }
+        });
+    }
+    async createAndSaveReferralOrder(bonusAmount, user) {
+        const order = this.orderRepository.create(this.getNewReferelOrder(bonusAmount, user));
+        await this.orderRepository.save(order);
+        return order;
+    }
+    createReferralTransactions(referrer, referrerOrder, referrerWallet, bonusAmount, refree, refreeOrder, refreeWallet) {
+        const referrerTransaction = this.getTransactionModelForReferrel(referrer, referrerOrder.order_id, transaction_type_enum_1.TransactionType.CREDIT, referrerWallet, bonusAmount, refree, 'Referral');
+        const refreeTransaction = this.getTransactionModelForReferrel(refree, refreeOrder.order_id, transaction_type_enum_1.TransactionType.CREDIT, refreeWallet, bonusAmount, referrer, 'Referral');
+        return [referrerTransaction, refreeTransaction];
+    }
+    async sendReferralBonusNotification(transaction, counterPartyUser, isReferrer) {
+        await this.notificationBridge.add('referrel', {
+            transaction,
+            isReferrer,
+            counterPartyUser,
+            type: notification_entity_1.NotificationType.REFERREL_BONUS
+        });
+    }
+    getNewReferelOrder(amount, user) {
+        return {
+            order_id: (0, hash_util_1.generateRef)(6),
+            order_type: order_entity_1.OrderType.PAYMENT,
+            gateway_response: '',
+            amount: amount,
+            status: order_entity_1.OrderStatus.SUCCESS,
+            transaction_id: '',
+            user: user,
+            description: 'Referel earning',
+            payment_method: 'WALLET',
+            paymentMode: 'Referel',
+            respectiveUserName: '',
+            ifscNumber: '',
+            accountId: ''
+        };
+    }
+    getReferrelBonus() {
+        const bonus = process.env.REFERREL_BONUS;
+        return bonus ? Number.parseFloat(bonus) : 0;
+    }
+    getTransactionModelForReferrel(receiver, referenceId, transactionType, wallet, amount, sender, serviceUsed) {
+        const walletAmount = transactionType === transaction_type_enum_1.TransactionType.CREDIT ? wallet.balance + amount : wallet.balance - amount;
+        return {
+            transactionHash: (0, hash_util_1.generateHash)(),
+            reference: referenceId,
+            user: receiver,
+            description: 'Referrel Bonus',
+            status: transactions_entity_1.TransactionStatus.SUCCESS,
+            type: transactionType,
+            amount: amount,
+            transactionDate: new Date(),
+            walletBalanceBefore: wallet.balance,
+            walletBalanceAfter: walletAmount,
+            wallet,
+            sender: sender.id,
+            receiver: receiver.id,
+            serviceUsed: serviceUsed,
+        };
     }
 };
 exports.WalletService = WalletService;

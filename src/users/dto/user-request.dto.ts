@@ -104,6 +104,10 @@ export class UserRequestDto extends UserRequestCommonDto {
   @IsIn([UserRole.MERCHANT, UserRole.USER])
   @ApiProperty()
   userType: UserRole;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  referrelCode?: string
 }
 
 export class UserAdminRequestDto extends UserRequestCommonDto {

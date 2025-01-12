@@ -32,6 +32,7 @@ export declare class User {
     beneficiaries: Beneficiary[];
     pin: string;
     profileIcon: string;
+    referralCode: string;
     userSession: string;
     merchant: Merchant;
     notifications: Notification[];

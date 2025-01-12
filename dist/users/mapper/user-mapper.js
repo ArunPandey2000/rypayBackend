@@ -5,6 +5,7 @@ const address_entity_1 = require("../../core/entities/address.entity");
 const merchant_entity_1 = require("../../core/entities/merchant.entity");
 const user_entity_1 = require("../../core/entities/user.entity");
 const kyc_verification_status_enum_1 = require("../../core/enum/kyc-verification-status.enum");
+const hash_util_1 = require("../../core/utils/hash.util");
 class UserMapper {
     static mapUserRequestDtoToEntity(userRequestDto) {
         const user = new user_entity_1.User();
@@ -23,6 +24,7 @@ class UserMapper {
         user.cardHolderId = userRequestDto.cardHolderId;
         user.phoneNumber = userRequestDto.phoneNumber;
         user.email = userRequestDto.email;
+        user.referralCode = (0, hash_util_1.generateReferralCode)(user.phoneNumber);
         user.firstName = userRequestDto.firstName;
         user.lastName = userRequestDto.lastName;
         user.role = userRequestDto.userType;

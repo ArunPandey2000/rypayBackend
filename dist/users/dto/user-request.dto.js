@@ -124,6 +124,11 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)
 ], UserRequestDto.prototype, "userType", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], UserRequestDto.prototype, "referrelCode", void 0);
 class UserAdminRequestDto extends UserRequestCommonDto {
 }
 exports.UserAdminRequestDto = UserAdminRequestDto;

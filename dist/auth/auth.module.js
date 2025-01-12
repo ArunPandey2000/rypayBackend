@@ -36,6 +36,8 @@ const cards_module_1 = require("../cards/cards.module");
 const updaload_file_service_1 = require("../users/services/updaload-file.service");
 const document_entity_1 = require("../core/entities/document.entity");
 const notifications_module_1 = require("../notifications/notifications.module");
+const wallet_queue_1 = require("../wallet/services/wallet.queue");
+const bull_1 = require("@nestjs/bull");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -50,12 +52,14 @@ exports.AuthModule = AuthModule = __decorate([
             axios_1.HttpModule,
             integration_module_1.IntegrationModule,
             notifications_module_1.NotificationsModule,
+            bull_1.BullModule.registerQueue({ name: 'wallet' }),
             cards_module_1.CardsModule
         ],
         providers: [
             auth_service_1.AuthService,
             token_service_1.TokenService,
             wallet_service_1.WalletService,
+            wallet_queue_1.WalletBridge,
             transactions_service_1.TransactionsService,
             users_service_1.UsersService,
             updaload_file_service_1.UploadFileService,

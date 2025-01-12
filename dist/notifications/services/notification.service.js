@@ -23,6 +23,7 @@ const recharge_notification_message_constant_1 = require("../constant/recharge-n
 const transaction_message_constant_1 = require("../constant/transaction-message.constant");
 const firebase_client_service_1 = require("../../integration/firebase/firebase.client.service");
 const transaction_type_enum_1 = require("../../transactions/enum/transaction-type.enum");
+const referel_bonus_message_constant_1 = require("../constant/referel-bonus-message.constant");
 let NotificationService = class NotificationService {
     constructor(notificationRepository, userRepo, firebaseService) {
         this.notificationRepository = notificationRepository;
@@ -68,6 +69,12 @@ let NotificationService = class NotificationService {
             transactionType: notificationData.transaction.type
         });
         const type = notificationData.transaction.type === transaction_type_enum_1.TransactionType.CREDIT ? notification_entity_1.NotificationType.TRANSACTION_CREDIT : notification_entity_1.NotificationType.TRANSACTION_DEBIT;
+        await this.insertInAppNotification(message, type, notificationData.transaction.user.id);
+    }
+    async processReferrelNotification(notificationData) {
+        const counterUserName = `${notificationData.counterPartyUser.firstName} ${notificationData.counterPartyUser.lastName}`;
+        const message = (0, referel_bonus_message_constant_1.createReferrelMessage)(notificationData.isReferrer, notificationData.transaction.amount, counterUserName);
+        const type = notification_entity_1.NotificationType.REFERREL_BONUS;
         await this.insertInAppNotification(message, type, notificationData.transaction.user.id);
     }
     async processAnnouncementNotification(notificationData) {

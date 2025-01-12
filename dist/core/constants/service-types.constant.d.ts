@@ -3,4 +3,5 @@ export declare const ServiceTypes: {
     Electricity: string;
     Mobile: string;
     DTH: string;
+    REFERREL: string;
 };

@@ -4,13 +4,14 @@ import { Notification, NotificationType } from 'src/core/entities/notification.e
 import { User } from 'src/core/entities/user.entity';
 import { LessThan, Repository } from 'typeorm';
 import { RechargeNotificationDto } from '../dto/recharge-notification.dto';
-import { TransactionNotification } from '../dto/transaction-notification.dto';
+import { ReferrelNotification, TransactionNotification } from '../dto/transaction-notification.dto';
 import { GeneralNotification } from '../dto/announcement-notification.dto';
 import { Pagination } from 'src/transactions/dto/pagination-response.dto';
 import { createRechargeMessage } from '../constant/recharge-notification-message.constant';
 import { createTransactionMessage } from '../constant/transaction-message.constant';
 import { FirebaseClientService } from 'src/integration/firebase/firebase.client.service';
 import { TransactionType } from 'src/transactions/enum/transaction-type.enum';
+import { createReferrelMessage } from '../constant/referel-bonus-message.constant';
 
 @Injectable()
 export class NotificationService {
@@ -63,6 +64,13 @@ export class NotificationService {
             transactionType: notificationData.transaction.type
         });
         const type = notificationData.transaction.type === TransactionType.CREDIT ? NotificationType.TRANSACTION_CREDIT : NotificationType.TRANSACTION_DEBIT;
+        await this.insertInAppNotification(message, type, notificationData.transaction.user.id);
+    }
+
+    async processReferrelNotification(notificationData: ReferrelNotification){
+        const counterUserName = `${notificationData.counterPartyUser.firstName} ${notificationData.counterPartyUser.lastName}`;
+        const message = createReferrelMessage(notificationData.isReferrer, notificationData.transaction.amount, counterUserName);
+        const type = NotificationType.REFERREL_BONUS;
         await this.insertInAppNotification(message, type, notificationData.transaction.user.id);
     }
 

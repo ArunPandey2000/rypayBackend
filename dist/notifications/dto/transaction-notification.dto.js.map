@@ -1,1 +1,1 @@
-{"version":3,"file":"transaction-notification.dto.js","sourceRoot":"","sources":["../../../src/notifications/dto/transaction-notification.dto.ts"],"names":[],"mappings":";;;AAOA,MAAa,uBAAuB;CAgBnC;AAhBD,0DAgBC"}
+{"version":3,"file":"transaction-notification.dto.js","sourceRoot":"","sources":["../../../src/notifications/dto/transaction-notification.dto.ts"],"names":[],"mappings":";;;AAOA,MAAa,uBAAuB;CAgBnC;AAhBD,0DAgBC;AAED,MAAa,oBAAoB;CAkBhC;AAlBD,oDAkBC"}

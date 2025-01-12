@@ -26,6 +26,7 @@ export declare class UserRequestCommonDto {
 }
 export declare class UserRequestDto extends UserRequestCommonDto {
     userType: UserRole;
+    referrelCode?: string;
 }
 export declare class UserAdminRequestDto extends UserRequestCommonDto {
     userType: UserRole;

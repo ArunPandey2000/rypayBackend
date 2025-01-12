@@ -1,3 +1,4 @@
+import * as uuid from 'uuid';
 export const generateRef = (length: number) => {
     let characters =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -26,3 +27,7 @@ export const generateRef = (length: number) => {
     const key = `RYPAY_TX_REF${generateRef(12)}`.toUpperCase();
     return key;
   };
+
+  export const generateReferralCode = (userId: string) => {
+    return `RYPAY_USER${userId}-${uuid.v4().slice(0, 8)}`;
+  }

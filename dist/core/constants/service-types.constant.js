@@ -6,5 +6,6 @@ exports.ServiceTypes = {
     Electricity: 'ELECTRICITY',
     Mobile: 'MOBILE',
     DTH: 'DTH',
+    REFERREL: 'Referel'
 };
 //# sourceMappingURL=service-types.constant.js.map

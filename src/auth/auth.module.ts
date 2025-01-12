@@ -27,6 +27,8 @@ import { CardsModule } from 'src/cards/cards.module';
 import { UploadFileService } from 'src/users/services/updaload-file.service';
 import { UserDocument } from 'src/core/entities/document.entity';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { WalletBridge } from 'src/wallet/services/wallet.queue';
+import { BullModule } from '@nestjs/bull';
 
 @Global()
 @Module({
@@ -38,12 +40,14 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
     HttpModule,
     IntegrationModule,
     NotificationsModule,
+    BullModule.registerQueue({name: 'wallet'}),
     CardsModule
   ],
   providers: [
     AuthService,
     TokenService,
     WalletService,
+    WalletBridge,
     TransactionsService,
     UsersService,
     UploadFileService,

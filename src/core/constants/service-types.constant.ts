@@ -3,4 +3,5 @@ export const ServiceTypes = {
     Electricity: 'ELECTRICITY',
     Mobile: 'MOBILE',
     DTH: 'DTH',
+    REFERREL: 'Referel'
 }

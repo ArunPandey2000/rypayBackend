@@ -2,7 +2,7 @@ import { Notification, NotificationType } from 'src/core/entities/notification.e
 import { User } from 'src/core/entities/user.entity';
 import { Repository } from 'typeorm';
 import { RechargeNotificationDto } from '../dto/recharge-notification.dto';
-import { TransactionNotification } from '../dto/transaction-notification.dto';
+import { ReferrelNotification, TransactionNotification } from '../dto/transaction-notification.dto';
 import { GeneralNotification } from '../dto/announcement-notification.dto';
 import { FirebaseClientService } from 'src/integration/firebase/firebase.client.service';
 export declare class NotificationService {
@@ -14,6 +14,7 @@ export declare class NotificationService {
     sendPushNotificationToUser(tokens: string[], title: string, message: string, icon: string): Promise<void>;
     processRechargeNotification(notificationData: RechargeNotificationDto): Promise<void>;
     processTransactionNotification(notificationData: TransactionNotification): Promise<void>;
+    processReferrelNotification(notificationData: ReferrelNotification): Promise<void>;
     processAnnouncementNotification(notificationData: GeneralNotification): Promise<Notification>;
     findAllPaginated(userId: string, page: number, limit: number): Promise<{
         data: any[];

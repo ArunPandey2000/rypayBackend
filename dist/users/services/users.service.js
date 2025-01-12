@@ -35,8 +35,9 @@ const otp_flow_service_1 = require("../../notifications/services/otp-flow.servic
 const otp_repository_1 = require("../../notifications/repository/otp.repository");
 const user_role_enum_1 = require("../../core/enum/user-role.enum");
 const kyc_required_doc_types_constant_1 = require("../constants/kyc-required-doc-types.constant");
+const wallet_queue_1 = require("../../wallet/services/wallet.queue");
 let UsersService = class UsersService {
-    constructor(tokenService, configService, walletService, merchantClientService, cardService, _connection, uploadFileService, otpFlowService, otpRepository, userRepository, documentRepository) {
+    constructor(tokenService, configService, walletService, merchantClientService, cardService, _connection, uploadFileService, otpFlowService, otpRepository, walletBridge, userRepository, documentRepository) {
         this.tokenService = tokenService;
         this.configService = configService;
         this.walletService = walletService;
@@ -46,6 +47,7 @@ let UsersService = class UsersService {
         this.uploadFileService = uploadFileService;
         this.otpFlowService = otpFlowService;
         this.otpRepository = otpRepository;
+        this.walletBridge = walletBridge;
         this.userRepository = userRepository;
         this.documentRepository = documentRepository;
         this.saltRounds = 10;
@@ -61,6 +63,7 @@ let UsersService = class UsersService {
                     phoneNumber: userRequestDto.phoneNumber,
                 }
             });
+            const referrer = await this.validateRefferelCode(userRequestDto.referrelCode, queryRunner);
             if (userExists) {
                 await queryRunner.rollbackTransaction();
                 await queryRunner.release();
@@ -75,7 +78,7 @@ let UsersService = class UsersService {
             await queryRunner.manager.save(savedUser);
             const wallet = await this.walletService.createWallet({
                 user: savedUser,
-                walletAccountNo: await this.walletService.generateWalletAccountNo(),
+                walletAccountNo: await this.walletService.generateWalletAccountNo()
             }, queryRunner);
             const cardInfo = await this.merchantClientService.getCustomerStatus(savedUser.phoneNumber);
             const cardDetails = cardInfo.data.card_details;
@@ -92,6 +95,12 @@ let UsersService = class UsersService {
             }
             await queryRunner.commitTransaction();
             const userModel = { ...savedUser, card: card };
+            if (referrer) {
+                await this.walletBridge.add('referrel', {
+                    referrer: referrer.id,
+                    refree: savedUser.id
+                });
+            }
             return this.addProfileIconInUserResponse(savedUser, new user_response_dto_1.UserResponse(userModel));
         }
         catch (err) {
@@ -102,6 +111,18 @@ let UsersService = class UsersService {
             }
             throw err;
         }
+    }
+    async validateRefferelCode(referrelCode, queryRunner) {
+        let referrer = null;
+        if (referrelCode) {
+            referrer = await this.userRepository.findOneBy({ referralCode: referrelCode });
+            if (!referrer) {
+                await queryRunner.rollbackTransaction();
+                await queryRunner.release();
+                throw new common_1.BadRequestException('Invalid Referral code');
+            }
+        }
+        return referrer;
     }
     async registerUserAndGenerateToken(userRequestDto) {
         const orgId = this.configService.get('BUSY_BOX_ORG_ID');
@@ -396,8 +417,8 @@ let UsersService = class UsersService {
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __param(9, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __param(10, (0, typeorm_1.InjectRepository)(document_entity_1.UserDocument)),
+    __param(10, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(11, (0, typeorm_1.InjectRepository)(document_entity_1.UserDocument)),
     __metadata("design:paramtypes", [token_service_1.TokenService,
         config_1.ConfigService,
         wallet_service_1.WalletService,
@@ -407,6 +428,7 @@ exports.UsersService = UsersService = __decorate([
         updaload_file_service_1.UploadFileService,
         otp_flow_service_1.OtpFlowService,
         otp_repository_1.OtpRepository,
+        wallet_queue_1.WalletBridge,
         typeorm_2.Repository,
         typeorm_2.Repository])
 ], UsersService);

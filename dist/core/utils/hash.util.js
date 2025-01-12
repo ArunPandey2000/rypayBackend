@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateHash = exports.generateRef = void 0;
+exports.generateReferralCode = exports.generateHash = exports.generateRef = void 0;
 exports.sanitizeDateString = sanitizeDateString;
 exports.maskAccount = maskAccount;
+const uuid = require("uuid");
 const generateRef = (length) => {
     let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -26,4 +27,8 @@ const generateHash = () => {
     return key;
 };
 exports.generateHash = generateHash;
+const generateReferralCode = (userId) => {
+    return `RYPAY_USER${userId}-${uuid.v4().slice(0, 8)}`;
+};
+exports.generateReferralCode = generateReferralCode;
 //# sourceMappingURL=hash.util.js.map

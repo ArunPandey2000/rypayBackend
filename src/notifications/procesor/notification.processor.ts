@@ -17,4 +17,10 @@ export class NotificationProcessor {
     const data = job.data;
     this.notificationService.processTransactionNotification(data);
   }
+
+  @Process('referrel')
+  async handleReferrelNotification(job: Job) {
+    const data = job.data;
+    this.notificationService.processReferrelNotification(data);
+  }
 }

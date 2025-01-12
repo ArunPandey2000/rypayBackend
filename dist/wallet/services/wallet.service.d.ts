@@ -1,9 +1,10 @@
-import { Order } from 'src/core/entities/order.entity';
-import { Transaction } from 'src/core/entities/transactions.entity';
+import { Order, OrderStatus, OrderType } from 'src/core/entities/order.entity';
+import { Transaction, TransactionStatus } from 'src/core/entities/transactions.entity';
 import { User } from 'src/core/entities/user.entity';
 import { Wallet } from 'src/core/entities/wallet.entity';
 import { TransactionNotifyPayload } from 'src/integration/busybox/external/interfaces/transaction-notify.interface';
 import { NotificationBridge } from 'src/notifications/services/notification-bridge';
+import { TransactionType } from 'src/transactions/enum/transaction-type.enum';
 import { TransactionsService } from 'src/transactions/services/transactions.service';
 import { DataSource, FindOptionsWhere, QueryRunner, Repository } from 'typeorm';
 import { CreateWalletDto } from '../dto/create-wallet.dto';
@@ -43,4 +44,40 @@ export declare class WalletService {
     processRechargeRefundPayment(orderId: string): Promise<Wallet>;
     processRechargeSuccess(orderId: string, transactionId: string, gatewayId: string): Promise<boolean>;
     processLoanPayment(deductBalanceData: DeductWalletBalanceRechargeDto, userId: string): Promise<Wallet>;
+    handleReferrelBonus(referrerUserId: string, refreeId: string): Promise<void>;
+    private createAndSaveReferralOrder;
+    private createReferralTransactions;
+    private sendReferralBonusNotification;
+    getNewReferelOrder(amount: number, user: User): {
+        order_id: string;
+        order_type: OrderType;
+        gateway_response: string;
+        amount: number;
+        status: OrderStatus;
+        transaction_id: string;
+        user: User;
+        description: string;
+        payment_method: string;
+        paymentMode: string;
+        respectiveUserName: string;
+        ifscNumber: string;
+        accountId: string;
+    };
+    getReferrelBonus(): number;
+    getTransactionModelForReferrel(receiver: User, referenceId: string, transactionType: TransactionType, wallet: Wallet, amount: number, sender: User, serviceUsed: string): {
+        transactionHash: string;
+        reference: string;
+        user: User;
+        description: string;
+        status: TransactionStatus;
+        type: TransactionType;
+        amount: number;
+        transactionDate: Date;
+        walletBalanceBefore: number;
+        walletBalanceAfter: number;
+        wallet: Wallet;
+        sender: string;
+        receiver: string;
+        serviceUsed: string;
+    };
 }

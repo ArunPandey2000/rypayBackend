@@ -96,6 +96,9 @@ export class User {
   @Column({ name: 'profileIcon', nullable: true })
   profileIcon: string;
 
+  @Column({ name: 'referralCode', nullable: true })
+  referralCode: string;
+
   @Column({ name: 'user-session', nullable: true, default: "YES" })
   userSession: string;
 

@@ -20,6 +20,7 @@ var NotificationType;
     NotificationType["RECHARGE_SUCCESS"] = "RECHARGE_SUCCESS";
     NotificationType["RECHARGE_FAILED"] = "RECHARGE_FAILED";
     NotificationType["ANNOUNCEMENT"] = "ANNOUNCEMENT";
+    NotificationType["REFERREL_BONUS"] = "REFERREL_BONUS";
 })(NotificationType || (exports.NotificationType = NotificationType = {}));
 let Notification = class Notification {
 };

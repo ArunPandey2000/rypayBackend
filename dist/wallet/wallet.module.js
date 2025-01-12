@@ -18,6 +18,9 @@ const transactions_entity_1 = require("../core/entities/transactions.entity");
 const transactions_module_1 = require("../transactions/transactions.module");
 const order_entity_1 = require("../core/entities/order.entity");
 const notifications_module_1 = require("../notifications/notifications.module");
+const bull_1 = require("@nestjs/bull");
+const wallet_queue_1 = require("./services/wallet.queue");
+const wallet_processor_1 = require("./processor/wallet.processor");
 let WalletModule = class WalletModule {
 };
 exports.WalletModule = WalletModule;
@@ -26,11 +29,14 @@ exports.WalletModule = WalletModule = __decorate([
         imports: [typeorm_1.TypeOrmModule.forFeature([wallet_entity_1.Wallet, user_entity_1.User, transactions_entity_1.Transaction, order_entity_1.Order]),
             (0, common_1.forwardRef)(() => users_module_1.UsersModule),
             transactions_module_1.TransactionsModule,
+            bull_1.BullModule.registerQueue({
+                name: 'wallet',
+            }),
             notifications_module_1.NotificationsModule
         ],
-        providers: [wallet_service_1.WalletService],
+        providers: [wallet_service_1.WalletService, wallet_processor_1.WalletProcessor, wallet_queue_1.WalletBridge],
         controllers: [wallet_controller_1.WalletController],
-        exports: [wallet_service_1.WalletService]
+        exports: [wallet_service_1.WalletService, wallet_queue_1.WalletBridge]
     })
 ], WalletModule);
 //# sourceMappingURL=wallet.module.js.map

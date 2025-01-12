@@ -24,6 +24,10 @@ let NotificationProcessor = class NotificationProcessor {
         const data = job.data;
         this.notificationService.processTransactionNotification(data);
     }
+    async handleReferrelNotification(job) {
+        const data = job.data;
+        this.notificationService.processReferrelNotification(data);
+    }
 };
 exports.NotificationProcessor = NotificationProcessor;
 __decorate([
@@ -38,6 +42,12 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], NotificationProcessor.prototype, "handleTransactionNotification", null);
+__decorate([
+    (0, bull_1.Process)('referrel'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationProcessor.prototype, "handleReferrelNotification", null);
 exports.NotificationProcessor = NotificationProcessor = __decorate([
     (0, bull_1.Processor)('notification'),
     __metadata("design:paramtypes", [notification_service_1.NotificationService])

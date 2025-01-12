@@ -79,6 +79,7 @@ class UserResponse {
         this.isPinCreated = !!user.pin;
         this.cardDetails = new CardResponse(user.card);
         this.accountDetails = new AccountResponse(user);
+        this.referrelCode = user.referralCode;
     }
 }
 exports.UserResponse = UserResponse;
@@ -142,6 +143,10 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)
 ], UserResponse.prototype, "profileUrl", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], UserResponse.prototype, "referrelCode", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", AccountResponse)

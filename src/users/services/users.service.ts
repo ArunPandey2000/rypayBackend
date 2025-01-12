@@ -21,7 +21,7 @@ import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enu
 import { generateRef } from 'src/core/utils/hash.util';
 import { MerchantClientService } from 'src/integration/busybox/external-system-client/merchant-client.service';
 import { WalletService } from 'src/wallet/services/wallet.service';
-import { DataSource, EntityManager, Not, Repository } from 'typeorm';
+import { DataSource, EntityManager, Not, QueryRunner, Repository } from 'typeorm';
 import { UserDocumentResponseDto } from '../dto/user-documents.dto';
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
 import { UserAdminRequestDto, UserRequestDto, UserUpdateRequestDto, UserUpdateResponse } from '../dto/user-request.dto';
@@ -35,6 +35,7 @@ import { KycRequiredDocTypes } from '../constants/kyc-required-doc-types.constan
 import { Merchant } from 'src/core/entities/merchant.entity';
 import { Loan } from 'src/core/entities/loan.entity';
 import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
+import { WalletBridge } from 'src/wallet/services/wallet.queue';
 
 @Injectable()
 export class UsersService {
@@ -49,6 +50,7 @@ export class UsersService {
     private uploadFileService: UploadFileService,
     private otpFlowService: OtpFlowService,
     private otpRepository: OtpRepository,
+    private readonly walletBridge: WalletBridge,
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(UserDocument) private documentRepository: Repository<UserDocument>,
   ) { }
@@ -66,6 +68,8 @@ export class UsersService {
           phoneNumber: userRequestDto.phoneNumber,
         }
       });
+
+      const referrer = await this.validateRefferelCode(userRequestDto.referrelCode, queryRunner);
 
       if (userExists) {
         await queryRunner.rollbackTransaction();
@@ -90,7 +94,7 @@ export class UsersService {
       const wallet: Wallet = await this.walletService.createWallet(
         {
           user: savedUser,
-          walletAccountNo: await this.walletService.generateWalletAccountNo(),
+          walletAccountNo: await this.walletService.generateWalletAccountNo()
         },
         queryRunner,
       );
@@ -114,6 +118,13 @@ export class UsersService {
       // const user = await this.userRepository.save(newUser);
       await queryRunner.commitTransaction();
       const userModel = {...savedUser, card: card};
+
+      if (referrer) {
+        await this.walletBridge.add('referrel', {
+          referrer: referrer.id,
+          refree: savedUser.id
+        })
+      }
       return this.addProfileIconInUserResponse(savedUser, new UserResponse(userModel));
     } catch (err) {
       if (queryRunner.isTransactionActive) {
@@ -123,6 +134,21 @@ export class UsersService {
       }
       throw err;
     }
+  }
+
+  async validateRefferelCode(referrelCode: string | null, queryRunner: QueryRunner) {
+    let referrer: User = null;
+    if (referrelCode) {
+      referrer = await this.userRepository.findOneBy({referralCode: referrelCode});
+      if (!referrer) {
+          await queryRunner.rollbackTransaction();
+  
+          await queryRunner.release();
+  
+          throw new BadRequestException('Invalid Referral code');
+      }
+    }
+    return referrer;
   }
 
   async registerUserAndGenerateToken(

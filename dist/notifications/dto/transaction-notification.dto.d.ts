@@ -21,3 +21,22 @@ export declare class TransactionNotification {
     };
     type: NotificationType;
 }
+export declare class ReferrelNotification {
+    transaction: {
+        user: User;
+        type: TransactionType;
+        amount: number;
+        description: string;
+        transactionDate: Date;
+        walletBalanceBefore: number;
+        walletBalanceAfter: number;
+        wallet: Wallet;
+        status: TransactionStatus;
+        sender: string;
+        receiver: string;
+        serviceUsed: typeof ServiceTypes;
+    };
+    counterPartyUser: User;
+    isReferrer: boolean;
+    type: NotificationType;
+}

@@ -5,4 +5,5 @@ export declare class NotificationProcessor {
     constructor(notificationService: NotificationService);
     handleRechargeNotification(job: Job): Promise<void>;
     handleTransactionNotification(job: Job): Promise<void>;
+    handleReferrelNotification(job: Job): Promise<void>;
 }

@@ -9,15 +9,21 @@ import { Transaction } from 'src/core/entities/transactions.entity';
 import { TransactionsModule } from 'src/transactions/transactions.module';
 import { Order } from 'src/core/entities/order.entity';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { BullModule } from '@nestjs/bull';
+import { WalletBridge } from './services/wallet.queue';
+import { WalletProcessor } from './processor/wallet.processor';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Wallet, User, Transaction, Order]),
   forwardRef(() => UsersModule),
   TransactionsModule,
+  BullModule.registerQueue({
+        name: 'wallet',
+  }),
   NotificationsModule
  ],
-  providers: [WalletService],
+  providers: [WalletService, WalletProcessor, WalletBridge],
   controllers: [WalletController],
-  exports: [WalletService]
+  exports: [WalletService, WalletBridge]
 })
 export class WalletModule {}

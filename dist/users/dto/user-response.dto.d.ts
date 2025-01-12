@@ -32,6 +32,7 @@ export declare class UserResponse {
     isPinCreated: boolean;
     cardDetails: CardResponse;
     profileUrl: String;
+    referrelCode: String;
     accountDetails: AccountResponse;
     constructor(user: User);
 }

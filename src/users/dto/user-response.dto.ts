@@ -90,6 +90,9 @@ export class UserResponse {
   profileUrl: String
 
   @ApiProperty()
+  referrelCode: String
+
+  @ApiProperty()
   accountDetails: AccountResponse;
 
   constructor(user: User) {
@@ -106,6 +109,7 @@ export class UserResponse {
     this.isPinCreated = !!user.pin;
     this.cardDetails = new CardResponse(user.card);
     this.accountDetails = new AccountResponse(user);
+    this.referrelCode = user.referralCode;
   }
 }
 

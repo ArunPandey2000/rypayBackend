@@ -3,6 +3,7 @@ import { Merchant } from 'src/core/entities/merchant.entity';
 import { User } from 'src/core/entities/user.entity';
 import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
 import { UserRequestDto, UserUpdateRequestDto } from '../dto/user-request.dto';
+import { generateReferralCode } from 'src/core/utils/hash.util';
 
 export class UserMapper {
   static mapUserRequestDtoToEntity(userRequestDto: UserRequestDto) {
@@ -23,6 +24,7 @@ export class UserMapper {
     user.cardHolderId = userRequestDto.cardHolderId;
     user.phoneNumber = userRequestDto.phoneNumber;
     user.email = userRequestDto.email;
+    user.referralCode = generateReferralCode(user.phoneNumber);
     user.firstName = userRequestDto.firstName;
     user.lastName = userRequestDto.lastName;
     user.role = userRequestDto.userType;
