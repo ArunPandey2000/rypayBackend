@@ -36,6 +36,9 @@ let AuthController = class AuthController {
     async validateOtp(userPhone) {
         return this.authService.validateOTP(userPhone);
     }
+    async getUserResponse(req) {
+        return this.authService.getUserData({ userId: req.user.sub });
+    }
     async refreshAccessToken(refreshTokenDto) {
         return this.authService.refreshToken(refreshTokenDto.refreshToken);
     }
@@ -74,6 +77,17 @@ __decorate([
     __metadata("design:paramtypes", [verify_phone_request_dto_1.VerifyPhoneRequestDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "validateOtp", null);
+__decorate([
+    (0, swagger_1.ApiResponse)({ type: user_response_dto_1.UserApiResponseDto }),
+    (0, common_1.Post)('user'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "getUserResponse", null);
 __decorate([
     (0, swagger_1.ApiResponse)({ type: refresh_access_token_request_dto_1.RefreshAccessTokenResponseDto }),
     (0, common_1.Post)('refresh-access-token'),

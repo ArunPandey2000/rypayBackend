@@ -33,29 +33,7 @@ let AuthService = class AuthService {
         return await this.otpRepository
             .validateUserOtp(userPhoneInfo.phoneNumber, userPhoneInfo.otp)
             .then(async () => {
-            const userData = await this.userRepo.findOne({
-                where: {
-                    phoneNumber: userPhoneInfo.phoneNumber,
-                },
-                relations: { address: true, merchant: true, card: true },
-            });
-            if (!userData) {
-                return {
-                    user: null,
-                    tokens: null,
-                };
-            }
-            if (userPhoneInfo.fcmToken) {
-                const mobileDevices = userData.mobileDevices ?? [];
-                const updatedTokens = Array.from(new Set([...mobileDevices, userPhoneInfo.fcmToken]));
-                await this.userRepo.update({ id: userData.id }, { mobileDevices: updatedTokens });
-            }
-            const tokenPayload = auth_util_1.AuthUtil.getAccessTokenPayloadFromUserModel(userData);
-            const tokens = await this.tokenService.generateTokens(tokenPayload);
-            return {
-                user: await this.userService.addProfileIconInUserResponse(userData, new user_response_dto_1.UserResponse(userData)),
-                tokens: tokens,
-            };
+            return this.getUserData({ fcmToken: userPhoneInfo.fcmToken, phoneNumber: userPhoneInfo.phoneNumber });
         })
             .catch((err) => {
             if (err instanceof common_1.InternalServerErrorException) {
@@ -63,6 +41,30 @@ let AuthService = class AuthService {
             }
             throw err;
         });
+    }
+    async getUserData(payload) {
+        const where = payload.phoneNumber ? { phoneNumber: payload.phoneNumber } : { id: payload.userId };
+        const userData = await this.userRepo.findOne({
+            where: where,
+            relations: { address: true, merchant: true, card: true },
+        });
+        if (!userData) {
+            return {
+                user: null,
+                tokens: null,
+            };
+        }
+        if (payload.fcmToken) {
+            const mobileDevices = userData.mobileDevices ?? [];
+            const updatedTokens = Array.from(new Set([...mobileDevices, payload.fcmToken]));
+            await this.userRepo.update({ id: userData.id }, { mobileDevices: updatedTokens });
+        }
+        const tokenPayload = auth_util_1.AuthUtil.getAccessTokenPayloadFromUserModel(userData);
+        const tokens = await this.tokenService.generateTokens(tokenPayload);
+        return {
+            user: await this.userService.addProfileIconInUserResponse(userData, new user_response_dto_1.UserResponse(userData)),
+            tokens: tokens,
+        };
     }
     async refreshToken(refreshToken) {
         return this.tokenService.createAccessTokenFromRefreshToken(refreshToken);

@@ -58,6 +58,15 @@ export class AuthController {
     return this.authService.validateOTP(userPhone);
   }
 
+  @ApiResponse({ type: UserApiResponseDto })
+  @Post('user')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async getUserResponse(@Req() req: any) {
+    return this.authService.getUserData({userId: req.user.sub});
+  }
+
   @ApiResponse({ type: RefreshAccessTokenResponseDto })
   @Post('refresh-access-token')
   @HttpCode(HttpStatus.OK)
