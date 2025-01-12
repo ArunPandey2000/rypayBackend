@@ -106,7 +106,6 @@ export class UserRequestDto extends UserRequestCommonDto {
   userType: UserRole;
 
   @ApiProperty()
-  @IsNotEmpty()
   referrelCode?: string
 }
 
