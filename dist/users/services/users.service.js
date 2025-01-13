@@ -53,6 +53,7 @@ let UsersService = class UsersService {
         this.saltRounds = 10;
     }
     async registerUser(userRequestDto) {
+        console.log(userRequestDto);
         const queryRunner = this._connection.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
