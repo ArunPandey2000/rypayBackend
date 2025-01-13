@@ -56,6 +56,7 @@ export class UsersService {
   ) { }
 
   async registerUser(userRequestDto: UserRequestDto) {
+    console.log(userRequestDto);
     const queryRunner = this._connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
