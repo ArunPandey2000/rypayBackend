@@ -1,1 +1,1 @@
-export const PayoutDescription = 'Payout to A/C: {maskedAccount}'
+export const PayoutDescription = 'Paid to A/C: {maskedAccount}'
