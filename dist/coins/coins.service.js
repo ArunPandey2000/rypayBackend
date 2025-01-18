@@ -87,7 +87,7 @@ let CoinTransactionService = class CoinTransactionService {
             },
         });
         const totalMonthRedemption = monthRedemptions.reduce((sum, txn) => sum + (Number.parseFloat(txn.redemptionValue?.toString()) || 0), 0);
-        if (totalMonthRedemption >= 1000) {
+        if (totalMonthRedemption >= 100) {
             throw new common_1.BadRequestException('You have reached the monthly redemption limit of ₹100.');
         }
     }
