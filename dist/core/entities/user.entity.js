@@ -22,6 +22,7 @@ const beneficiery_entity_1 = require("./beneficiery.entity");
 const notification_entity_1 = require("./notification.entity");
 const loan_entity_1 = require("./loan.entity");
 const money_request_entity_1 = require("./money-request.entity");
+const coins_entity_1 = require("./coins.entity");
 let User = class User {
 };
 exports.User = User;
@@ -140,6 +141,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => notification_entity_1.Notification, (notification) => notification.user),
     __metadata("design:type", Array)
 ], User.prototype, "notifications", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => coins_entity_1.CoinTransaction, (coinTransactions) => coinTransactions.user),
+    __metadata("design:type", Array)
+], User.prototype, "coinTransactions", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'user-devices', type: 'text', array: true, nullable: true }),
     __metadata("design:type", Array)

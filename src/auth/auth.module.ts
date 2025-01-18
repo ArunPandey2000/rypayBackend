@@ -29,6 +29,7 @@ import { UserDocument } from 'src/core/entities/document.entity';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { WalletBridge } from 'src/wallet/services/wallet.queue';
 import { BullModule } from '@nestjs/bull';
+import { CoinsModule } from 'src/coins/coins.module';
 
 @Global()
 @Module({
@@ -40,6 +41,7 @@ import { BullModule } from '@nestjs/bull';
     HttpModule,
     IntegrationModule,
     NotificationsModule,
+    CoinsModule,
     BullModule.registerQueue({name: 'wallet'}),
     CardsModule
   ],

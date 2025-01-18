@@ -11,10 +11,12 @@ import { TransactionsService } from 'src/transactions/services/transactions.serv
 import { Transaction } from 'src/core/entities/transactions.entity';
 import { PdfService } from 'src/pdf/services/pdf.service';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { CoinsModule } from 'src/coins/coins.module';
 
 @Module({
   imports: [
     NotificationsModule,
+    CoinsModule,
     TypeOrmModule.forFeature([User, Loan, Order, Wallet, Transaction])
   ],
   controllers: [LoansController],

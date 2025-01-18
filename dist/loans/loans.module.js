@@ -20,6 +20,7 @@ const transactions_service_1 = require("../transactions/services/transactions.se
 const transactions_entity_1 = require("../core/entities/transactions.entity");
 const pdf_service_1 = require("../pdf/services/pdf.service");
 const notifications_module_1 = require("../notifications/notifications.module");
+const coins_module_1 = require("../coins/coins.module");
 let LoansModule = class LoansModule {
 };
 exports.LoansModule = LoansModule;
@@ -27,6 +28,7 @@ exports.LoansModule = LoansModule = __decorate([
     (0, common_1.Module)({
         imports: [
             notifications_module_1.NotificationsModule,
+            coins_module_1.CoinsModule,
             typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, loan_entity_1.Loan, order_entity_1.Order, wallet_entity_1.Wallet, transactions_entity_1.Transaction])
         ],
         controllers: [loans_controller_1.LoansController],

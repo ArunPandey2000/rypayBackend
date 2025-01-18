@@ -12,6 +12,7 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
 import { BullModule } from '@nestjs/bull';
 import { WalletBridge } from './services/wallet.queue';
 import { WalletProcessor } from './processor/wallet.processor';
+import { CoinsModule } from 'src/coins/coins.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Wallet, User, Transaction, Order]),
@@ -20,6 +21,7 @@ import { WalletProcessor } from './processor/wallet.processor';
   BullModule.registerQueue({
         name: 'wallet',
   }),
+  CoinsModule,
   NotificationsModule
  ],
   providers: [WalletService, WalletProcessor, WalletBridge],

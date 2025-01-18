@@ -24,6 +24,7 @@ const transaction_message_constant_1 = require("../constant/transaction-message.
 const firebase_client_service_1 = require("../../integration/firebase/firebase.client.service");
 const transaction_type_enum_1 = require("../../transactions/enum/transaction-type.enum");
 const referel_bonus_message_constant_1 = require("../constant/referel-bonus-message.constant");
+const redeem_notification_constant_1 = require("../constant/redeem-notification.constant");
 let NotificationService = class NotificationService {
     constructor(notificationRepository, userRepo, firebaseService) {
         this.notificationRepository = notificationRepository;
@@ -76,6 +77,16 @@ let NotificationService = class NotificationService {
         const message = (0, referel_bonus_message_constant_1.createReferrelMessage)(notificationData.isReferrer, notificationData.transaction.amount, counterUserName);
         const type = notification_entity_1.NotificationType.REFERREL_BONUS;
         await this.insertInAppNotification(message, type, notificationData.transaction.user.id);
+    }
+    async processCashbackRedemmedNotification(notificationData) {
+        const message = (0, redeem_notification_constant_1.redeemNotifcation)(notificationData.data.coinAmount, notificationData.data.redemptionValue);
+        const type = notification_entity_1.NotificationType.CASHBACK_REDEEMED;
+        await this.insertInAppNotification(message, type, notificationData.data.user.id);
+    }
+    async processCashbackExpiryNotification(notificationData) {
+        const message = (0, redeem_notification_constant_1.coinExpiredNotification)(notificationData.coinAmount);
+        const type = notification_entity_1.NotificationType.RYCOIN_EXPIRED;
+        await this.insertInAppNotification(message, type, notificationData.user.id);
     }
     async processAnnouncementNotification(notificationData) {
         const notification = this.notificationRepository.create({

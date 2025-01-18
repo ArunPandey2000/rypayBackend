@@ -21,6 +21,7 @@ const notifications_module_1 = require("../notifications/notifications.module");
 const bull_1 = require("@nestjs/bull");
 const wallet_queue_1 = require("./services/wallet.queue");
 const wallet_processor_1 = require("./processor/wallet.processor");
+const coins_module_1 = require("../coins/coins.module");
 let WalletModule = class WalletModule {
 };
 exports.WalletModule = WalletModule;
@@ -32,6 +33,7 @@ exports.WalletModule = WalletModule = __decorate([
             bull_1.BullModule.registerQueue({
                 name: 'wallet',
             }),
+            coins_module_1.CoinsModule,
             notifications_module_1.NotificationsModule
         ],
         providers: [wallet_service_1.WalletService, wallet_processor_1.WalletProcessor, wallet_queue_1.WalletBridge],

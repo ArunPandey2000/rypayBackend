@@ -21,6 +21,8 @@ var NotificationType;
     NotificationType["RECHARGE_FAILED"] = "RECHARGE_FAILED";
     NotificationType["ANNOUNCEMENT"] = "ANNOUNCEMENT";
     NotificationType["REFERREL_BONUS"] = "REFERREL_BONUS";
+    NotificationType["CASHBACK_REDEEMED"] = "CASHBACK_REDEEMED";
+    NotificationType["RYCOIN_EXPIRED"] = "RYCOIN_EXPIRED";
 })(NotificationType || (exports.NotificationType = NotificationType = {}));
 let Notification = class Notification {
 };

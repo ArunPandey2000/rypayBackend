@@ -48,6 +48,7 @@ const external_service_1 = require("./busybox/external/services/external.service
 const payout_service_1 = require("./busybox/external/services/payout.service");
 const sse_service_1 = require("./busybox/external/services/sse-service");
 const bull_1 = require("@nestjs/bull");
+const coins_module_1 = require("../coins/coins.module");
 let IntegrationModule = class IntegrationModule {
 };
 exports.IntegrationModule = IntegrationModule;
@@ -62,6 +63,7 @@ exports.IntegrationModule = IntegrationModule = __decorate([
             bull_1.BullModule.registerQueue({ name: 'wallet' }),
             axios_1.HttpModule, config_1.ConfigModule,
             notifications_module_1.NotificationsModule,
+            coins_module_1.CoinsModule,
             typeorm_1.TypeOrmModule.forFeature([wallet_entity_1.Wallet, user_entity_1.User, order_entity_1.Order, transactions_entity_1.Transaction, card_entity_1.Card, busybox_webhook_logs_entity_1.BusyBoxWebhookResponse, webhook_entity_1.WebhookResponse, document_entity_1.UserDocument, otp_info_entity_1.OtpInfo])
         ],
         providers: [

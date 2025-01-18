@@ -16,9 +16,13 @@ let WalletProcessor = class WalletProcessor {
     constructor(walletService) {
         this.walletService = walletService;
     }
-    async handleRechargeNotification(job) {
+    async handleReferrel(job) {
         const data = job.data;
         this.walletService.handleReferrelBonus(data.referrer, data.refree);
+    }
+    async handleRedemption(job) {
+        const data = job.data;
+        this.walletService.handleCoinRedeem(data);
     }
 };
 exports.WalletProcessor = WalletProcessor;
@@ -27,7 +31,13 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], WalletProcessor.prototype, "handleRechargeNotification", null);
+], WalletProcessor.prototype, "handleReferrel", null);
+__decorate([
+    (0, bull_1.Process)('redeem'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], WalletProcessor.prototype, "handleRedemption", null);
 exports.WalletProcessor = WalletProcessor = __decorate([
     (0, bull_1.Processor)('wallet'),
     __metadata("design:paramtypes", [wallet_service_1.WalletService])

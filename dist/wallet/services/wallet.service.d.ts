@@ -9,6 +9,8 @@ import { TransactionsService } from 'src/transactions/services/transactions.serv
 import { DataSource, FindOptionsWhere, QueryRunner, Repository } from 'typeorm';
 import { CreateWalletDto } from '../dto/create-wallet.dto';
 import { AddMoneyToWalletDto, DeductWalletBalanceRechargeDto, TransferMoneyDto } from '../dto/transfer-money.dto';
+import { CoinTransactionService } from 'src/coins/coins.service';
+import { CoinTransaction } from 'src/core/entities/coins.entity';
 export declare class WalletService {
     private walletRepository;
     private _connection;
@@ -17,7 +19,8 @@ export declare class WalletService {
     private orderRepository;
     private transactionRepo;
     private readonly notificationBridge;
-    constructor(walletRepository: Repository<Wallet>, _connection: DataSource, transactionsService: TransactionsService, userRepository: Repository<User>, orderRepository: Repository<Order>, transactionRepo: Repository<Transaction>, notificationBridge: NotificationBridge);
+    private coinsService;
+    constructor(walletRepository: Repository<Wallet>, _connection: DataSource, transactionsService: TransactionsService, userRepository: Repository<User>, orderRepository: Repository<Order>, transactionRepo: Repository<Transaction>, notificationBridge: NotificationBridge, coinsService: CoinTransactionService);
     private handleTransaction;
     private findUserById;
     private findWalletByUserId;
@@ -45,10 +48,27 @@ export declare class WalletService {
     processRechargeSuccess(orderId: string, transactionId: string, gatewayId: string): Promise<boolean>;
     processLoanPayment(deductBalanceData: DeductWalletBalanceRechargeDto, userId: string): Promise<Wallet>;
     handleReferrelBonus(referrerUserId: string, refreeId: string): Promise<void>;
+    handleCoinRedeem(data: CoinTransaction): Promise<Wallet>;
     private createAndSaveReferralOrder;
+    private createAndSaveCashbackOrder;
     private createReferralTransactions;
     private sendReferralBonusNotification;
     getNewReferelOrder(amount: number, user: User): {
+        order_id: string;
+        order_type: OrderType;
+        gateway_response: string;
+        amount: number;
+        status: OrderStatus;
+        transaction_id: string;
+        user: User;
+        description: string;
+        payment_method: string;
+        paymentMode: string;
+        respectiveUserName: string;
+        ifscNumber: string;
+        accountId: string;
+    };
+    getNewCashbackOrder(amount: number, user: User): {
         order_id: string;
         order_type: OrderType;
         gateway_response: string;

@@ -17,6 +17,7 @@ import { Beneficiary } from './beneficiery.entity';
 import { Notification } from './notification.entity';
 import { Loan } from './loan.entity';
 import { MoneyRequest } from './money-request.entity';
+import { CoinTransaction } from './coins.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -108,6 +109,9 @@ export class User {
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];
+
+  @OneToMany(() => CoinTransaction, (coinTransactions) => coinTransactions.user)
+  coinTransactions: CoinTransaction[];
 
   @Column({ name: 'user-devices', type: 'text', array: true, nullable: true })
   mobileDevices: string[];

@@ -6,7 +6,9 @@ export declare enum NotificationType {
     RECHARGE_SUCCESS = "RECHARGE_SUCCESS",
     RECHARGE_FAILED = "RECHARGE_FAILED",
     ANNOUNCEMENT = "ANNOUNCEMENT",
-    REFERREL_BONUS = "REFERREL_BONUS"
+    REFERREL_BONUS = "REFERREL_BONUS",
+    CASHBACK_REDEEMED = "CASHBACK_REDEEMED",
+    RYCOIN_EXPIRED = "RYCOIN_EXPIRED"
 }
 export declare class Notification {
     id: number;

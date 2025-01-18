@@ -1,4 +1,5 @@
 import { ServiceTypes } from "src/core/constants/service-types.constant";
+import { CoinTransaction } from "src/core/entities/coins.entity";
 import { NotificationType } from "src/core/entities/notification.entity";
 import { TransactionStatus } from "src/core/entities/transactions.entity";
 import { User } from "src/core/entities/user.entity";
@@ -38,5 +39,9 @@ export declare class ReferrelNotification {
     };
     counterPartyUser: User;
     isReferrer: boolean;
+    type: NotificationType;
+}
+export declare class CashbackRedemmedNotification {
+    data: CoinTransaction;
     type: NotificationType;
 }

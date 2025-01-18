@@ -4,7 +4,7 @@ import { Notification, NotificationType } from 'src/core/entities/notification.e
 import { User } from 'src/core/entities/user.entity';
 import { LessThan, Repository } from 'typeorm';
 import { RechargeNotificationDto } from '../dto/recharge-notification.dto';
-import { ReferrelNotification, TransactionNotification } from '../dto/transaction-notification.dto';
+import { CashbackRedemmedNotification, ReferrelNotification, TransactionNotification } from '../dto/transaction-notification.dto';
 import { GeneralNotification } from '../dto/announcement-notification.dto';
 import { Pagination } from 'src/transactions/dto/pagination-response.dto';
 import { createRechargeMessage } from '../constant/recharge-notification-message.constant';
@@ -12,6 +12,8 @@ import { createTransactionMessage } from '../constant/transaction-message.consta
 import { FirebaseClientService } from 'src/integration/firebase/firebase.client.service';
 import { TransactionType } from 'src/transactions/enum/transaction-type.enum';
 import { createReferrelMessage } from '../constant/referel-bonus-message.constant';
+import { coinExpiredNotification, redeemNotifcation } from '../constant/redeem-notification.constant';
+import { CoinTransaction } from 'src/core/entities/coins.entity';
 
 @Injectable()
 export class NotificationService {
@@ -72,6 +74,18 @@ export class NotificationService {
         const message = createReferrelMessage(notificationData.isReferrer, notificationData.transaction.amount, counterUserName);
         const type = NotificationType.REFERREL_BONUS;
         await this.insertInAppNotification(message, type, notificationData.transaction.user.id);
+    }
+
+    async processCashbackRedemmedNotification(notificationData: CashbackRedemmedNotification){
+        const message = redeemNotifcation(notificationData.data.coinAmount, notificationData.data.redemptionValue);
+        const type = NotificationType.CASHBACK_REDEEMED;
+        await this.insertInAppNotification(message, type, notificationData.data.user.id);
+    }
+
+    async processCashbackExpiryNotification(notificationData: CoinTransaction){
+        const message = coinExpiredNotification(notificationData.coinAmount);
+        const type = NotificationType.RYCOIN_EXPIRED;
+        await this.insertInAppNotification(message, type, notificationData.user.id);
     }
 
     async processAnnouncementNotification(notificationData: GeneralNotification){

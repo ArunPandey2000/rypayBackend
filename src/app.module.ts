@@ -19,6 +19,7 @@ import { join } from 'path';
 import { BullModule } from '@nestjs/bull';
 import { LoansModule } from './loans/loans.module';
 import { MoneyRequestModule } from './money-request/money-request.module';
+import { CoinsModule } from './coins/coins.module';
 
 @Module({
   imports: [
@@ -80,6 +81,7 @@ import { MoneyRequestModule } from './money-request/money-request.module';
     BeneficiaryModule,
     LoansModule,
     MoneyRequestModule,
+    CoinsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

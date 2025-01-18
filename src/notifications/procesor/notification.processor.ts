@@ -23,4 +23,16 @@ export class NotificationProcessor {
     const data = job.data;
     this.notificationService.processReferrelNotification(data);
   }
+
+  @Process('cashback')
+  async handleCashbackNotification(job: Job) {
+    const data = job.data;
+    this.notificationService.processCashbackRedemmedNotification(data);
+  }
+
+  @Process('coinExpiry')
+  async handleCoinExpiryNotification(job: Job) {
+    const data = job.data;
+    this.notificationService.processCashbackExpiryNotification(data);
+  }
 }

@@ -31,8 +31,9 @@ const transaction_type_enum_1 = require("../../transactions/enum/transaction-typ
 const transactions_service_1 = require("../../transactions/services/transactions.service");
 const typeorm_2 = require("typeorm");
 const wallet_qr_constant_1 = require("../constant/wallet-qr.constant");
+const coins_service_1 = require("../../coins/coins.service");
 let WalletService = class WalletService {
-    constructor(walletRepository, _connection, transactionsService, userRepository, orderRepository, transactionRepo, notificationBridge) {
+    constructor(walletRepository, _connection, transactionsService, userRepository, orderRepository, transactionRepo, notificationBridge, coinsService) {
         this.walletRepository = walletRepository;
         this._connection = _connection;
         this.transactionsService = transactionsService;
@@ -40,6 +41,7 @@ let WalletService = class WalletService {
         this.orderRepository = orderRepository;
         this.transactionRepo = transactionRepo;
         this.notificationBridge = notificationBridge;
+        this.coinsService = coinsService;
     }
     async handleTransaction(action) {
         const queryRunner = this._connection.createQueryRunner();
@@ -238,7 +240,7 @@ let WalletService = class WalletService {
             }
             const senderMessage = transferAccountDto.description ? transferAccountDto.description : `INR${transferAccountDto.amount} was debited from your wallet`;
             const receiverMessage = transferAccountDto.description ? transferAccountDto.description : `INR${transferAccountDto.amount}/${user.firstName} ${user.lastName}`;
-            await Promise.all([
+            const [_, transaction] = await Promise.all([
                 this.updateWalletBalance(senderWallet, transferAccountDto.amount, queryRunner, false),
                 this.transactionsService.saveTransaction({
                     ...transferAccountDto,
@@ -268,6 +270,7 @@ let WalletService = class WalletService {
                     serviceUsed: service_types_constant_1.ServiceTypes.Wallet,
                 }, queryRunner),
             ]);
+            await this.coinsService.addCoins(user.id, transferAccountDto.amount, transaction.id?.toString());
             return senderWallet;
         });
     }
@@ -296,6 +299,7 @@ let WalletService = class WalletService {
             };
             await this.updateWalletBalance(wallet, deductBalanceData.amount, queryRunner, false);
             const transaction = await this.transactionsService.saveTransaction(rechargeDto, queryRunner);
+            await this.coinsService.addCoins(user.id, deductBalanceData.amount, transaction.id?.toString());
             await this.notificationBridge.add('transaction', {
                 transaction,
                 type: notification_entity_1.NotificationType.TRANSACTION_DEBIT
@@ -379,7 +383,8 @@ let WalletService = class WalletService {
                 serviceUsed: deductBalanceData.serviceUsed,
             };
             await this.updateWalletBalance(wallet, deductBalanceData.amount, queryRunner, false);
-            await this.transactionsService.saveTransaction(rechargeDto, queryRunner);
+            const transaction = await this.transactionsService.saveTransaction(rechargeDto, queryRunner);
+            await this.coinsService.addCoins(user.id, deductBalanceData.amount, transaction.id?.toString());
             return wallet;
         });
     }
@@ -418,8 +423,45 @@ let WalletService = class WalletService {
             }
         });
     }
+    async handleCoinRedeem(data) {
+        return this.handleTransaction(async (queryRunner) => {
+            if (data) {
+                data.redemptionValue = Number.parseFloat(data.redemptionValue?.toString());
+            }
+            const userWallet = await this.walletRepository.findOneBy({ user: { id: data.user.id } });
+            const order = await this.createAndSaveCashbackOrder(data.redemptionValue, data.user);
+            const transactionDto = {
+                transactionHash: (0, hash_util_1.generateHash)(),
+                user: data.user,
+                reference: order.order_id,
+                type: transaction_type_enum_1.TransactionType.CREDIT,
+                status: transactions_entity_1.TransactionStatus.SUCCESS,
+                description: `Rs.${data.redemptionValue} Redeemed`,
+                amount: data.redemptionValue,
+                transactionDate: new Date(),
+                walletBalanceBefore: userWallet.balance,
+                walletBalanceAfter: userWallet.balance + data.redemptionValue,
+                userWallet,
+                sender: data.user.id,
+                receiver: data.user.id,
+                serviceUsed: 'WALLET',
+            };
+            await this.updateWalletBalance(userWallet, data.redemptionValue, queryRunner, true);
+            await this.transactionsService.saveTransaction(transactionDto, queryRunner);
+            await this.notificationBridge.add('cashback', {
+                data,
+                type: notification_entity_1.NotificationType.CASHBACK_REDEEMED
+            });
+            return userWallet;
+        });
+    }
     async createAndSaveReferralOrder(bonusAmount, user) {
         const order = this.orderRepository.create(this.getNewReferelOrder(bonusAmount, user));
+        await this.orderRepository.save(order);
+        return order;
+    }
+    async createAndSaveCashbackOrder(amount, user) {
+        const order = this.orderRepository.create(this.getNewCashbackOrder(amount, user));
         await this.orderRepository.save(order);
         return order;
     }
@@ -448,6 +490,23 @@ let WalletService = class WalletService {
             description: 'Referel earning',
             payment_method: 'WALLET',
             paymentMode: 'Referel',
+            respectiveUserName: '',
+            ifscNumber: '',
+            accountId: ''
+        };
+    }
+    getNewCashbackOrder(amount, user) {
+        return {
+            order_id: (0, hash_util_1.generateRef)(6),
+            order_type: order_entity_1.OrderType.PAYMENT,
+            gateway_response: '',
+            amount: amount,
+            status: order_entity_1.OrderStatus.SUCCESS,
+            transaction_id: '',
+            user: user,
+            description: 'cashback earning',
+            payment_method: 'WALLET',
+            paymentMode: 'Cashback',
             respectiveUserName: '',
             ifscNumber: '',
             accountId: ''
@@ -490,6 +549,7 @@ exports.WalletService = WalletService = __decorate([
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
-        notification_bridge_1.NotificationBridge])
+        notification_bridge_1.NotificationBridge,
+        coins_service_1.CoinTransactionService])
 ], WalletService);
 //# sourceMappingURL=wallet.service.js.map

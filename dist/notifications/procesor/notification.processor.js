@@ -28,6 +28,14 @@ let NotificationProcessor = class NotificationProcessor {
         const data = job.data;
         this.notificationService.processReferrelNotification(data);
     }
+    async handleCashbackNotification(job) {
+        const data = job.data;
+        this.notificationService.processCashbackRedemmedNotification(data);
+    }
+    async handleCoinExpiryNotification(job) {
+        const data = job.data;
+        this.notificationService.processCashbackExpiryNotification(data);
+    }
 };
 exports.NotificationProcessor = NotificationProcessor;
 __decorate([
@@ -48,6 +56,18 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], NotificationProcessor.prototype, "handleReferrelNotification", null);
+__decorate([
+    (0, bull_1.Process)('cashback'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationProcessor.prototype, "handleCashbackNotification", null);
+__decorate([
+    (0, bull_1.Process)('coinExpiry'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationProcessor.prototype, "handleCoinExpiryNotification", null);
 exports.NotificationProcessor = NotificationProcessor = __decorate([
     (0, bull_1.Processor)('notification'),
     __metadata("design:paramtypes", [notification_service_1.NotificationService])

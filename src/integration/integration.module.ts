@@ -39,6 +39,7 @@ import { ExternalService } from './busybox/external/services/external.service';
 import { PayoutService } from './busybox/external/services/payout.service';
 import { SseService } from './busybox/external/services/sse-service';
 import { BullModule } from '@nestjs/bull';
+import { CoinsModule } from 'src/coins/coins.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { BullModule } from '@nestjs/bull';
     BullModule.registerQueue({name: 'wallet'}),
     HttpModule, ConfigModule,
     NotificationsModule,
+    CoinsModule,
     TypeOrmModule.forFeature([Wallet, User, Order, Transaction, Card, BusyBoxWebhookResponse, WebhookResponse, UserDocument, OtpInfo])
   ],
   providers: [
