@@ -40,6 +40,7 @@ import { PayoutService } from './busybox/external/services/payout.service';
 import { SseService } from './busybox/external/services/sse-service';
 import { BullModule } from '@nestjs/bull';
 import { CoinsModule } from 'src/coins/coins.module';
+import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
 
 @Module({
   imports: [
@@ -52,7 +53,7 @@ import { CoinsModule } from 'src/coins/coins.module';
     HttpModule, ConfigModule,
     NotificationsModule,
     CoinsModule,
-    TypeOrmModule.forFeature([Wallet, User, Order, Transaction, Card, BusyBoxWebhookResponse, WebhookResponse, UserDocument, OtpInfo])
+    TypeOrmModule.forFeature([Wallet, User, Order, Transaction, Card, BusyBoxWebhookResponse, WebhookResponse, UserDocument, OtpInfo, AadharResponse])
   ],
   providers: [
     MerchantClientService,

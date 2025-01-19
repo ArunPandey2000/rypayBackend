@@ -43,6 +43,36 @@ let RechargeClientService = class RechargeClientService {
             throw error;
         }
     }
+    async requestAadharOtp(aadharNumber) {
+        const body = {
+            token: this.apiToken,
+            aadharNumber: aadharNumber,
+            transType: 'aadhaarSendOtp'
+        };
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body));
+            return response.data;
+        }
+        catch (error) {
+            this.logger.error('Aadhar eKYC request error :', error);
+            throw error;
+        }
+    }
+    async validateAadharOtp(aadharNumber, otp) {
+        const body = {
+            token: this.apiToken,
+            aadharNumber: aadharNumber,
+            otp
+        };
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body));
+            return response.data;
+        }
+        catch (error) {
+            this.logger.error('Aadhar eKYC validation error :', error);
+            throw error;
+        }
+    }
     async initUtilityPayment(utilityPayload) {
         const params = {
             token: this.apiToken,

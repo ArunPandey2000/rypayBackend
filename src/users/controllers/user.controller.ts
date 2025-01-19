@@ -1,4 +1,4 @@
-import { Body, Controller, FileTypeValidator, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, FileTypeValidator, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -13,6 +13,7 @@ import { AdminGuard } from 'src/auth/guards/admin.guard';
 import { KycVerificationStatusResponse } from '../dto/kyc-status.dto';
 import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
 import { User } from 'src/core/entities/user.entity';
+import { ValidateAadharDto } from '../dto/validate-aadhar.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -38,6 +39,45 @@ export class UsersController {
     @Body() signUpDto: UserRequestDto,
   ): Promise<UserApiResponseDto> {
     return this.userService.registerUserAndGenerateToken(signUpDto);
+  }
+
+  @ApiOperation({ summary: 'Endpoint to request the aadhar otp' })
+  @Post('/request-aadhar-otp/:aadharNumber')
+  @ApiParam({
+    type: 'string',
+    name: 'aadharNumber'
+  })
+  async requestAadharOtp(
+    @Param('aadharNumber') aadharNumber: string
+  ): Promise<string> {
+    return this.userService.requestAadharOtp(aadharNumber);
+  }
+
+  @ApiOperation({ summary: 'Endpoint to validate the aadhar otp' })
+  @Post('/validate-aadhar-otp')
+  async validateAadharOtp(
+    @Req() req: any, @Body() body: ValidateAadharDto
+  ): Promise<string> {
+    return this.userService.validateAadharOtp(req.user.sub, body);
+  }
+
+  @ApiOperation({ summary: 'Endpoint to delete the user' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: UserApiResponseDto,
+    description: 'The record has been successfully deleted.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'forbidden exception',
+  })
+  async deleteUser(
+    @Req() req: any
+  ): Promise<string> {
+    return this.userService.deleteUser(req.user.sub);
   }
 
   @ApiOperation({ summary: 'Endpoint to register the user as Admin' })

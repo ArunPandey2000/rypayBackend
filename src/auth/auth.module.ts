@@ -30,12 +30,13 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
 import { WalletBridge } from 'src/wallet/services/wallet.queue';
 import { BullModule } from '@nestjs/bull';
 import { CoinsModule } from 'src/coins/coins.module';
+import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
 
 @Global()
 @Module({
   imports: [
     JwtModule.register({ global: true }),
-    TypeOrmModule.forFeature([User, RefreshToken, OtpInfo, Wallet, Transaction, Order, UserDocument]),
+    TypeOrmModule.forFeature([User, RefreshToken, OtpInfo, Wallet, Transaction, Order, UserDocument, AadharResponse]),
     PdfModule,
     CacheModule.register(),
     HttpModule,

@@ -20,6 +20,8 @@ export declare class RechargeClientService {
     private readonly apiToken;
     constructor(httpService: HttpService, logger: Logger, configService: ConfigService, cacheManager: Cache);
     initRecharge(rechargePayload: RechargeRequest): Promise<IRechargeResponse>;
+    requestAadharOtp(aadharNumber: string): Promise<any>;
+    validateAadharOtp(aadharNumber: string, otp: string): Promise<any>;
     initUtilityPayment(utilityPayload: IUtilityBillPaymentRequest): Promise<UtilityBillAPIResponse>;
     getServiceProvidersList(): Promise<IOperatorApiResponse>;
     getMobileProviderInfo(mobile: string): Promise<IMobileProviderResponse>;

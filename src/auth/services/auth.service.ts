@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common';
@@ -47,6 +48,9 @@ export class AuthService {
       where: where,
       relations: { address: true, merchant: true, card: true },
     });
+    if (userData.isBlocked) {
+      throw new BadRequestException('user is blocked');
+    }
     if (!userData) {
       return <UserApiResponseDto>{
         user: null,

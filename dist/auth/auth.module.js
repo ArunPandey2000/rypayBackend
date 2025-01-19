@@ -39,6 +39,7 @@ const notifications_module_1 = require("../notifications/notifications.module");
 const wallet_queue_1 = require("../wallet/services/wallet.queue");
 const bull_1 = require("@nestjs/bull");
 const coins_module_1 = require("../coins/coins.module");
+const aadhar_verification_entity_1 = require("../core/entities/aadhar-verification.entity");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -47,7 +48,7 @@ exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
         imports: [
             jwt_1.JwtModule.register({ global: true }),
-            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, refresh_token_entity_1.RefreshToken, otp_info_entity_1.OtpInfo, wallet_entity_1.Wallet, transactions_entity_1.Transaction, order_entity_1.Order, document_entity_1.UserDocument]),
+            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, refresh_token_entity_1.RefreshToken, otp_info_entity_1.OtpInfo, wallet_entity_1.Wallet, transactions_entity_1.Transaction, order_entity_1.Order, document_entity_1.UserDocument, aadhar_verification_entity_1.AadharResponse]),
             pdf_module_1.PdfModule,
             cache_manager_1.CacheModule.register(),
             axios_1.HttpModule,

@@ -27,6 +27,7 @@ const admin_guard_1 = require("../../auth/guards/admin.guard");
 const kyc_status_dto_1 = require("../dto/kyc-status.dto");
 const phone_number_exists_dto_1 = require("../dto/phone-number-exists.dto");
 const user_entity_1 = require("../../core/entities/user.entity");
+const validate_aadhar_dto_1 = require("../dto/validate-aadhar.dto");
 let UsersController = class UsersController {
     constructor(userService, uploadFileService) {
         this.userService = userService;
@@ -34,6 +35,15 @@ let UsersController = class UsersController {
     }
     async register(signUpDto) {
         return this.userService.registerUserAndGenerateToken(signUpDto);
+    }
+    async requestAadharOtp(aadharNumber) {
+        return this.userService.requestAadharOtp(aadharNumber);
+    }
+    async validateAadharOtp(req, body) {
+        return this.userService.validateAadharOtp(req.user.sub, body);
+    }
+    async deleteUser(req) {
+        return this.userService.deleteUser(req.user.sub);
     }
     async registerAdmin(signUpDto) {
         return this.userService.registerAdminAndGenerateToken(signUpDto);
@@ -129,6 +139,46 @@ __decorate([
     __metadata("design:paramtypes", [user_request_dto_1.UserRequestDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "register", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Endpoint to request the aadhar otp' }),
+    (0, common_1.Post)('/request-aadhar-otp/:aadharNumber'),
+    (0, swagger_1.ApiParam)({
+        type: 'string',
+        name: 'aadharNumber'
+    }),
+    __param(0, (0, common_1.Param)('aadharNumber')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "requestAadharOtp", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Endpoint to validate the aadhar otp' }),
+    (0, common_1.Post)('/validate-aadhar-otp'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, validate_aadhar_dto_1.ValidateAadharDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "validateAadharOtp", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Endpoint to delete the user' }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Delete)(),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.CREATED,
+        type: user_response_dto_1.UserApiResponseDto,
+        description: 'The record has been successfully deleted.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.FORBIDDEN,
+        description: 'forbidden exception',
+    }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "deleteUser", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Endpoint to register the user as Admin' }),
     (0, common_1.Post)('/signup/admin'),

@@ -18,24 +18,25 @@ import { UserDocument } from 'src/core/entities/document.entity';
 import { User } from 'src/core/entities/user.entity';
 import { Wallet } from 'src/core/entities/wallet.entity';
 import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
+import { UserRole } from 'src/core/enum/user-role.enum';
 import { generateRef } from 'src/core/utils/hash.util';
 import { MerchantClientService } from 'src/integration/busybox/external-system-client/merchant-client.service';
+import { OtpRepository } from 'src/notifications/repository/otp.repository';
+import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
+import { WalletBridge } from 'src/wallet/services/wallet.queue';
 import { WalletService } from 'src/wallet/services/wallet.service';
 import { DataSource, EntityManager, Not, QueryRunner, Repository } from 'typeorm';
+import { KycRequiredDocTypes } from '../constants/kyc-required-doc-types.constant';
+import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
 import { UserDocumentResponseDto } from '../dto/user-documents.dto';
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
-import { UserAdminRequestDto, UserRequestDto, UserUpdateRequestDto, UserUpdateResponse } from '../dto/user-request.dto';
+import { UserAdminRequestDto, UserRequestDto, UserUpdateRequestDto } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { UserMapper } from '../mapper/user-mapper';
 import { UploadFileService } from './updaload-file.service';
-import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
-import { OtpRepository } from 'src/notifications/repository/otp.repository';
-import { UserRole } from 'src/core/enum/user-role.enum';
-import { KycRequiredDocTypes } from '../constants/kyc-required-doc-types.constant';
-import { Merchant } from 'src/core/entities/merchant.entity';
-import { Loan } from 'src/core/entities/loan.entity';
-import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
-import { WalletBridge } from 'src/wallet/services/wallet.queue';
+import { RechargeClientService } from 'src/integration/a1topup/external-system-client/recharge/recharge-client.service';
+import { ValidateAadharDto } from '../dto/validate-aadhar.dto';
+import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
 
 @Injectable()
 export class UsersService {
@@ -50,8 +51,10 @@ export class UsersService {
     private uploadFileService: UploadFileService,
     private otpFlowService: OtpFlowService,
     private otpRepository: OtpRepository,
+    private rechargeClient: RechargeClientService,
     private readonly walletBridge: WalletBridge,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(AadharResponse) private aadharResponseRepo: Repository<AadharResponse>,
     @InjectRepository(UserDocument) private documentRepository: Repository<UserDocument>,
   ) { }
 
@@ -152,6 +155,18 @@ export class UsersService {
     return referrer;
   }
 
+  async deleteUser(
+    userId: string,
+  ): Promise<string> {
+    const user = await this.userRepository.findOneBy({id: userId});
+    if (!user) {
+      throw new ForbiddenException('user does not have enough permissions')
+    }
+    user.isBlocked = true;
+    await this.userRepository.save(user);
+    return "Success";
+  }
+
   async registerUserAndGenerateToken(
     userRequestDto: UserRequestDto,
   ): Promise<UserApiResponseDto> {
@@ -174,6 +189,31 @@ export class UsersService {
       };
     }
     throw new InternalServerErrorException("Failed to issue card for the user");
+  }
+
+  async requestAadharOtp(aadharNumber: string) {
+    const data = await this.rechargeClient.requestAadharOtp(aadharNumber);
+    if (data.status === "SUCCESS") {
+      return "Success";
+    }
+    return "Failure";
+  }
+
+  async validateAadharOtp(userId: string, requestBody: ValidateAadharDto) {
+    const user = await this.userRepository.findOneBy({id: userId});
+    if (!user) {
+      throw new ForbiddenException('user does not have enough permission');
+    }
+    const response = await this.rechargeClient.validateAadharOtp(requestBody.aadharNumber, requestBody.otp);
+    if (response.status === "SUCCESS") {
+      await this.aadharResponseRepo.save(this.aadharResponseRepo.create({
+        aadharNumber: user.aadharNumber,
+        aadharResponse: response
+      }))
+      user.isAadharVerified = true;
+      await this.userRepository.save(user);
+    }
+    return "Success";
   }
 
   async registerAdminAndGenerateToken(

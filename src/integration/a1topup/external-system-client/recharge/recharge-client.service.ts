@@ -51,6 +51,42 @@ export class RechargeClientService {
     }
   }
 
+  async requestAadharOtp(aadharNumber: string) {
+    const body = {
+      token: this.apiToken,
+      aadharNumber: aadharNumber,
+      transType: 'aadhaarSendOtp'
+    };
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body)
+      );
+      return response.data;
+    } catch (error) {
+      this.logger.error('Aadhar eKYC request error :', error);
+      throw error;
+    }
+  }
+
+  async validateAadharOtp(aadharNumber: string, otp: string) {
+    const body = {
+      token: this.apiToken,
+      aadharNumber: aadharNumber,
+      otp
+    };
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body)
+      );
+      return response.data;
+    } catch (error) {
+      this.logger.error('Aadhar eKYC validation error :', error);
+      throw error;
+    }
+  }
+
   /***
    * this method will pay bills for home utilities
    * electricity

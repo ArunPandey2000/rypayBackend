@@ -17,10 +17,11 @@ import { MailService } from 'src/notifications/services/mail.service';
 import { OtpRepository } from 'src/notifications/repository/otp.repository';
 import { HttpModule } from '@nestjs/axios';
 import { OtpInfo } from 'src/core/entities/otp-info.entity';
+import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
 
 
 @Module({
-  imports: [AuthModule, HttpModule, IntegrationModule, CardsModule, WalletModule, ConfigModule, forwardRef(() => WalletModule), TypeOrmModule.forFeature([User, UserDocument, OtpInfo])],
+  imports: [AuthModule, HttpModule, IntegrationModule, CardsModule, WalletModule, ConfigModule, forwardRef(() => WalletModule), TypeOrmModule.forFeature([User, UserDocument, OtpInfo, AadharResponse])],
   providers: [UsersService, ConfigService, UploadFileService, OtpFlowService, SmsClientService, MailService, OtpRepository],
   controllers: [UsersController],
   exports: [UsersService, UploadFileService],

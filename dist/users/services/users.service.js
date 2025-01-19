@@ -23,21 +23,23 @@ const card_entity_1 = require("../../core/entities/card.entity");
 const document_entity_1 = require("../../core/entities/document.entity");
 const user_entity_1 = require("../../core/entities/user.entity");
 const kyc_verification_status_enum_1 = require("../../core/enum/kyc-verification-status.enum");
+const user_role_enum_1 = require("../../core/enum/user-role.enum");
 const hash_util_1 = require("../../core/utils/hash.util");
 const merchant_client_service_1 = require("../../integration/busybox/external-system-client/merchant-client.service");
+const otp_repository_1 = require("../../notifications/repository/otp.repository");
+const otp_flow_service_1 = require("../../notifications/services/otp-flow.service");
+const wallet_queue_1 = require("../../wallet/services/wallet.queue");
 const wallet_service_1 = require("../../wallet/services/wallet.service");
 const typeorm_2 = require("typeorm");
+const kyc_required_doc_types_constant_1 = require("../constants/kyc-required-doc-types.constant");
 const user_documents_dto_1 = require("../dto/user-documents.dto");
 const user_response_dto_1 = require("../dto/user-response.dto");
 const user_mapper_1 = require("../mapper/user-mapper");
 const updaload_file_service_1 = require("./updaload-file.service");
-const otp_flow_service_1 = require("../../notifications/services/otp-flow.service");
-const otp_repository_1 = require("../../notifications/repository/otp.repository");
-const user_role_enum_1 = require("../../core/enum/user-role.enum");
-const kyc_required_doc_types_constant_1 = require("../constants/kyc-required-doc-types.constant");
-const wallet_queue_1 = require("../../wallet/services/wallet.queue");
+const recharge_client_service_1 = require("../../integration/a1topup/external-system-client/recharge/recharge-client.service");
+const aadhar_verification_entity_1 = require("../../core/entities/aadhar-verification.entity");
 let UsersService = class UsersService {
-    constructor(tokenService, configService, walletService, merchantClientService, cardService, _connection, uploadFileService, otpFlowService, otpRepository, walletBridge, userRepository, documentRepository) {
+    constructor(tokenService, configService, walletService, merchantClientService, cardService, _connection, uploadFileService, otpFlowService, otpRepository, rechargeClient, walletBridge, userRepository, aadharResponseRepo, documentRepository) {
         this.tokenService = tokenService;
         this.configService = configService;
         this.walletService = walletService;
@@ -47,8 +49,10 @@ let UsersService = class UsersService {
         this.uploadFileService = uploadFileService;
         this.otpFlowService = otpFlowService;
         this.otpRepository = otpRepository;
+        this.rechargeClient = rechargeClient;
         this.walletBridge = walletBridge;
         this.userRepository = userRepository;
+        this.aadharResponseRepo = aadharResponseRepo;
         this.documentRepository = documentRepository;
         this.saltRounds = 10;
     }
@@ -125,6 +129,15 @@ let UsersService = class UsersService {
         }
         return referrer;
     }
+    async deleteUser(userId) {
+        const user = await this.userRepository.findOneBy({ id: userId });
+        if (!user) {
+            throw new common_1.ForbiddenException('user does not have enough permissions');
+        }
+        user.isBlocked = true;
+        await this.userRepository.save(user);
+        return "Success";
+    }
     async registerUserAndGenerateToken(userRequestDto) {
         const orgId = this.configService.get('BUSY_BOX_ORG_ID');
         const issueCardDto = user_mapper_1.UserMapper.mapUserRequestDtoToMerchantRegistrationDto(userRequestDto, orgId);
@@ -145,6 +158,29 @@ let UsersService = class UsersService {
             };
         }
         throw new common_1.InternalServerErrorException("Failed to issue card for the user");
+    }
+    async requestAadharOtp(aadharNumber) {
+        const data = await this.rechargeClient.requestAadharOtp(aadharNumber);
+        if (data.status === "SUCCESS") {
+            return "Success";
+        }
+        return "Failure";
+    }
+    async validateAadharOtp(userId, requestBody) {
+        const user = await this.userRepository.findOneBy({ id: userId });
+        if (!user) {
+            throw new common_1.ForbiddenException('user does not have enough permission');
+        }
+        const response = await this.rechargeClient.validateAadharOtp(requestBody.aadharNumber, requestBody.otp);
+        if (response.status === "SUCCESS") {
+            await this.aadharResponseRepo.save(this.aadharResponseRepo.create({
+                aadharNumber: user.aadharNumber,
+                aadharResponse: response
+            }));
+            user.isAadharVerified = true;
+            await this.userRepository.save(user);
+        }
+        return "Success";
     }
     async registerAdminAndGenerateToken(userRequestDto) {
         userRequestDto.cardHolderId = `ADMIN_${(0, hash_util_1.generateRef)(10)}`;
@@ -418,8 +454,9 @@ let UsersService = class UsersService {
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __param(10, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __param(11, (0, typeorm_1.InjectRepository)(document_entity_1.UserDocument)),
+    __param(11, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(12, (0, typeorm_1.InjectRepository)(aadhar_verification_entity_1.AadharResponse)),
+    __param(13, (0, typeorm_1.InjectRepository)(document_entity_1.UserDocument)),
     __metadata("design:paramtypes", [token_service_1.TokenService,
         config_1.ConfigService,
         wallet_service_1.WalletService,
@@ -429,7 +466,9 @@ exports.UsersService = UsersService = __decorate([
         updaload_file_service_1.UploadFileService,
         otp_flow_service_1.OtpFlowService,
         otp_repository_1.OtpRepository,
+        recharge_client_service_1.RechargeClientService,
         wallet_queue_1.WalletBridge,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])
 ], UsersService);
