@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            background: linear-gradient(181.74deg, #939DBF -19.07%, #273B80 17.94%, #FFFFFF 26.01%);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            /* background-color: #273B80;  */
+            color: white;
+            padding: 30px;
+            position: relative;
+        }
+        .header .logo-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .header .logo-wrapper img {
+            max-width: 50px;
+            margin-right: 5px;
+        }
+        .header .logo-wrapper h1 {
+            font-size: 24px;
+            margin: 0;
+            font-weight: bold;
+            color: white;
+        }
+        .header .bottom-text {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            margin-top: 50px;
+            right: 0;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+        .content {
+            padding: 30px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+        .content h3 {
+            color: #007BFF;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .content ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .content ul li {
+            padding: 5px 0;
+            font-size: 15px;
+        }
+        .content ul li strong {
+            color: #333;
+        }
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            background-color: #f9f9f9;
+            border-top: 1px solid #ddd;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #ddd;
+            margin: 20px 0;
+        }
+        @media (max-width: 600px) {
+            .container {
+                width: 100%;
+                margin: 20px auto;
+            }
+            .header h1 {
+                font-size: 22px;
+            }
+            .content {
+                padding: 20px;
+            }
+            .footer {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header with logo and company name side by side -->
+        <div class="header">
+            <div class="logo-wrapper">
+                <img src="https://riyadhmicrofinance.com/static/img/UpdatedLogo-removebg-preview.png" alt="RYPAY Logo">
+                <h1>RYPAY</h1>
+            </div>
+            <div class="bottom-text">
+                {{header}}
+            </div>
+        </div>
+
+        <!-- Email content -->
+        <div class="content">
+            <p>Dear {{userName}},</p>
+            <p>We are pleased to inform you that an amount of <strong>Rs. {{amount}}</strong> has been successfully credited to your RYPAY Account <strong>{{accountNumber}}</strong>.</p>
+
+            <!-- Transaction details section -->
+            <h3>Transaction Details:</h3>
+            <ul>
+                <li><strong>Amount:</strong> Rs. {{amount}}</li>
+                <li><strong>Account Number:</strong> {{accountNumber}}</li>
+                <li><strong>UPI ID:</strong> {{upiId}}</li>
+            </ul>
+
+            <p>Thank you for banking with us! If you have any questions or need further assistance, please feel free to reach out to our customer support.</p>
+        </div>
+
+        <!-- Footer section -->
+        <div class="footer">
+            <hr>
+            <p>&copy; {{year}} RYPAY. All rights reserved.</p>
+            <p>Shop No 24, Gurunanak Marg, Sector 7, Gurugram, Haryana, 122001, IN</p>
+            <p>Email: <a href="mailto:riydmicrofinance@gmail.com">riydmicrofinance@gmail.com</a></p>
+            <p>Note: Please do not share your account details with anyone to ensure your account's security.</p>
+        </div>
+    </div>
+
+</body>
+</html>
