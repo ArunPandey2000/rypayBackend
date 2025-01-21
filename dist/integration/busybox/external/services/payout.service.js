@@ -24,6 +24,7 @@ const wallet_service_1 = require("../../../../wallet/services/wallet.service");
 const typeorm_2 = require("typeorm");
 const payout_client_service_1 = require("../../external-system-client/payout-client.service");
 const external_constant_1 = require("../constants/external.constant");
+const payment_utils_1 = require("../../../../core/utils/payment.utils");
 let PayoutService = PayoutService_1 = class PayoutService {
     constructor(walletService, payloutClientService, orderRepository, userRepository) {
         this.walletService = walletService;
@@ -49,7 +50,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
         const maskedAccount = (0, hash_util_1.maskAccount)(requestBody.account_number);
         const description = requestDto.message ? requestDto.message : external_constant_1.PayoutDescription.replace('{maskedAccount}', maskedAccount);
         const orderId = (0, hash_util_1.generateRef)(6);
-        const payoutCharges = requestDto.mode?.toLowerCase() === 'imps' ? getIMPSCharges(requestDto.amount) : 0;
+        const payoutCharges = requestDto.mode?.toLowerCase() === 'imps' ? (0, payment_utils_1.getIMPSCharges)(requestDto.amount) : 0;
         const order = {
             order_id: orderId,
             order_type: order_entity_1.OrderType.PAYOUT,

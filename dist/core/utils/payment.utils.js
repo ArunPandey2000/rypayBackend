@@ -1,3 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getIMPSCharges = getIMPSCharges;
 function getIMPSCharges(amount) {
     if (amount <= 0) {
         throw new Error("Amount must be greater than 0");
