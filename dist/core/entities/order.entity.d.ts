@@ -26,6 +26,7 @@ export declare class Order {
     updated_at: Date;
     respectiveUserName: string;
     ifscNumber: string;
+    charges: number;
     accountId: string;
     paymentMode: string;
 }

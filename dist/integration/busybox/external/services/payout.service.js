@@ -49,6 +49,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
         const maskedAccount = (0, hash_util_1.maskAccount)(requestBody.account_number);
         const description = requestDto.message ? requestDto.message : external_constant_1.PayoutDescription.replace('{maskedAccount}', maskedAccount);
         const orderId = (0, hash_util_1.generateRef)(6);
+        const payoutCharges = requestDto.mode?.toLowerCase() === 'imps' ? getIMPSCharges(requestDto.amount) : 0;
         const order = {
             order_id: orderId,
             order_type: order_entity_1.OrderType.PAYOUT,
@@ -60,6 +61,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
             description: description,
             payment_method: 'WALLET',
             paymentMode: requestDto.mode,
+            charges: payoutCharges,
             respectiveUserName: requestDto.userName ?? "",
             ifscNumber: requestDto.ifsc,
             accountId: requestDto.accountNumber
@@ -69,6 +71,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
         await this.walletService.processRechargePayment({ amount: requestDto.amount,
             receiverId: requestDto.accountNumber,
             serviceUsed: 'Payout',
+            charges: payoutCharges,
             description: description,
             status: transactions_entity_1.TransactionStatus.PENDING,
             reference: orderId }, userId);

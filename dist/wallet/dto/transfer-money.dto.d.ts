@@ -42,6 +42,7 @@ export declare class DeductWalletBalanceRechargeDto {
     receiverId: string;
     description: string;
     status: TransactionStatus;
+    charges?: number;
     serviceUsed: string;
 }
 export declare class UpdateWalletAfterRechargeDto extends DeductWalletBalanceRechargeDto {
