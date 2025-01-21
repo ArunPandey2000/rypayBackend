@@ -65,7 +65,7 @@ export class TransactionDetailDto {
         this.description = transaction.description;
         this.transactionHash =transaction.transactionHash;
         this.transactionType = transaction.type;
-        this.transactionDate = transaction.createdAt;
+        this.transactionDate = transaction.transactionDate;
         this.createdAt = transaction.createdAt;
         this.serviceUsed = transaction.serviceUsed;
         this.updatedAt = transaction.updatedAt;
