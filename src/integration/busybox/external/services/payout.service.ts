@@ -33,6 +33,7 @@ export class PayoutService {
     }
 
     async payoutAccount(userId: string, requestDto: AccountPayoutPayload) {
+        debugger
         await this.validatePayout(userId, requestDto.amount);
         const requestBody: IAccountPayoutRequestBody = {
             account_number: requestDto.accountNumber,

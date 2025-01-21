@@ -34,6 +34,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
         this.logger = new common_1.Logger(PayoutService_1.name);
     }
     async payoutAccount(userId, requestDto) {
+        debugger;
         await this.validatePayout(userId, requestDto.amount);
         const requestBody = {
             account_number: requestDto.accountNumber,

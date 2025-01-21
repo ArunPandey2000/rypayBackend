@@ -75,7 +75,8 @@ let WalletService = class WalletService {
         return wallet;
     }
     async updateWalletBalance(wallet, amount, queryRunner, isCredit) {
-        wallet.balance += isCredit ? amount : -amount;
+        const balance = Number.parseFloat(wallet.balance?.toString());
+        wallet.balance = isCredit ? balance + amount : balance - amount;
         wallet.updatedAt = new Date();
         return queryRunner.manager.save(wallet);
     }
@@ -281,7 +282,8 @@ let WalletService = class WalletService {
             if (deductBalanceData.amount < 0) {
                 throw new common_1.BadRequestException('Amount cannot be negative');
             }
-            if (deductBalanceData.amount > wallet.balance) {
+            let walletBalance = Number.parseFloat(wallet.balance?.toString());
+            if (deductBalanceData.amount > walletBalance) {
                 throw new common_1.BadRequestException('Insufficient funds');
             }
             const rechargeDto = {
@@ -290,24 +292,26 @@ let WalletService = class WalletService {
                 user: user,
                 type: transaction_type_enum_1.TransactionType.DEBIT,
                 transactionDate: new Date(),
-                walletBalanceBefore: wallet.balance,
-                walletBalanceAfter: wallet.balance - deductBalanceData.amount,
+                walletBalanceBefore: walletBalance,
+                walletBalanceAfter: walletBalance - deductBalanceData.amount,
                 wallet,
                 sender: user.id,
                 receiver: deductBalanceData.receiverId,
                 serviceUsed: deductBalanceData.serviceUsed,
             };
+            walletBalance -= deductBalanceData.amount;
             let walletAmountToDeduct = deductBalanceData.amount;
             if (deductBalanceData.charges) {
                 const deductCharges = {
                     ...deductBalanceData,
+                    amount: deductBalanceData.charges,
                     description: `${deductBalanceData.reference} payment charges`,
                     transactionHash: (0, hash_util_1.generateHash)(),
                     user: user,
                     type: transaction_type_enum_1.TransactionType.DEBIT,
                     transactionDate: new Date(),
-                    walletBalanceBefore: wallet.balance,
-                    walletBalanceAfter: wallet.balance - deductBalanceData.charges,
+                    walletBalanceBefore: walletBalance,
+                    walletBalanceAfter: walletBalance - deductBalanceData.charges,
                     wallet,
                     sender: user.id,
                     receiver: deductBalanceData.receiverId,

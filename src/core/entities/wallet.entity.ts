@@ -14,7 +14,7 @@ export class Wallet {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ default: 0 })
+  @Column({ default: 0, type: 'decimal' })
   @Check('balance >= 0')
   balance: number;
 

@@ -31,15 +31,15 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], Transaction.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ 'type': 'decimal', nullable: true }),
     __metadata("design:type", Number)
 ], Transaction.prototype, "walletBalanceBefore", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ 'type': 'decimal', nullable: true }),
     __metadata("design:type", Number)
 ], Transaction.prototype, "walletBalanceAfter", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'amount' }),
+    (0, typeorm_1.Column)({ name: 'amount', type: 'decimal', nullable: true }),
     __metadata("design:type", Number)
 ], Transaction.prototype, "amount", void 0);
 __decorate([

@@ -90,7 +90,7 @@ export class Order {
   @Column({ nullable: true, name: 'ifsc_number' })
   ifscNumber: string;
 
-  @Column({ nullable: true, name: 'charges' })
+  @Column({ nullable: true, type: 'decimal', name: 'charges' })
   charges: number;
 
   @Column({ nullable: true, name: 'account_id' })

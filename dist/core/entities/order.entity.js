@@ -114,7 +114,7 @@ __decorate([
     __metadata("design:type", String)
 ], Order.prototype, "ifscNumber", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true, name: 'charges' }),
+    (0, typeorm_1.Column)({ nullable: true, type: 'decimal', name: 'charges' }),
     __metadata("design:type", Number)
 ], Order.prototype, "charges", void 0);
 __decorate([

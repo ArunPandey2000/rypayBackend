@@ -23,13 +23,13 @@ export class Transaction {
   @ManyToOne(() => User, { eager: true })
   user: User;
   
-  @Column()
+  @Column({'type': 'decimal', nullable: true})
   walletBalanceBefore: number;
 
-  @Column()
+  @Column({'type': 'decimal', nullable: true})
   walletBalanceAfter: number;
 
-  @Column({ name: 'amount' })
+  @Column({ name: 'amount', type: 'decimal', nullable: true })
   amount: number;
 
   @Column({ name: 'description' })
