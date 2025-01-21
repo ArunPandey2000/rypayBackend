@@ -1,4 +1,4 @@
-function getIMPSCharges(amount: number): number {
+export function getIMPSCharges(amount: number): number {
     if (amount <= 0) {
       throw new Error("Amount must be greater than 0");
     }
