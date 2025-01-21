@@ -337,8 +337,28 @@ export class WalletService {
         receiver: deductBalanceData.receiverId,
         serviceUsed: deductBalanceData.serviceUsed,
       };
+      //deduct charges, if applicable
+      let walletAmountToDeduct = deductBalanceData.amount;
+      if (deductBalanceData.charges) {
+        const deductCharges = {
+          ...deductBalanceData,
+          description: `${deductBalanceData.reference} payment charges`,
+          transactionHash: generateHash(),
+          user: user,
+          type: TransactionType.DEBIT,
+          transactionDate: new Date(),
+          walletBalanceBefore: wallet.balance,
+          walletBalanceAfter: wallet.balance - deductBalanceData.charges,
+          wallet,
+          sender: user.id,
+          receiver: deductBalanceData.receiverId,
+          serviceUsed: deductBalanceData.serviceUsed,
+        }
+        await this.transactionsService.saveTransaction(deductCharges, queryRunner);
+        walletAmountToDeduct += deductBalanceData.charges; 
+      }
 
-      await this.updateWalletBalance(wallet, deductBalanceData.amount, queryRunner, false);
+      await this.updateWalletBalance(wallet, walletAmountToDeduct, queryRunner, false);
       const transaction = await this.transactionsService.saveTransaction(rechargeDto, queryRunner);
       await this.coinsService.addCoins(user.id, deductBalanceData.amount, transaction.id?.toString());
       await this.notificationBridge.add('transaction', {

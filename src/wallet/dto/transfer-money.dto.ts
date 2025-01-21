@@ -91,6 +91,7 @@ export class AddMoneyToWalletDto {
     receiverId: string;
     description: string;
     status: TransactionStatus;
+    charges?: number;
     serviceUsed: string;
   }
 
