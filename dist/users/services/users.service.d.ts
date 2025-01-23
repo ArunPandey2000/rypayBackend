@@ -39,8 +39,11 @@ export declare class UsersService {
     validateRefferelCode(referrelCode: string | null, queryRunner: QueryRunner): Promise<User>;
     deleteUser(userId: string): Promise<string>;
     registerUserAndGenerateToken(userRequestDto: UserRequestDto): Promise<UserApiResponseDto>;
-    requestAadharOtp(aadharNumber: string): Promise<"Success" | "Failure">;
-    validateAadharOtp(userId: string, requestBody: ValidateAadharDto): Promise<string>;
+    requestAadharOtp(aadharNumber: string): Promise<{
+        message: string;
+        sessionId: any;
+    }>;
+    validateAadharOtp(userId: string, requestBody: ValidateAadharDto): Promise<"Success" | "Failure">;
     registerAdminAndGenerateToken(userRequestDto: UserAdminRequestDto): Promise<UserApiResponseDto>;
     updateUserProfile(userId: string, userRequestDto: UserUpdateRequestDto): Promise<User>;
     checkPhoneNumberExists(phoneNumber: string): Promise<PhoneNumberExists>;

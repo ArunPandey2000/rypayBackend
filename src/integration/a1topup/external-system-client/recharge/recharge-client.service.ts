@@ -54,7 +54,7 @@ export class RechargeClientService {
   async requestAadharOtp(aadharNumber: string) {
     const body = {
       token: this.apiToken,
-      aadharNumber: aadharNumber,
+      aadhaarNumber: aadharNumber,
       transType: 'aadhaarSendOtp'
     };
 
@@ -69,11 +69,13 @@ export class RechargeClientService {
     }
   }
 
-  async validateAadharOtp(aadharNumber: string, otp: string) {
+  async validateAadharOtp(aadharNumber: string, otp: string, sessionId: string) {
     const body = {
       token: this.apiToken,
-      aadharNumber: aadharNumber,
-      otp
+      aadhaarNumber: aadharNumber,
+      otp,
+      otpSessionId: sessionId,
+      "transType":"aadhaarVerifyOtp"
     };
 
     try {

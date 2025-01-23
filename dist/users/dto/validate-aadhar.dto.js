@@ -22,4 +22,8 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)
 ], ValidateAadharDto.prototype, "otp", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], ValidateAadharDto.prototype, "otpSessionId", void 0);
 //# sourceMappingURL=validate-aadhar.dto.js.map

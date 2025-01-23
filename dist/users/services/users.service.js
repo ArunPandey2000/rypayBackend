@@ -162,25 +162,34 @@ let UsersService = class UsersService {
     async requestAadharOtp(aadharNumber) {
         const data = await this.rechargeClient.requestAadharOtp(aadharNumber);
         if (data.status === "SUCCESS") {
-            return "Success";
+            return {
+                message: "Success",
+                sessionId: data.aadhaarData?.otpSessionId
+            };
         }
-        return "Failure";
+        return {
+            message: "Failure",
+            sessionId: null
+        };
     }
     async validateAadharOtp(userId, requestBody) {
         const user = await this.userRepository.findOneBy({ id: userId });
         if (!user) {
             throw new common_1.ForbiddenException('user does not have enough permission');
         }
-        const response = await this.rechargeClient.validateAadharOtp(requestBody.aadharNumber, requestBody.otp);
-        if (response.status === "SUCCESS") {
+        const response = await this.rechargeClient.validateAadharOtp(requestBody.aadharNumber, requestBody.otp, requestBody.otpSessionId);
+        if (response.status === "SUCCESS" && response.transId === "OTP_VERIFIED") {
             await this.aadharResponseRepo.save(this.aadharResponseRepo.create({
                 aadharNumber: user.aadharNumber,
                 aadharResponse: response
             }));
             user.isAadharVerified = true;
             await this.userRepository.save(user);
+            return "Success";
         }
-        return "Success";
+        else {
+            return "Failure";
+        }
     }
     async registerAdminAndGenerateToken(userRequestDto) {
         userRequestDto.cardHolderId = `ADMIN_${(0, hash_util_1.generateRef)(10)}`;

@@ -141,6 +141,8 @@ __decorate([
 ], UsersController.prototype, "register", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Endpoint to request the aadhar otp' }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('/request-aadhar-otp/:aadharNumber'),
     (0, swagger_1.ApiParam)({
         type: 'string',
@@ -153,6 +155,8 @@ __decorate([
 ], UsersController.prototype, "requestAadharOtp", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Endpoint to validate the aadhar otp' }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('/validate-aadhar-otp'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),

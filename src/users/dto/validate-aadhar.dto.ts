@@ -6,4 +6,7 @@ export class ValidateAadharDto {
 
     @ApiProperty()
     otp: string
+
+    @ApiProperty()
+    otpSessionId: string
 }

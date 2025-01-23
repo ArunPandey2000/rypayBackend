@@ -46,7 +46,7 @@ let RechargeClientService = class RechargeClientService {
     async requestAadharOtp(aadharNumber) {
         const body = {
             token: this.apiToken,
-            aadharNumber: aadharNumber,
+            aadhaarNumber: aadharNumber,
             transType: 'aadhaarSendOtp'
         };
         try {
@@ -58,11 +58,13 @@ let RechargeClientService = class RechargeClientService {
             throw error;
         }
     }
-    async validateAadharOtp(aadharNumber, otp) {
+    async validateAadharOtp(aadharNumber, otp, sessionId) {
         const body = {
             token: this.apiToken,
-            aadharNumber: aadharNumber,
-            otp
+            aadhaarNumber: aadharNumber,
+            otp,
+            otpSessionId: sessionId,
+            "transType": "aadhaarVerifyOtp"
         };
         try {
             const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body));
