@@ -25,6 +25,9 @@ export class BeneficiaryService {
     }
     const account = await this.beneficiaryRepo.findOne({
       where: {
+        user: {
+          id: userId
+        },
         bankAccountNumber: createBeneficiaryDto.bankAccountNumber
       }
     })
