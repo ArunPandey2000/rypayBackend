@@ -14,7 +14,10 @@ export class Wallet {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ default: 0, type: 'decimal' })
+  @Column({ default: 0, type: 'decimal', transformer: {
+    to: (value: number) => value,
+    from: (value: string) => parseFloat(value),
+  } })
   @Check('balance >= 0')
   balance: number;
 

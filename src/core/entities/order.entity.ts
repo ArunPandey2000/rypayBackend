@@ -90,7 +90,12 @@ export class Order {
   @Column({ nullable: true, name: 'ifsc_number' })
   ifscNumber: string;
 
-  @Column({ nullable: true, type: 'decimal', name: 'charges' })
+  @Column({ nullable: true, type: 'decimal', name: 'charges',
+    transformer: {
+      to: (value: number) => value, 
+      from: (value: string) => parseFloat(value), 
+    }
+   })
   charges: number;
 
   @Column({ nullable: true, name: 'account_id' })

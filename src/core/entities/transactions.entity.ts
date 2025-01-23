@@ -23,13 +23,26 @@ export class Transaction {
   @ManyToOne(() => User, { eager: true })
   user: User;
   
-  @Column({'type': 'decimal', nullable: true})
+  @Column({'type': 'decimal', nullable: true, transformer: {
+    to: (value: number) => value, 
+    from: (value: string) => parseFloat(value),
+  }})
   walletBalanceBefore: number;
 
-  @Column({'type': 'decimal', nullable: true})
+  @Column({'type': 'decimal', nullable: true,
+    transformer: {
+      to: (value: number) => value, 
+      from: (value: string) => parseFloat(value),
+    }
+  })
   walletBalanceAfter: number;
 
-  @Column({ name: 'amount', type: 'decimal', nullable: true })
+  @Column({ name: 'amount', type: 'decimal', nullable: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    }
+   })
   amount: number;
 
   @Column({ name: 'description' })

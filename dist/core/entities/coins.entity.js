@@ -20,7 +20,10 @@ __decorate([
     __metadata("design:type", Number)
 ], CoinTransaction.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'decimal' }),
+    (0, typeorm_1.Column)({ type: 'decimal', transformer: {
+            to: (value) => value,
+            from: (value) => parseFloat(value),
+        } }),
     __metadata("design:type", Number)
 ], CoinTransaction.prototype, "coinAmount", void 0);
 __decorate([
@@ -32,7 +35,12 @@ __decorate([
     __metadata("design:type", user_entity_1.User)
 ], CoinTransaction.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'decimal', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'decimal', nullable: true,
+        transformer: {
+            to: (value) => value,
+            from: (value) => parseFloat(value),
+        }
+    }),
     __metadata("design:type", Number)
 ], CoinTransaction.prototype, "redemptionValue", void 0);
 __decorate([

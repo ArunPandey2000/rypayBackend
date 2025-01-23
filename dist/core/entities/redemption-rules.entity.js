@@ -19,11 +19,19 @@ __decorate([
     __metadata("design:type", String)
 ], RedemptionRule.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'decimal' }),
+    (0, typeorm_1.Column)({ type: 'decimal', transformer: {
+            to: (value) => value,
+            from: (value) => parseFloat(value),
+        } }),
     __metadata("design:type", Number)
 ], RedemptionRule.prototype, "requiredCoins", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'decimal' }),
+    (0, typeorm_1.Column)({ type: 'decimal',
+        transformer: {
+            to: (value) => value,
+            from: (value) => parseFloat(value),
+        }
+    }),
     __metadata("design:type", Number)
 ], RedemptionRule.prototype, "redemptionValue", void 0);
 exports.RedemptionRule = RedemptionRule = __decorate([

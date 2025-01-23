@@ -21,7 +21,10 @@ __decorate([
     __metadata("design:type", Number)
 ], Wallet.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: 0, type: 'decimal' }),
+    (0, typeorm_1.Column)({ default: 0, type: 'decimal', transformer: {
+            to: (value) => value,
+            from: (value) => parseFloat(value),
+        } }),
     (0, typeorm_1.Check)('balance >= 0'),
     __metadata("design:type", Number)
 ], Wallet.prototype, "balance", void 0);

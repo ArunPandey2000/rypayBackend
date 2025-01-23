@@ -6,7 +6,10 @@ export class CoinTransaction {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'decimal' })
+  @Column({ type: 'decimal', transformer: {
+    to: (value: number) => value, 
+    from: (value: string) => parseFloat(value),
+  } })
   coinAmount: number;
 
   @CreateDateColumn()
@@ -15,7 +18,12 @@ export class CoinTransaction {
   @ManyToOne(() => User, (user) => user.coinTransactions, { onDelete: 'CASCADE' })
   user: User;
 
-  @Column({ type: 'decimal', nullable: true })
+  @Column({ type: 'decimal', nullable: true,
+    transformer: {
+      to: (value: number) => value, 
+      from: (value: string) => parseFloat(value), 
+    }
+   })
   redemptionValue: number;
 
   @Column({ type: 'varchar', nullable: true })
