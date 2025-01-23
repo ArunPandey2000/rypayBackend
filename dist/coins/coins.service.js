@@ -75,7 +75,7 @@ let CoinTransactionService = class CoinTransactionService {
             throw new common_1.BadRequestException('You have reached the annual redemption limit of ₹1,200.');
         }
     }
-    async validateMonthlyRedemption(userId) {
+    async getMonthlyRedemptionValue(userId) {
         const currentDate = new Date();
         const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
         const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
@@ -86,13 +86,17 @@ let CoinTransactionService = class CoinTransactionService {
                 created_at: (0, typeorm_2.Between)(monthStart, monthEnd),
             },
         });
-        const totalMonthRedemption = monthRedemptions.reduce((sum, txn) => sum + (Number.parseFloat(txn.redemptionValue?.toString()) || 0), 0);
+        return monthRedemptions.reduce((sum, txn) => sum + (Number.parseFloat(txn.redemptionValue?.toString()) || 0), 0);
+    }
+    async validateMonthlyRedemption(userId) {
+        const totalMonthRedemption = await this.getMonthlyRedemptionValue(userId);
         if (totalMonthRedemption >= 100) {
             throw new common_1.BadRequestException('You have reached the monthly redemption limit of ₹100.');
         }
     }
     async getCoins(userId) {
         const totalUnExpiredCoins = await this.getTotalUnexpiredCoins(userId);
+        const monthlyRedeemedValue = await this.getMonthlyRedemptionValue(userId);
         const redeemedEntries = await this.coinTransactionRepository.find({
             where: {
                 user: { id: userId },
@@ -102,7 +106,8 @@ let CoinTransactionService = class CoinTransactionService {
         const totalRedeemAmount = redeemedEntries.reduce((sum, txn) => sum + (Number.parseFloat(txn.redemptionValue?.toString()) || 0), 0);
         return {
             amountRedeemed: totalRedeemAmount,
-            availableCoins: totalUnExpiredCoins
+            availableCoins: totalUnExpiredCoins,
+            monthlyAmountRedeemed: monthlyRedeemedValue
         };
     }
     async redeemCoins(userId, redemptionId) {

@@ -14,6 +14,7 @@ export declare class CoinTransactionService {
     private getTotalUnexpiredCoins;
     getTransactions(userId: string): Promise<CoinTransaction[]>;
     private validateYearRedemption;
+    private getMonthlyRedemptionValue;
     private validateMonthlyRedemption;
     getCoins(userId: string): Promise<CoinsDto>;
     redeemCoins(userId: string, redemptionId: string): Promise<{

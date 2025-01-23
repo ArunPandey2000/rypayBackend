@@ -79,7 +79,7 @@ export class CoinTransactionService {
       throw new BadRequestException('You have reached the annual redemption limit of ₹1,200.');
     }
   }
-  private async validateMonthlyRedemption(userId: string) {
+  private async getMonthlyRedemptionValue(userId: string) {
     const currentDate = new Date();
     const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
@@ -92,8 +92,10 @@ export class CoinTransactionService {
       },
     });
   
-    const totalMonthRedemption = monthRedemptions.reduce((sum, txn) => sum + (Number.parseFloat(txn.redemptionValue?.toString()) || 0), 0);
-  
+    return monthRedemptions.reduce((sum, txn) => sum + (Number.parseFloat(txn.redemptionValue?.toString()) || 0), 0);
+  }
+  private async validateMonthlyRedemption(userId: string) {
+    const totalMonthRedemption = await this.getMonthlyRedemptionValue(userId);
     if (totalMonthRedemption >= 100) {
       throw new BadRequestException('You have reached the monthly redemption limit of ₹100.');
     }
@@ -101,6 +103,7 @@ export class CoinTransactionService {
 
   async getCoins(userId: string) {
     const totalUnExpiredCoins = await this.getTotalUnexpiredCoins(userId);
+    const monthlyRedeemedValue = await this.getMonthlyRedemptionValue(userId);
     const redeemedEntries = await this.coinTransactionRepository.find({
         where: {
           user: { id: userId },
@@ -110,7 +113,8 @@ export class CoinTransactionService {
     const totalRedeemAmount = redeemedEntries.reduce((sum, txn) => sum + (Number.parseFloat(txn.redemptionValue?.toString()) || 0), 0);
     return <CoinsDto>{
         amountRedeemed: totalRedeemAmount,
-        availableCoins: totalUnExpiredCoins
+        availableCoins: totalUnExpiredCoins,
+        monthlyAmountRedeemed: monthlyRedeemedValue
     }
   }
 
