@@ -13,5 +13,7 @@ export class CoinsDto {
     @ApiProperty()
     availableCoins: number;
     @ApiProperty()
+    monthlyAmountRedeemed: number;
+    @ApiProperty()
     amountRedeemed: number;
 }

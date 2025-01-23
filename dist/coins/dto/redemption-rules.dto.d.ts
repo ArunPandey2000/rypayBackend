@@ -5,5 +5,6 @@ export declare class RedemptionRuleDto {
 }
 export declare class CoinsDto {
     availableCoins: number;
+    monthlyAmountRedeemed: number;
     amountRedeemed: number;
 }

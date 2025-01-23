@@ -36,5 +36,9 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", Number)
+], CoinsDto.prototype, "monthlyAmountRedeemed", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", Number)
 ], CoinsDto.prototype, "amountRedeemed", void 0);
 //# sourceMappingURL=redemption-rules.dto.js.map
