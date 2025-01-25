@@ -96,9 +96,6 @@ export class UserResponse {
   panNumber: String
 
   @ApiProperty()
-  isAadharVerified: boolean
-
-  @ApiProperty()
   referrelCode: String
 
   @ApiProperty()
@@ -114,7 +111,6 @@ export class UserResponse {
     this.address = user.address;
     this.aadharNumber = user.aadharNumber;
     this.panNumber = user.panNumber;
-    this.isAadharVerified = user.isAadharVerified;
     this.isBlocked = !!user.isBlocked;
     this.phoneNumber = user.phoneNumber;
     this.kycVerificationStatus = KycVerificationStatus[user.kycVerificationStatus].toString();

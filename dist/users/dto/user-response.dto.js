@@ -75,7 +75,6 @@ class UserResponse {
         this.address = user.address;
         this.aadharNumber = user.aadharNumber;
         this.panNumber = user.panNumber;
-        this.isAadharVerified = user.isAadharVerified;
         this.isBlocked = !!user.isBlocked;
         this.phoneNumber = user.phoneNumber;
         this.kycVerificationStatus = kyc_verification_status_enum_1.KycVerificationStatus[user.kycVerificationStatus].toString();
@@ -154,10 +153,6 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)
 ], UserResponse.prototype, "panNumber", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)(),
-    __metadata("design:type", Boolean)
-], UserResponse.prototype, "isAadharVerified", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)

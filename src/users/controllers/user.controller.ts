@@ -42,8 +42,6 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Endpoint to request the aadhar otp' })
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Post('/request-aadhar-otp/:aadharNumber')
   @ApiParam({
     type: 'string',
@@ -56,13 +54,11 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Endpoint to validate the aadhar otp' })
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Post('/validate-aadhar-otp')
   async validateAadharOtp(
-    @Req() req: any, @Body() body: ValidateAadharDto
+    @Body() body: ValidateAadharDto
   ): Promise<string> {
-    return this.userService.validateAadharOtp(req.user.sub, body);
+    return this.userService.validateAadharOtp(body);
   }
 
   @ApiOperation({ summary: 'Endpoint to delete the user' })

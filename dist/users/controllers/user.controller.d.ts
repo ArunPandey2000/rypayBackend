@@ -15,7 +15,7 @@ export declare class UsersController {
     constructor(userService: UsersService, uploadFileService: UploadFileService);
     register(signUpDto: UserRequestDto): Promise<UserApiResponseDto>;
     requestAadharOtp(aadharNumber: string): Promise<any>;
-    validateAadharOtp(req: any, body: ValidateAadharDto): Promise<string>;
+    validateAadharOtp(body: ValidateAadharDto): Promise<string>;
     deleteUser(req: any): Promise<string>;
     registerAdmin(signUpDto: UserAdminRequestDto): Promise<UserApiResponseDto>;
     updateUser(userId: string, updateDto: UserUpdateRequestDto): Promise<User>;

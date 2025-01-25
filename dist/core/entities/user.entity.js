@@ -129,10 +129,6 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "referralCode", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'is_aadhar_verified', default: false }),
-    __metadata("design:type", Boolean)
-], User.prototype, "isAadharVerified", void 0);
-__decorate([
     (0, typeorm_1.Column)({ name: 'user-session', nullable: true, default: "YES" }),
     __metadata("design:type", String)
 ], User.prototype, "userSession", void 0);

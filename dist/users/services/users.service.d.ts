@@ -43,7 +43,7 @@ export declare class UsersService {
         message: string;
         sessionId: any;
     }>;
-    validateAadharOtp(userId: string, requestBody: ValidateAadharDto): Promise<"Success" | "Failure">;
+    validateAadharOtp(requestBody: ValidateAadharDto): Promise<"Success" | "Failure">;
     registerAdminAndGenerateToken(userRequestDto: UserAdminRequestDto): Promise<UserApiResponseDto>;
     updateUserProfile(userId: string, userRequestDto: UserUpdateRequestDto): Promise<User>;
     checkPhoneNumberExists(phoneNumber: string): Promise<PhoneNumberExists>;

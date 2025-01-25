@@ -205,19 +205,13 @@ export class UsersService {
     };
   }
 
-  async validateAadharOtp(userId: string, requestBody: ValidateAadharDto) {
-    const user = await this.userRepository.findOneBy({id: userId});
-    if (!user) {
-      throw new ForbiddenException('user does not have enough permission');
-    }
+  async validateAadharOtp(requestBody: ValidateAadharDto) {
     const response = await this.rechargeClient.validateAadharOtp(requestBody.aadharNumber, requestBody.otp, requestBody.otpSessionId);
     if (response.status === "SUCCESS" && response.transId === "OTP_VERIFIED") {
       await this.aadharResponseRepo.save(this.aadharResponseRepo.create({
-        aadharNumber: user.aadharNumber,
+        aadharNumber: requestBody.aadharNumber,
         aadharResponse: response
-      }))
-      user.isAadharVerified = true;
-      await this.userRepository.save(user);
+      }));
       return "Success";
     } else {
       return "Failure";

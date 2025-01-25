@@ -34,7 +34,6 @@ export declare class User {
     pin: string;
     profileIcon: string;
     referralCode: string;
-    isAadharVerified: boolean;
     userSession: string;
     merchant: Merchant;
     notifications: Notification[];

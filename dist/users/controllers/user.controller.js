@@ -39,8 +39,8 @@ let UsersController = class UsersController {
     async requestAadharOtp(aadharNumber) {
         return this.userService.requestAadharOtp(aadharNumber);
     }
-    async validateAadharOtp(req, body) {
-        return this.userService.validateAadharOtp(req.user.sub, body);
+    async validateAadharOtp(body) {
+        return this.userService.validateAadharOtp(body);
     }
     async deleteUser(req) {
         return this.userService.deleteUser(req.user.sub);
@@ -141,8 +141,6 @@ __decorate([
 ], UsersController.prototype, "register", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Endpoint to request the aadhar otp' }),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('/request-aadhar-otp/:aadharNumber'),
     (0, swagger_1.ApiParam)({
         type: 'string',
@@ -155,13 +153,10 @@ __decorate([
 ], UsersController.prototype, "requestAadharOtp", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Endpoint to validate the aadhar otp' }),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('/validate-aadhar-otp'),
-    __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, validate_aadhar_dto_1.ValidateAadharDto]),
+    __metadata("design:paramtypes", [validate_aadhar_dto_1.ValidateAadharDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "validateAadharOtp", null);
 __decorate([

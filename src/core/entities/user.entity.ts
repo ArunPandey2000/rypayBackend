@@ -100,9 +100,6 @@ export class User {
   @Column({ name: 'referralCode', nullable: true })
   referralCode: string;
 
-  @Column({ name: 'is_aadhar_verified', default: false })
-  isAadharVerified: boolean;
-
   @Column({ name: 'user-session', nullable: true, default: "YES" })
   userSession: string;
 
