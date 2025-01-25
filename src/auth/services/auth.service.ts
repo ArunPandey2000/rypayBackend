@@ -48,14 +48,14 @@ export class AuthService {
       where: where,
       relations: { address: true, merchant: true, card: true },
     });
-    if (userData.isBlocked) {
-      throw new BadRequestException('user is blocked');
-    }
     if (!userData) {
       return <UserApiResponseDto>{
         user: null,
         tokens: null,
       };
+    }
+    if (userData.isBlocked) {
+      throw new BadRequestException('user is blocked');
     }
     if (payload.fcmToken) {
       const mobileDevices = userData.mobileDevices ?? [];

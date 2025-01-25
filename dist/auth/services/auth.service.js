@@ -48,14 +48,14 @@ let AuthService = class AuthService {
             where: where,
             relations: { address: true, merchant: true, card: true },
         });
-        if (userData.isBlocked) {
-            throw new common_1.BadRequestException('user is blocked');
-        }
         if (!userData) {
             return {
                 user: null,
                 tokens: null,
             };
+        }
+        if (userData.isBlocked) {
+            throw new common_1.BadRequestException('user is blocked');
         }
         if (payload.fcmToken) {
             const mobileDevices = userData.mobileDevices ?? [];
