@@ -155,6 +155,7 @@ let TransactionsService = class TransactionsService {
             order: { createdAt: sortDirection || 'DESC' },
             take: pageSize,
             skip: skipRecords,
+            relations: ['user']
         });
         const total = await this.transactionsRepository.count({ where: where });
         const walletTransactionUserIds = Array.from(new Set(transactions.map((transaction) => this.getRelevantUserId(transaction))));
@@ -179,6 +180,7 @@ let TransactionsService = class TransactionsService {
                 serviceUsed: transaction.serviceUsed,
                 updatedAt: transaction.updatedAt,
                 counterPartyUser,
+                user: transaction.user
             };
         });
         return new pagination_response_dto_1.Pagination().PaginateResponse(result, total, page, pageSize);

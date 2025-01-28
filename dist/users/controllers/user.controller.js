@@ -288,7 +288,15 @@ __decorate([
             },
         },
     }),
-    __param(0, (0, common_1.UploadedFile)()),
+    __param(0, (0, common_1.UploadedFile)(new common_1.ParseFilePipe({
+        validators: [
+            new common_1.MaxFileSizeValidator({
+                maxSize: (10 * 1024 * 1024),
+                message: 'File is too large. Max file size is 10MB',
+            }),
+        ],
+        fileIsRequired: true,
+    }))),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
@@ -434,7 +442,7 @@ __decorate([
     (0, common_1.Post)('/upload/documents'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, swagger_1.ApiOperation)({ summary: 'Endpoint to upload user documents /n Max size of the file is 1 MB' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Endpoint to upload user documents /n Max size of the file is 10 MB' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({
         schema: {
@@ -451,7 +459,7 @@ __decorate([
     __param(0, (0, common_1.UploadedFile)(new common_1.ParseFilePipe({
         validators: [
             new common_1.MaxFileSizeValidator({
-                maxSize: (1024 * 1024 * 1024),
+                maxSize: (10 * 1024 * 1024),
                 message: 'File is too large. Max file size is 10MB',
             }),
         ],

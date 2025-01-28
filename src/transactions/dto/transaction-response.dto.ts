@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from 'src/core/entities/user.entity';
 
 export class UserTransactionDto {
     @ApiProperty({ example: '1', description: 'Unique identifier for the user' })
@@ -56,6 +57,9 @@ export class TransactionResponseDto {
 
   @ApiProperty({ type: () => UserTransactionDto, nullable: true, description: 'Details of the user involved in the transaction (in case of wallet)' })
   counterPartyUser: UserTransactionDto | null;
+
+  @ApiProperty({ type: () => User, nullable: true, description: 'Details of the user' })
+  user?: UserTransactionDto | null;
 }
 
 

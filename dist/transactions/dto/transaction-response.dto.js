@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TransactionResponseDto = exports.UserTransactionDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
+const user_entity_1 = require("../../core/entities/user.entity");
 class UserTransactionDto {
 }
 exports.UserTransactionDto = UserTransactionDto;
@@ -89,4 +90,8 @@ __decorate([
     (0, swagger_1.ApiProperty)({ type: () => UserTransactionDto, nullable: true, description: 'Details of the user involved in the transaction (in case of wallet)' }),
     __metadata("design:type", UserTransactionDto)
 ], TransactionResponseDto.prototype, "counterPartyUser", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: () => user_entity_1.User, nullable: true, description: 'Details of the user' }),
+    __metadata("design:type", UserTransactionDto)
+], TransactionResponseDto.prototype, "user", void 0);
 //# sourceMappingURL=transaction-response.dto.js.map

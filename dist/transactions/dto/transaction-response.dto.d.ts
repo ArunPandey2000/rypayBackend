@@ -19,4 +19,5 @@ export declare class TransactionResponseDto {
     serviceUsed: string;
     updatedAt: Date;
     counterPartyUser: UserTransactionDto | null;
+    user?: UserTransactionDto | null;
 }

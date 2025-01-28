@@ -183,6 +183,7 @@ export class TransactionsService {
       order: { createdAt: sortDirection || 'DESC' },
       take: pageSize,
       skip: skipRecords,
+      relations: ['user']
     });
 
 
@@ -216,6 +217,7 @@ export class TransactionsService {
         serviceUsed: transaction.serviceUsed,
         updatedAt: transaction.updatedAt,
         counterPartyUser,
+        user: transaction.user
       };
     });
 

@@ -189,7 +189,15 @@ export class UsersController {
           },
       },
   })
-  async updateProfileIcon(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
+  async updateProfileIcon(@UploadedFile(new ParseFilePipe({
+    validators: [
+      new MaxFileSizeValidator({
+        maxSize: (10 * 1024 * 1024), // 1MB
+        message: 'File is too large. Max file size is 10MB',
+      }),
+    ],
+    fileIsRequired: true,
+  })) file: Express.Multer.File, @Req() req: any) {
       return this.userService.updateProfileIcon(req.user.sub, file);
   }
 
@@ -338,7 +346,7 @@ export class UsersController {
   @Post('/upload/documents')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Endpoint to upload user documents /n Max size of the file is 1 MB' })
+  @ApiOperation({ summary: 'Endpoint to upload user documents /n Max size of the file is 10 MB' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -357,7 +365,7 @@ export class UsersController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({
-            maxSize: (1024 * 1024 * 1024), // 1MB
+            maxSize: (10 * 1024 * 1024), // 1MB
             message: 'File is too large. Max file size is 10MB',
           }),
         ],
