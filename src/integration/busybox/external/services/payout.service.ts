@@ -50,7 +50,7 @@ export class PayoutService {
         const user = await this.userRepository.findOne({where: {id: userId}});
         const maskedAccount = maskAccount(requestBody.account_number);
         const description = requestDto.message ? requestDto.message : PayoutDescription.replace('{maskedAccount}', maskedAccount);
-        const orderId = generateRef(6);
+        const orderId = generateRef(12);
         const payoutCharges = requestDto.mode?.toLowerCase() === 'imps' ? getIMPSCharges(requestDto.amount) : 0;
         const order = {
             order_id: orderId,
@@ -118,7 +118,7 @@ export class PayoutService {
         const user = await this.userRepository.findOne({where: {id: userId}});
         const maskedAccount = maskAccount(requestBody.account_number);
         const description = requestDto.message ? requestDto.message : PayoutDescription.replace('{maskedAccount}', maskedAccount);
-        const orderId = generateRef(6);
+        const orderId = generateRef(12);
         const order = {
             order_id: orderId,
             order_type: OrderType.UPI_PAYOUT,

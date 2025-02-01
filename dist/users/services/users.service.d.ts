@@ -18,6 +18,7 @@ import { UploadFileService } from './updaload-file.service';
 import { RechargeClientService } from 'src/integration/a1topup/external-system-client/recharge/recharge-client.service';
 import { ValidateAadharDto } from '../dto/validate-aadhar.dto';
 import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
+import { NotificationBridge } from 'src/notifications/services/notification-bridge';
 export declare class UsersService {
     private tokenService;
     private configService;
@@ -30,11 +31,12 @@ export declare class UsersService {
     private otpRepository;
     private rechargeClient;
     private readonly walletBridge;
+    private readonly notificationBridge;
     private userRepository;
     private aadharResponseRepo;
     private documentRepository;
     private readonly saltRounds;
-    constructor(tokenService: TokenService, configService: ConfigService, walletService: WalletService, merchantClientService: MerchantClientService, cardService: CardsService, _connection: DataSource, uploadFileService: UploadFileService, otpFlowService: OtpFlowService, otpRepository: OtpRepository, rechargeClient: RechargeClientService, walletBridge: WalletBridge, userRepository: Repository<User>, aadharResponseRepo: Repository<AadharResponse>, documentRepository: Repository<UserDocument>);
+    constructor(tokenService: TokenService, configService: ConfigService, walletService: WalletService, merchantClientService: MerchantClientService, cardService: CardsService, _connection: DataSource, uploadFileService: UploadFileService, otpFlowService: OtpFlowService, otpRepository: OtpRepository, rechargeClient: RechargeClientService, walletBridge: WalletBridge, notificationBridge: NotificationBridge, userRepository: Repository<User>, aadharResponseRepo: Repository<AadharResponse>, documentRepository: Repository<UserDocument>);
     registerUser(userRequestDto: UserRequestDto): Promise<UserResponse>;
     validateRefferelCode(referrelCode: string | null, queryRunner: QueryRunner): Promise<User>;
     deleteUser(userId: string): Promise<string>;

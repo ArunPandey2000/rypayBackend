@@ -4,13 +4,10 @@ exports.generateReferralCode = exports.generateHash = exports.generateRef = void
 exports.sanitizeDateString = sanitizeDateString;
 exports.maskAccount = maskAccount;
 const uuid = require("uuid");
+const random_util_1 = require("./random-util");
 const generateRef = (length) => {
     let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += characters[Math.floor(Math.random() * characters.length)];
-    }
-    return result;
+    return (0, random_util_1.customAlphabet)(characters, length)();
 };
 exports.generateRef = generateRef;
 function sanitizeDateString(date) {

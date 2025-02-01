@@ -92,7 +92,7 @@ let RechargeService = class RechargeService {
         let basePayload = {
             amount: payload.amount,
             mobile: payload.accountNumber,
-            urid: (0, hash_util_1.generateRef)(10)
+            urid: (0, hash_util_1.generateRef)(12)
         };
         if (payload.rechargeType === recharge_metadata_constant_1.RechargeServiceTypes.Electricity) {
             return {

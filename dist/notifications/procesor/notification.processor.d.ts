@@ -7,5 +7,6 @@ export declare class NotificationProcessor {
     handleTransactionNotification(job: Job): Promise<void>;
     handleReferrelNotification(job: Job): Promise<void>;
     handleCashbackNotification(job: Job): Promise<void>;
+    handleNewUserNotification(job: Job): Promise<void>;
     handleCoinExpiryNotification(job: Job): Promise<void>;
 }

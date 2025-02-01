@@ -12,11 +12,12 @@ export declare class NotificationService {
     private firebaseService;
     constructor(notificationRepository: Repository<Notification>, userRepo: Repository<User>, firebaseService: FirebaseClientService);
     insertInAppNotification(message: string, type: NotificationType, userId?: string): Promise<Notification>;
-    sendPushNotificationToUser(tokens: string[], title: string, message: string, icon: string): Promise<void>;
+    sendPushNotificationToUser(tokens: string[], type: NotificationType, message: string, icon: string): Promise<void>;
     processRechargeNotification(notificationData: RechargeNotificationDto): Promise<void>;
     processTransactionNotification(notificationData: TransactionNotification): Promise<void>;
     processReferrelNotification(notificationData: ReferrelNotification): Promise<void>;
     processCashbackRedemmedNotification(notificationData: CashbackRedemmedNotification): Promise<void>;
+    processUserRegistrationNotification(notificationData: User): Promise<void>;
     processCashbackExpiryNotification(notificationData: CoinTransaction): Promise<void>;
     processAnnouncementNotification(notificationData: GeneralNotification): Promise<Notification>;
     findAllPaginated(userId: string, page: number, limit: number): Promise<{

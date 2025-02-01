@@ -223,7 +223,7 @@ export class WalletService {
       const amount = Number(cardTransaction.txnAmount);
       const transaction = {
         user,
-        reference: generateRef(6),
+        reference: generateRef(12),
         transactionHash: generateHash(),
         type: TransactionType.DEBIT,
         amount: Number(cardTransaction.txnAmount),
@@ -588,7 +588,7 @@ export class WalletService {
 
   getNewReferelOrder(amount: number, user: User) {
     return {
-                order_id: generateRef(6),
+                order_id: generateRef(12),
                 order_type: OrderType.PAYMENT,
                 gateway_response: '',
                 amount: amount,
@@ -605,7 +605,7 @@ export class WalletService {
   }
   getNewCashbackOrder(amount: number, user: User) {
     return {
-                order_id: generateRef(6),
+                order_id: generateRef(12),
                 order_type: OrderType.PAYMENT,
                 gateway_response: '',
                 amount: amount,

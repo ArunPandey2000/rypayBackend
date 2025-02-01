@@ -22,6 +22,7 @@ var NotificationType;
     NotificationType["ANNOUNCEMENT"] = "ANNOUNCEMENT";
     NotificationType["REFERREL_BONUS"] = "REFERREL_BONUS";
     NotificationType["CASHBACK_REDEEMED"] = "CASHBACK_REDEEMED";
+    NotificationType["NewUserRegistration"] = "NEW_USER_REGISTRATIION";
     NotificationType["RYCOIN_EXPIRED"] = "RYCOIN_EXPIRED";
 })(NotificationType || (exports.NotificationType = NotificationType = {}));
 let Notification = class Notification {

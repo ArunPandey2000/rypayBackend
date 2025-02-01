@@ -202,7 +202,7 @@ let WalletService = class WalletService {
             const amount = Number(cardTransaction.txnAmount);
             const transaction = {
                 user,
-                reference: (0, hash_util_1.generateRef)(6),
+                reference: (0, hash_util_1.generateRef)(12),
                 transactionHash: (0, hash_util_1.generateHash)(),
                 type: transaction_type_enum_1.TransactionType.DEBIT,
                 amount: Number(cardTransaction.txnAmount),
@@ -503,7 +503,7 @@ let WalletService = class WalletService {
     }
     getNewReferelOrder(amount, user) {
         return {
-            order_id: (0, hash_util_1.generateRef)(6),
+            order_id: (0, hash_util_1.generateRef)(12),
             order_type: order_entity_1.OrderType.PAYMENT,
             gateway_response: '',
             amount: amount,
@@ -520,7 +520,7 @@ let WalletService = class WalletService {
     }
     getNewCashbackOrder(amount, user) {
         return {
-            order_id: (0, hash_util_1.generateRef)(6),
+            order_id: (0, hash_util_1.generateRef)(12),
             order_type: order_entity_1.OrderType.PAYMENT,
             gateway_response: '',
             amount: amount,

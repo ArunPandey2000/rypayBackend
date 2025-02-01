@@ -54,7 +54,7 @@ let WalletController = class WalletController {
         });
     }
     async updateMoneyToWallet(userId, fundMyAccountDto) {
-        const reference = (0, hash_util_1.generateRef)(10);
+        const reference = (0, hash_util_1.generateRef)(12);
         const transactionHash = (0, hash_util_1.generateHash)();
         fundMyAccountDto.reference = reference;
         fundMyAccountDto.transactionHash = transactionHash;
@@ -62,7 +62,7 @@ let WalletController = class WalletController {
         return wallet;
     }
     async transferToUserByPhone(req, transferAccountDto) {
-        const reference = (0, hash_util_1.generateRef)(10);
+        const reference = (0, hash_util_1.generateRef)(12);
         const transactionHash = (0, hash_util_1.generateHash)();
         transferAccountDto.reference = reference;
         transferAccountDto.transactionHash = transactionHash;

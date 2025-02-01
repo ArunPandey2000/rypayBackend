@@ -38,8 +38,9 @@ const user_mapper_1 = require("../mapper/user-mapper");
 const updaload_file_service_1 = require("./updaload-file.service");
 const recharge_client_service_1 = require("../../integration/a1topup/external-system-client/recharge/recharge-client.service");
 const aadhar_verification_entity_1 = require("../../core/entities/aadhar-verification.entity");
+const notification_bridge_1 = require("../../notifications/services/notification-bridge");
 let UsersService = class UsersService {
-    constructor(tokenService, configService, walletService, merchantClientService, cardService, _connection, uploadFileService, otpFlowService, otpRepository, rechargeClient, walletBridge, userRepository, aadharResponseRepo, documentRepository) {
+    constructor(tokenService, configService, walletService, merchantClientService, cardService, _connection, uploadFileService, otpFlowService, otpRepository, rechargeClient, walletBridge, notificationBridge, userRepository, aadharResponseRepo, documentRepository) {
         this.tokenService = tokenService;
         this.configService = configService;
         this.walletService = walletService;
@@ -51,6 +52,7 @@ let UsersService = class UsersService {
         this.otpRepository = otpRepository;
         this.rechargeClient = rechargeClient;
         this.walletBridge = walletBridge;
+        this.notificationBridge = notificationBridge;
         this.userRepository = userRepository;
         this.aadharResponseRepo = aadharResponseRepo;
         this.documentRepository = documentRepository;
@@ -99,6 +101,7 @@ let UsersService = class UsersService {
                 throw new common_1.BadRequestException('Wallet creation failed');
             }
             await queryRunner.commitTransaction();
+            this.notificationBridge.add('newUser', savedUser);
             const userModel = { ...savedUser, card: card };
             if (referrer) {
                 await this.walletBridge.add('referrel', {
@@ -186,7 +189,7 @@ let UsersService = class UsersService {
         }
     }
     async registerAdminAndGenerateToken(userRequestDto) {
-        userRequestDto.cardHolderId = `ADMIN_${(0, hash_util_1.generateRef)(10)}`;
+        userRequestDto.cardHolderId = `ADMIN_${(0, hash_util_1.generateRef)(12)}`;
         const user = await this.registerUser(userRequestDto);
         const tokenPayload = {
             userId: user.userid,
@@ -457,9 +460,9 @@ let UsersService = class UsersService {
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __param(11, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __param(12, (0, typeorm_1.InjectRepository)(aadhar_verification_entity_1.AadharResponse)),
-    __param(13, (0, typeorm_1.InjectRepository)(document_entity_1.UserDocument)),
+    __param(12, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(13, (0, typeorm_1.InjectRepository)(aadhar_verification_entity_1.AadharResponse)),
+    __param(14, (0, typeorm_1.InjectRepository)(document_entity_1.UserDocument)),
     __metadata("design:paramtypes", [token_service_1.TokenService,
         config_1.ConfigService,
         wallet_service_1.WalletService,
@@ -471,6 +474,7 @@ exports.UsersService = UsersService = __decorate([
         otp_repository_1.OtpRepository,
         recharge_client_service_1.RechargeClientService,
         wallet_queue_1.WalletBridge,
+        notification_bridge_1.NotificationBridge,
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])

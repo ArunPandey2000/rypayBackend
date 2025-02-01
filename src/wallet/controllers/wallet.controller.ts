@@ -76,7 +76,7 @@ export class WalletController {
     @Param('userId') userId: string,
     @Body() fundMyAccountDto: AddMoneyToWalletDto,
   ) {
-    const reference = generateRef(10);
+    const reference = generateRef(12);
     const transactionHash = generateHash();
 
     fundMyAccountDto.reference = reference;
@@ -97,7 +97,7 @@ export class WalletController {
     @Body()
     transferAccountDto: TransferMoneyDto,
   ) {
-    const reference = generateRef(10);
+    const reference = generateRef(12);
     const transactionHash = generateHash();
 
     transferAccountDto.reference = reference;

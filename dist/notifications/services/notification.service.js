@@ -25,6 +25,8 @@ const firebase_client_service_1 = require("../../integration/firebase/firebase.c
 const transaction_type_enum_1 = require("../../transactions/enum/transaction-type.enum");
 const referel_bonus_message_constant_1 = require("../constant/referel-bonus-message.constant");
 const redeem_notification_constant_1 = require("../constant/redeem-notification.constant");
+const new_user_registration_constant_1 = require("../constant/new-user-registration.constant");
+const notification_title_map_constant_1 = require("../constant/notification-title-map.constant");
 let NotificationService = class NotificationService {
     constructor(notificationRepository, userRepo, firebaseService) {
         this.notificationRepository = notificationRepository;
@@ -40,7 +42,8 @@ let NotificationService = class NotificationService {
         const notification = this.notificationRepository.create({ message, type, user });
         return this.notificationRepository.save(notification);
     }
-    async sendPushNotificationToUser(tokens, title, message, icon) {
+    async sendPushNotificationToUser(tokens, type, message, icon) {
+        const title = notification_title_map_constant_1.default.get(type) ?? type;
         if (tokens?.length) {
             await this.firebaseService.sendNotificationToMultipleTokens({
                 tokens,
@@ -82,6 +85,12 @@ let NotificationService = class NotificationService {
         const message = (0, redeem_notification_constant_1.redeemNotifcation)(notificationData.data.coinAmount, notificationData.data.redemptionValue);
         const type = notification_entity_1.NotificationType.CASHBACK_REDEEMED;
         await this.insertInAppNotification(message, type, notificationData.data.user.id);
+    }
+    async processUserRegistrationNotification(notificationData) {
+        const userName = `${notificationData.firstName} ${notificationData.lastName}`;
+        const message = (0, new_user_registration_constant_1.newUserNotification)(userName);
+        const type = notification_entity_1.NotificationType.NewUserRegistration;
+        await this.insertInAppNotification(message, type, notificationData.id);
     }
     async processCashbackExpiryNotification(notificationData) {
         const message = (0, redeem_notification_constant_1.coinExpiredNotification)(notificationData.coinAmount);

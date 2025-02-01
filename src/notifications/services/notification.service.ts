@@ -14,6 +14,8 @@ import { TransactionType } from 'src/transactions/enum/transaction-type.enum';
 import { createReferrelMessage } from '../constant/referel-bonus-message.constant';
 import { coinExpiredNotification, redeemNotifcation } from '../constant/redeem-notification.constant';
 import { CoinTransaction } from 'src/core/entities/coins.entity';
+import { newUserNotification } from '../constant/new-user-registration.constant';
+import NotificationTitleMap from '../constant/notification-title-map.constant';
 
 @Injectable()
 export class NotificationService {
@@ -34,7 +36,8 @@ export class NotificationService {
         return this.notificationRepository.save(notification);
     }
 
-    async sendPushNotificationToUser(tokens: string[], title: string, message: string, icon: string) {
+    async sendPushNotificationToUser(tokens: string[], type: NotificationType, message: string, icon: string) {
+        const title = NotificationTitleMap.get(type) ?? type
         if (tokens?.length) {
             await this.firebaseService.sendNotificationToMultipleTokens({
                 tokens,
@@ -80,6 +83,13 @@ export class NotificationService {
         const message = redeemNotifcation(notificationData.data.coinAmount, notificationData.data.redemptionValue);
         const type = NotificationType.CASHBACK_REDEEMED;
         await this.insertInAppNotification(message, type, notificationData.data.user.id);
+    }
+
+    async processUserRegistrationNotification(notificationData: User){
+        const userName = `${notificationData.firstName} ${notificationData.lastName}`;
+        const message = newUserNotification(userName);
+        const type = NotificationType.NewUserRegistration;
+        await this.insertInAppNotification(message, type, notificationData.id);
     }
 
     async processCashbackExpiryNotification(notificationData: CoinTransaction){

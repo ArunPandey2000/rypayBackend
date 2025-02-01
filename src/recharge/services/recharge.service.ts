@@ -95,7 +95,7 @@ export class RechargeService {
         let basePayload = {
             amount: payload.amount,
             mobile: payload.accountNumber,
-            urid: generateRef(10)
+            urid: generateRef(12)
         }
         if (payload.rechargeType === RechargeServiceTypes.Electricity) {
             return <IElectricityRechargeRequest> {

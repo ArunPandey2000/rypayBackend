@@ -32,6 +32,10 @@ let NotificationProcessor = class NotificationProcessor {
         const data = job.data;
         this.notificationService.processCashbackRedemmedNotification(data);
     }
+    async handleNewUserNotification(job) {
+        const data = job.data;
+        this.notificationService.processCashbackRedemmedNotification(data);
+    }
     async handleCoinExpiryNotification(job) {
         const data = job.data;
         this.notificationService.processCashbackExpiryNotification(data);
@@ -62,6 +66,12 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], NotificationProcessor.prototype, "handleCashbackNotification", null);
+__decorate([
+    (0, bull_1.Process)('newUser'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationProcessor.prototype, "handleNewUserNotification", null);
 __decorate([
     (0, bull_1.Process)('coinExpiry'),
     __metadata("design:type", Function),

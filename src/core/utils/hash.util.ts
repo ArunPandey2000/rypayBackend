@@ -1,13 +1,9 @@
 import * as uuid from 'uuid';
+import { customAlphabet } from './random-util';
 export const generateRef = (length: number) => {
     let characters =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-  
-    for (let i = 0; i < length; i++) {
-      result += characters[Math.floor(Math.random() * characters.length)];
-    }
-    return result;
+    return customAlphabet(characters, length)();
   };
   
   export function sanitizeDateString(date: string) {

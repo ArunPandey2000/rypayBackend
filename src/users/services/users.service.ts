@@ -37,6 +37,7 @@ import { UploadFileService } from './updaload-file.service';
 import { RechargeClientService } from 'src/integration/a1topup/external-system-client/recharge/recharge-client.service';
 import { ValidateAadharDto } from '../dto/validate-aadhar.dto';
 import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
+import { NotificationBridge } from 'src/notifications/services/notification-bridge';
 
 @Injectable()
 export class UsersService {
@@ -53,6 +54,7 @@ export class UsersService {
     private otpRepository: OtpRepository,
     private rechargeClient: RechargeClientService,
     private readonly walletBridge: WalletBridge,
+    private readonly notificationBridge: NotificationBridge,
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(AadharResponse) private aadharResponseRepo: Repository<AadharResponse>,
     @InjectRepository(UserDocument) private documentRepository: Repository<UserDocument>,
@@ -121,6 +123,7 @@ export class UsersService {
 
       // const user = await this.userRepository.save(newUser);
       await queryRunner.commitTransaction();
+      this.notificationBridge.add('newUser', savedUser);
       const userModel = {...savedUser, card: card};
 
       if (referrer) {
@@ -221,7 +224,7 @@ export class UsersService {
   async registerAdminAndGenerateToken(
     userRequestDto: UserAdminRequestDto,
   ): Promise<UserApiResponseDto> {
-    userRequestDto.cardHolderId = `ADMIN_${generateRef(10)}`;
+    userRequestDto.cardHolderId = `ADMIN_${generateRef(12)}`;
     const user = await this.registerUser(userRequestDto);
     const tokenPayload = <IAccessTokenUserPayload>{
       userId: user.userid,

@@ -149,7 +149,7 @@ let LoansService = class LoansService {
             throw new common_1.BadRequestException('Insufficient Balance');
         }
         const description = loanPaymentDto.remarks ? loanPaymentDto.remarks : `Loan Payment ${loan.loanAccount}`;
-        const orderId = (0, hash_util_1.generateRef)(6);
+        const orderId = (0, hash_util_1.generateRef)(12);
         const order = {
             order_id: orderId,
             order_type: order_entity_1.OrderType.PAYMENT,

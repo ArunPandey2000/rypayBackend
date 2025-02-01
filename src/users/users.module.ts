@@ -18,11 +18,15 @@ import { OtpRepository } from 'src/notifications/repository/otp.repository';
 import { HttpModule } from '@nestjs/axios';
 import { OtpInfo } from 'src/core/entities/otp-info.entity';
 import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
+import { BullModule } from '@nestjs/bull';
+import { NotificationBridge } from 'src/notifications/services/notification-bridge';
 
 
 @Module({
-  imports: [AuthModule, HttpModule, IntegrationModule, CardsModule, WalletModule, ConfigModule, forwardRef(() => WalletModule), TypeOrmModule.forFeature([User, UserDocument, OtpInfo, AadharResponse])],
-  providers: [UsersService, ConfigService, UploadFileService, OtpFlowService, SmsClientService, MailService, OtpRepository],
+  imports: [AuthModule,
+    BullModule.registerQueue({name: 'notification'}),
+     HttpModule, IntegrationModule, CardsModule, WalletModule, ConfigModule, forwardRef(() => WalletModule), TypeOrmModule.forFeature([User, UserDocument, OtpInfo, AadharResponse])],
+  providers: [UsersService, ConfigService, NotificationBridge, UploadFileService, OtpFlowService, SmsClientService, MailService, OtpRepository],
   controllers: [UsersController],
   exports: [UsersService, UploadFileService],
 })

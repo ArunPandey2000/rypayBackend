@@ -8,6 +8,7 @@ export declare enum NotificationType {
     ANNOUNCEMENT = "ANNOUNCEMENT",
     REFERREL_BONUS = "REFERREL_BONUS",
     CASHBACK_REDEEMED = "CASHBACK_REDEEMED",
+    NewUserRegistration = "NEW_USER_REGISTRATIION",
     RYCOIN_EXPIRED = "RYCOIN_EXPIRED"
 }
 export declare class Notification {
