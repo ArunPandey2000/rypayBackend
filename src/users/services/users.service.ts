@@ -123,7 +123,7 @@ export class UsersService {
 
       // const user = await this.userRepository.save(newUser);
       await queryRunner.commitTransaction();
-      this.notificationBridge.add('newUser', savedUser);
+      await this.notificationBridge.add('newUser', savedUser);
       const userModel = {...savedUser, card: card};
 
       if (referrer) {

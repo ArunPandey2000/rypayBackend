@@ -33,7 +33,7 @@ export class NotificationProcessor {
   @Process('newUser')
   async handleNewUserNotification(job: Job) {
     const data = job.data;
-    this.notificationService.processCashbackRedemmedNotification(data);
+    this.notificationService.processUserRegistrationNotification(data);
   }
 
   @Process('coinExpiry')
