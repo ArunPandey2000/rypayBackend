@@ -15,6 +15,14 @@ import { IPrepaidOrDTHRechargeRequest, RechargeRequest } from '../../external/in
 import { IRechargeResponse } from '../../external/interfaces/recharge-response.interface';
 import { IUtilityBillPaymentRequest } from '../../external/interfaces/utility-bill-payment-request.interface';
 import { UtilityBillAPIResponse } from '../../external/interfaces/utility-bill-response.interface';
+import { IRegisterOutletRequestPayload } from '../../external/interfaces/register-outlet.interface';
+import { RegisterOutletResponseData } from '../../external/interfaces/register-outlet-response.interface';
+import { OtpVerificationResponse, RegisterOutletOtpRequestModel } from '../../external/interfaces/register-outlet-verify.interface';
+import { OutletStatusRequestModel } from '../../external/interfaces/outlet-status.interface';
+import { AEPSBankListResponse } from '../../external/interfaces/aeps-bank-response.interface';
+import { OutletLoginRequestModel, OutletLoginResponseModel } from '../../external/interfaces/outlet-login.interface';
+import { AEPSMiniStatementRequestModel, AEPSMiniStatementResponseModel } from '../../external/interfaces/aeps-mini-statement.interface';
+import { AEPSWithdrawalRequestModel, AEPSWithdrawalResponseModel } from '../../external/interfaces/aeps-withdrawal.interface';
 
 @Injectable()
 export class RechargeClientService {
@@ -50,6 +58,151 @@ export class RechargeClientService {
       throw error;
     }
   }
+
+  async registerOutlet(requestData: IRegisterOutletRequestPayload): Promise<RegisterOutletResponseData> {
+    const body = {
+      token: this.apiToken,
+      ...requestData, // Spread the requestData to include all the fields
+      transType: 'outletRegister', // Transaction type for outlet registration
+    };
+
+    try {
+      // Send the POST request using httpService and firstValueFrom to handle the response
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body)
+      );
+      
+      // Return the response data
+      return response.data; 
+    } catch (error) {
+      this.logger.error('Outlet registration request error:', error);
+      throw error;
+    }
+  }
+
+  async verifyOtpForOutletRegistration(requestData: RegisterOutletOtpRequestModel): Promise<OtpVerificationResponse> {
+    const body = {
+      token: this.apiToken,
+      ...requestData, // Spread the requestData to include all the fields
+      transType: 'outletRegisterVerify', // Transaction type for outlet registration OTP verification
+    };
+
+    try {
+      // Send the POST request using httpService and firstValueFrom to handle the response
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body)
+      );
+      
+      // Return the response data
+      return response.data; 
+    } catch (error) {
+      this.logger.error('OTP verification request error:', error);
+      throw error;
+    }
+  }
+
+  async checkOutletStatus(requestData: OutletStatusRequestModel) {
+    const body = {
+      token: this.apiToken,
+      ...requestData, // Spread the requestData to include all the fields
+      transType: 'outletStatus', // Transaction type for checking outlet status
+    };
+
+    try {
+      // Send the POST request using httpService and firstValueFrom to handle the response
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body)
+      );
+      
+      // Return the response data
+      return response.data; 
+    } catch (error) {
+      this.logger.error('Outlet status check request error:', error);
+      throw error;
+    }
+  }
+
+  async getAEPSSupportedBankList(): Promise<AEPSBankListResponse> {
+    const body = {
+      token: this.apiToken,
+      transType: 'aepsBankList', // Transaction type for AEPS bank list
+    };
+
+    try {
+      // Send the POST request using httpService and firstValueFrom to handle the response
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body)
+      );
+      
+      // Return the response data
+      return response.data; 
+    } catch (error) {
+      this.logger.error('AEPS supported bank list request error:', error);
+      throw error;
+    }
+  }
+
+  async outletLogin(loginData: OutletLoginRequestModel): Promise<OutletLoginResponseModel> {
+    const body = {
+      token: this.apiToken,
+      ...loginData, // Spread the requestData to include all the fields
+      transType: 'outletAepsLogin', // Transaction type for outlet login
+    };
+
+    try {
+      // Send the POST request using httpService and firstValueFrom to handle the response
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body)
+      );
+      
+      // Return the response data
+      return response.data; 
+    } catch (error) {
+      this.logger.error('Outlet login request error:', error);
+      throw error;
+    }
+  }
+
+  async getAepsMiniStatement(miniStatementData: AEPSMiniStatementRequestModel): Promise<AEPSMiniStatementResponseModel> {
+    const body = {
+      token: this.apiToken,
+      ...miniStatementData,
+    };
+
+    try {
+      // Send the POST request using httpService and firstValueFrom to handle the response
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.apiBaseUrl}/transaction.php`, body)
+      );
+      
+      // Return the response data
+      return response.data; 
+    } catch (error) {
+      this.logger.error('AEPS MiniStatement request error:', error);
+      throw error;
+    }
+  }
+
+  async getAepsWithdrawal(withdrawalData: AEPSWithdrawalRequestModel): Promise<AEPSWithdrawalResponseModel> {
+    const body = {
+      token: this.apiToken,
+      ...withdrawalData, // Spread the withdrawal data to include all required fields
+    };
+
+    try {
+      // Send the POST request using httpService and firstValueFrom to handle the response
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.apiBaseUrl}/transaction.php`, body)
+      );
+      
+      // Return the response data
+      return response.data;
+    } catch (error) {
+      this.logger.error('AEPS Withdrawal request error:', error);
+      throw error;
+    }
+  }
+
 
   async requestAadharOtp(aadharNumber: string) {
     const body = {
