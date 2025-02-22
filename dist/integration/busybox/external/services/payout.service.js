@@ -60,7 +60,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
         const maskedAccount = (0, hash_util_1.maskAccount)(requestBody.account_number);
         const description = requestDto.message ? requestDto.message : external_constant_1.PayoutDescription.replace('{maskedAccount}', maskedAccount);
         const orderId = (0, hash_util_1.generateRef)(12);
-        const payoutCharges = requestDto.mode?.toLowerCase() === 'imps' ? (0, payment_utils_1.getIMPSCharges)(requestDto.amount) : 0;
+        const payoutCharges = requestDto.mode?.toLowerCase() === 'neft' ? 0 : (0, payment_utils_1.getIMPSOrRTGSCharges)(requestDto.amount);
         const order = {
             order_id: orderId,
             order_type: order_entity_1.OrderType.PAYOUT,

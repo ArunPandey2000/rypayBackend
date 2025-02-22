@@ -17,7 +17,7 @@ import { VerifyUpiRequestDTO } from '../dto/verify-upi-request.dto';
 import { IVerifyUPIRequestDTO } from '../interfaces/validation/verify-upi-request.interface';
 import { UPIPayoutPayload } from '../dto/upi-account-payload.dto';
 import { IUPIPayoutRequestBody } from '../interfaces/payout/payout-upi-request-body.interface';
-import { getIMPSCharges } from 'src/core/utils/payment.utils';
+import { getIMPSOrRTGSCharges } from 'src/core/utils/payment.utils';
 @Injectable()
 export class PayoutService {
     private readonly logger: Logger;
@@ -60,7 +60,7 @@ export class PayoutService {
         const maskedAccount = maskAccount(requestBody.account_number);
         const description = requestDto.message ? requestDto.message : PayoutDescription.replace('{maskedAccount}', maskedAccount);
         const orderId = generateRef(12);
-        const payoutCharges = requestDto.mode?.toLowerCase() === 'imps' ? getIMPSCharges(requestDto.amount) : 0;
+        const payoutCharges = requestDto.mode?.toLowerCase() === 'neft' ? 0 : getIMPSOrRTGSCharges(requestDto.amount);
         const order = {
             order_id: orderId,
             order_type: OrderType.PAYOUT,

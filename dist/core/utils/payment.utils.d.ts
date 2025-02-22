@@ -1,1 +1,1 @@
-export declare function getIMPSCharges(amount: number): number;
+export declare function getIMPSOrRTGSCharges(amount: number): number;
