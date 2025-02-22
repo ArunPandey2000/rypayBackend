@@ -38,7 +38,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
         };
         this.MONTHLY_LIMIT = {
             UPI: 100000,
-            Payout: 1,
+            Payout: 200000,
         };
         this.logger = new common_1.Logger(PayoutService_1.name);
     }
