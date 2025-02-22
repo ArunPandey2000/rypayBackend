@@ -33,7 +33,7 @@ exports.Order = Order;
 __decorate([
     (0, typeorm_1.PrimaryColumn)({
         type: 'varchar',
-        length: 10
+        length: 20
     }),
     __metadata("design:type", String)
 ], Order.prototype, "order_id", void 0);

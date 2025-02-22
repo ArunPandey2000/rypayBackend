@@ -22,7 +22,7 @@ export enum OrderStatus {
 export class Order {
   @PrimaryColumn({
     type: 'varchar',
-    length: 10
+    length: 20
     })
   order_id: string;
 

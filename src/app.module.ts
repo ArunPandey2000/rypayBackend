@@ -20,6 +20,7 @@ import { BullModule } from '@nestjs/bull';
 import { LoansModule } from './loans/loans.module';
 import { MoneyRequestModule } from './money-request/money-request.module';
 import { CoinsModule } from './coins/coins.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { CoinsModule } from './coins/coins.module';
     LoansModule,
     MoneyRequestModule,
     CoinsModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

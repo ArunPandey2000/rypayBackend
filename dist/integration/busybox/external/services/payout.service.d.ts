@@ -1,4 +1,5 @@
 import { Order } from 'src/core/entities/order.entity';
+import { Transaction } from 'src/core/entities/transactions.entity';
 import { User } from 'src/core/entities/user.entity';
 import { WalletService } from 'src/wallet/services/wallet.service';
 import { Repository } from 'typeorm';
@@ -13,14 +14,18 @@ export declare class PayoutService {
     private payloutClientService;
     private orderRepository;
     private userRepository;
+    private transactionRepository;
     private readonly logger;
-    constructor(walletService: WalletService, payloutClientService: PayoutClientService, orderRepository: Repository<Order>, userRepository: Repository<User>);
+    private readonly DAILY_LIMIT;
+    private readonly MONTHLY_LIMIT;
+    constructor(walletService: WalletService, payloutClientService: PayoutClientService, orderRepository: Repository<Order>, userRepository: Repository<User>, transactionRepository: Repository<Transaction>);
     payoutAccount(userId: string, requestDto: AccountPayoutPayload): Promise<{
         referenceId: string;
         amount: number;
         message: string;
     }>;
-    validatePayout(userId: string, amount: number): Promise<void>;
+    validatePayout(userId: string, amount: number, serviceUsed: string): Promise<void>;
+    validateTransactionLimit(userId: string, amount: number, serviceUsed: string): Promise<void>;
     payoutUPI(userId: string, requestDto: UPIPayoutPayload): Promise<{
         referenceId: string;
         amount: number;

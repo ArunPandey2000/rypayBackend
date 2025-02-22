@@ -43,6 +43,108 @@ let RechargeClientService = class RechargeClientService {
             throw error;
         }
     }
+    async registerOutlet(requestData) {
+        const body = {
+            token: this.apiToken,
+            ...requestData,
+            transType: 'outletRegister',
+        };
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body));
+            return response.data;
+        }
+        catch (error) {
+            this.logger.error('Outlet registration request error:', error);
+            throw error;
+        }
+    }
+    async verifyOtpForOutletRegistration(requestData) {
+        const body = {
+            token: this.apiToken,
+            ...requestData,
+            transType: 'outletRegisterVerify',
+        };
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body));
+            return response.data;
+        }
+        catch (error) {
+            this.logger.error('OTP verification request error:', error);
+            throw error;
+        }
+    }
+    async checkOutletStatus(requestData) {
+        const body = {
+            token: this.apiToken,
+            ...requestData,
+            transType: 'outletStatus',
+        };
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body));
+            return response.data;
+        }
+        catch (error) {
+            this.logger.error('Outlet status check request error:', error);
+            throw error;
+        }
+    }
+    async getAEPSSupportedBankList() {
+        const body = {
+            token: this.apiToken,
+            transType: 'aepsBankList',
+        };
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body));
+            return response.data;
+        }
+        catch (error) {
+            this.logger.error('AEPS supported bank list request error:', error);
+            throw error;
+        }
+    }
+    async outletLogin(loginData) {
+        const body = {
+            token: this.apiToken,
+            ...loginData,
+            transType: 'outletAepsLogin',
+        };
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.apiBaseUrl}/utility/transaction.php`, body));
+            return response.data;
+        }
+        catch (error) {
+            this.logger.error('Outlet login request error:', error);
+            throw error;
+        }
+    }
+    async getAepsMiniStatement(miniStatementData) {
+        const body = {
+            token: this.apiToken,
+            ...miniStatementData,
+        };
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.apiBaseUrl}/transaction.php`, body));
+            return response.data;
+        }
+        catch (error) {
+            this.logger.error('AEPS MiniStatement request error:', error);
+            throw error;
+        }
+    }
+    async getAepsWithdrawal(withdrawalData) {
+        const body = {
+            token: this.apiToken,
+            ...withdrawalData,
+        };
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(`${this.apiBaseUrl}/transaction.php`, body));
+            return response.data;
+        }
+        catch (error) {
+            this.logger.error('AEPS Withdrawal request error:', error);
+            throw error;
+        }
+    }
     async requestAadharOtp(aadharNumber) {
         const body = {
             token: this.apiToken,

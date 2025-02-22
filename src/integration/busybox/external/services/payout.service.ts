@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order, OrderStatus, OrderType } from 'src/core/entities/order.entity';
-import { TransactionStatus } from 'src/core/entities/transactions.entity';
+import { Transaction, TransactionStatus } from 'src/core/entities/transactions.entity';
 import { User } from 'src/core/entities/user.entity';
 import { generateRef, maskAccount } from 'src/core/utils/hash.util';
 import { WalletService } from 'src/wallet/services/wallet.service';
@@ -18,23 +18,32 @@ import { IVerifyUPIRequestDTO } from '../interfaces/validation/verify-upi-reques
 import { UPIPayoutPayload } from '../dto/upi-account-payload.dto';
 import { IUPIPayoutRequestBody } from '../interfaces/payout/payout-upi-request-body.interface';
 import { getIMPSCharges } from 'src/core/utils/payment.utils';
-
 @Injectable()
 export class PayoutService {
-    private readonly logger: Logger
+    private readonly logger: Logger;
+    private readonly DAILY_LIMIT = {
+        UPI: 10000,
+        Payout: 25000,
+    };
+    
+    private readonly MONTHLY_LIMIT = {
+    UPI: 100000,
+    Payout: 200000,
+    };
     constructor(
         private walletService: WalletService,
         private payloutClientService: PayoutClientService,
         @InjectRepository(Order) private orderRepository: Repository<Order>,
         @InjectRepository(User) private userRepository: Repository<User>,
+        @InjectRepository(Transaction) private transactionRepository: Repository<Transaction>
 
     ) {
        this.logger =  new Logger(PayoutService.name)
     }
 
     async payoutAccount(userId: string, requestDto: AccountPayoutPayload) {
-        debugger
-        await this.validatePayout(userId, requestDto.amount);
+        const serviceUsed = 'Payout';
+        await this.validatePayout(userId, requestDto.amount, serviceUsed);
         const requestBody: IAccountPayoutRequestBody = {
             account_number: requestDto.accountNumber,
             amount: requestDto.amount,
@@ -73,7 +82,7 @@ export class PayoutService {
 
         await this.walletService.processRechargePayment({amount: requestDto.amount,
              receiverId: requestDto.accountNumber,
-             serviceUsed: 'Payout',
+             serviceUsed: serviceUsed,
              charges: payoutCharges,
              description: description,
              status: TransactionStatus.PENDING,
@@ -86,7 +95,7 @@ export class PayoutService {
         }
     }
 
-    async validatePayout(userId: string, amount: number) {
+    async validatePayout(userId: string, amount: number, serviceUsed: string) {
         const user = await this.userRepository.findOne({where: {id: userId}});
         const poolBalance = +(await this.payloutClientService.getPoolBalance()).balance;
 
@@ -100,15 +109,58 @@ export class PayoutService {
         if (wallet.balance < amount) {
             throw new BadRequestException('Insufficient Balance')
         }
+        await this.validateTransactionLimit(userId, amount, serviceUsed);
+    }
+    
+    async validateTransactionLimit(userId: string, amount: number, serviceUsed: string) {
+
+        // Get start of day and month timestamps
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        // Fetch total transactions for today and this month
+        const [dailyTotal, monthlyTotal] = await Promise.all([
+            this.transactionRepository
+            .createQueryBuilder('t')
+            .where('t.userId = :userId', { userId: userId })
+            .andWhere('t.serviceUsed = :serviceUsed', { serviceUsed })
+            .andWhere('t.type = :transactionType', { transactionType: 'DEBIT' })
+            .andWhere('t.createdAt >= :startOfDay', { startOfDay })
+            .select('COALESCE(SUM(t.amount), 0)', 'total')
+            .getRawOne(),
+
+            this.transactionRepository
+            .createQueryBuilder('t')
+            .where('t.userId = :userId', { userId: userId })
+            .andWhere('t.serviceUsed = :serviceUsed', { serviceUsed })
+            .andWhere('t.type = :transactionType', { transactionType: 'DEBIT' })
+            .andWhere('t.createdAt >= :startOfMonth', { startOfMonth })
+            .select('COALESCE(SUM(t.amount), 0)', 'total')
+            .getRawOne(),
+        ]);
+
+        const dailySpent = parseFloat(dailyTotal?.total || '0');
+        const monthlySpent = parseFloat(monthlyTotal?.total || '0');
+
+        // Check limits
+        if (dailySpent + amount > this.DAILY_LIMIT[serviceUsed]) {
+            throw new BadRequestException(`Daily limit exceeded for ${serviceUsed}. Allowed: Rs. ${this.DAILY_LIMIT[serviceUsed]}`);
+        }
+
+        if (monthlySpent + amount > this.MONTHLY_LIMIT[serviceUsed]) {
+            throw new BadRequestException(`Monthly limit exceeded for ${serviceUsed}. Allowed: Rs. ${this.MONTHLY_LIMIT[serviceUsed]}`);
+        }
     }
 
     async payoutUPI(userId: string, requestDto: UPIPayoutPayload) {
-        await this.validatePayout(userId, requestDto.amount);
+        const serviceUsed = 'UPI';
+        await this.validatePayout(userId, requestDto.amount, serviceUsed);
         const requestBody: IUPIPayoutRequestBody = {
             account_number: requestDto.upiId,
             amount: requestDto.amount,
             mobile: requestDto.mobile,
-            mode: "UPI"
+            mode: serviceUsed
         }
         const response = (await this.payloutClientService.payoutUsingUPI(requestBody));
 
@@ -131,7 +183,7 @@ export class PayoutService {
             payment_method: 'WALLET',
             respectiveUserName: requestDto.upiUserName,
             ifscNumber: null,
-            paymentMode: 'UPI',
+            paymentMode: serviceUsed,
             accountId: requestDto.upiId
         }
         const SavedOrder = this.orderRepository.create(order);
@@ -139,7 +191,7 @@ export class PayoutService {
 
         await this.walletService.processRechargePayment({amount: requestDto.amount,
              receiverId: requestDto.upiId,
-             serviceUsed: 'UPI',
+             serviceUsed: serviceUsed,
              description: description,
              status: TransactionStatus.PENDING,
              reference: orderId }, userId);

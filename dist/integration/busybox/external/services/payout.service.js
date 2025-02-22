@@ -26,16 +26,25 @@ const payout_client_service_1 = require("../../external-system-client/payout-cli
 const external_constant_1 = require("../constants/external.constant");
 const payment_utils_1 = require("../../../../core/utils/payment.utils");
 let PayoutService = PayoutService_1 = class PayoutService {
-    constructor(walletService, payloutClientService, orderRepository, userRepository) {
+    constructor(walletService, payloutClientService, orderRepository, userRepository, transactionRepository) {
         this.walletService = walletService;
         this.payloutClientService = payloutClientService;
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
+        this.transactionRepository = transactionRepository;
+        this.DAILY_LIMIT = {
+            UPI: 10000,
+            Payout: 25000,
+        };
+        this.MONTHLY_LIMIT = {
+            UPI: 100000,
+            Payout: 1,
+        };
         this.logger = new common_1.Logger(PayoutService_1.name);
     }
     async payoutAccount(userId, requestDto) {
-        debugger;
-        await this.validatePayout(userId, requestDto.amount);
+        const serviceUsed = 'Payout';
+        await this.validatePayout(userId, requestDto.amount, serviceUsed);
         const requestBody = {
             account_number: requestDto.accountNumber,
             amount: requestDto.amount,
@@ -72,7 +81,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
         this.orderRepository.save(SavedOrder);
         await this.walletService.processRechargePayment({ amount: requestDto.amount,
             receiverId: requestDto.accountNumber,
-            serviceUsed: 'Payout',
+            serviceUsed: serviceUsed,
             charges: payoutCharges,
             description: description,
             status: transactions_entity_1.TransactionStatus.PENDING,
@@ -83,7 +92,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
             message: description
         };
     }
-    async validatePayout(userId, amount) {
+    async validatePayout(userId, amount, serviceUsed) {
         const user = await this.userRepository.findOne({ where: { id: userId } });
         const poolBalance = +(await this.payloutClientService.getPoolBalance()).balance;
         if (poolBalance < amount) {
@@ -96,14 +105,47 @@ let PayoutService = PayoutService_1 = class PayoutService {
         if (wallet.balance < amount) {
             throw new common_1.BadRequestException('Insufficient Balance');
         }
+        await this.validateTransactionLimit(userId, amount, serviceUsed);
+    }
+    async validateTransactionLimit(userId, amount, serviceUsed) {
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const [dailyTotal, monthlyTotal] = await Promise.all([
+            this.transactionRepository
+                .createQueryBuilder('t')
+                .where('t.userId = :userId', { userId: userId })
+                .andWhere('t.serviceUsed = :serviceUsed', { serviceUsed })
+                .andWhere('t.type = :transactionType', { transactionType: 'DEBIT' })
+                .andWhere('t.createdAt >= :startOfDay', { startOfDay })
+                .select('COALESCE(SUM(t.amount), 0)', 'total')
+                .getRawOne(),
+            this.transactionRepository
+                .createQueryBuilder('t')
+                .where('t.userId = :userId', { userId: userId })
+                .andWhere('t.serviceUsed = :serviceUsed', { serviceUsed })
+                .andWhere('t.type = :transactionType', { transactionType: 'DEBIT' })
+                .andWhere('t.createdAt >= :startOfMonth', { startOfMonth })
+                .select('COALESCE(SUM(t.amount), 0)', 'total')
+                .getRawOne(),
+        ]);
+        const dailySpent = parseFloat(dailyTotal?.total || '0');
+        const monthlySpent = parseFloat(monthlyTotal?.total || '0');
+        if (dailySpent + amount > this.DAILY_LIMIT[serviceUsed]) {
+            throw new common_1.BadRequestException(`Daily limit exceeded for ${serviceUsed}. Allowed: Rs. ${this.DAILY_LIMIT[serviceUsed]}`);
+        }
+        if (monthlySpent + amount > this.MONTHLY_LIMIT[serviceUsed]) {
+            throw new common_1.BadRequestException(`Monthly limit exceeded for ${serviceUsed}. Allowed: Rs. ${this.MONTHLY_LIMIT[serviceUsed]}`);
+        }
     }
     async payoutUPI(userId, requestDto) {
-        await this.validatePayout(userId, requestDto.amount);
+        const serviceUsed = 'UPI';
+        await this.validatePayout(userId, requestDto.amount, serviceUsed);
         const requestBody = {
             account_number: requestDto.upiId,
             amount: requestDto.amount,
             mobile: requestDto.mobile,
-            mode: "UPI"
+            mode: serviceUsed
         };
         const response = (await this.payloutClientService.payoutUsingUPI(requestBody));
         if (response.status === 'FAILURE') {
@@ -125,14 +167,14 @@ let PayoutService = PayoutService_1 = class PayoutService {
             payment_method: 'WALLET',
             respectiveUserName: requestDto.upiUserName,
             ifscNumber: null,
-            paymentMode: 'UPI',
+            paymentMode: serviceUsed,
             accountId: requestDto.upiId
         };
         const SavedOrder = this.orderRepository.create(order);
         this.orderRepository.save(SavedOrder);
         await this.walletService.processRechargePayment({ amount: requestDto.amount,
             receiverId: requestDto.upiId,
-            serviceUsed: 'UPI',
+            serviceUsed: serviceUsed,
             description: description,
             status: transactions_entity_1.TransactionStatus.PENDING,
             reference: orderId }, userId);
@@ -185,8 +227,10 @@ exports.PayoutService = PayoutService = PayoutService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(2, (0, typeorm_1.InjectRepository)(order_entity_1.Order)),
     __param(3, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(4, (0, typeorm_1.InjectRepository)(transactions_entity_1.Transaction)),
     __metadata("design:paramtypes", [wallet_service_1.WalletService,
         payout_client_service_1.PayoutClientService,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])
 ], PayoutService);

@@ -29,6 +29,7 @@ const bull_1 = require("@nestjs/bull");
 const loans_module_1 = require("./loans/loans.module");
 const money_request_module_1 = require("./money-request/money-request.module");
 const coins_module_1 = require("./coins/coins.module");
+const subscriptions_module_1 = require("./subscriptions/subscriptions.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -92,6 +93,7 @@ exports.AppModule = AppModule = __decorate([
             loans_module_1.LoansModule,
             money_request_module_1.MoneyRequestModule,
             coins_module_1.CoinsModule,
+            subscriptions_module_1.SubscriptionsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
