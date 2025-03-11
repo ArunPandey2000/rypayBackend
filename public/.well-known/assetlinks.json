@@ -1,12 +1,16 @@
 [
-    {
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.riyadh.rypay",
-        "sha256_cert_fingerprints": [
-       "45:98:A5:35:C4:9D:4F:1E:FB:38:F3:46:2A:0B:1C:FD:62:0E:DB:61:3E:2B:25:F0:C9:8E:CB:C8:3D:67:B3:2F"
-        ]
-      }
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.riyadh.rypay",
+      "sha256_cert_fingerprints": [
+        "45:98:A5:35:C4:9D:4F:1E:FB:38:F3:46:2A:0B:1C:FD:62:0E:DB:61:3E:2B:25:F0:C9:8E:CB:C8:3D:67:B3:2F",
+        "B9:16:E7:9D:25:47:A2:2B:96:03:32:30:7C:D0:61:D5:94:B2:0E:FF:05:CE:A1:A6:E3:6A:E5:75:80:D5:8D:DB"
+      ]
     }
-  ]
+  }
+]
