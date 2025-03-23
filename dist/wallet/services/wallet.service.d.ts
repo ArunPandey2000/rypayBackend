@@ -8,7 +8,7 @@ import { TransactionType } from 'src/transactions/enum/transaction-type.enum';
 import { TransactionsService } from 'src/transactions/services/transactions.service';
 import { DataSource, FindOptionsWhere, QueryRunner, Repository } from 'typeorm';
 import { CreateWalletDto } from '../dto/create-wallet.dto';
-import { AddMoneyToWalletDto, DeductWalletBalanceRechargeDto, TransferMoneyDto } from '../dto/transfer-money.dto';
+import { AddMoneyThroughPGDTO, AddMoneyToWalletDto, DeductWalletBalanceRechargeDto, TransferMoneyDto } from '../dto/transfer-money.dto';
 import { CoinTransactionService } from 'src/coins/coins.service';
 import { CoinTransaction } from 'src/core/entities/coins.entity';
 export declare class WalletService {
@@ -44,6 +44,7 @@ export declare class WalletService {
     debitAmountOnCardTransaction(cardTransaction: TransactionNotifyPayload): Promise<Wallet>;
     processFundTransfer(transferAccountDto: TransferMoneyDto, req: any): Promise<Wallet>;
     processRechargePayment(deductBalanceData: DeductWalletBalanceRechargeDto, userId: string): Promise<Wallet>;
+    processPaymentGatewaySuccess(addMoneyDto: AddMoneyThroughPGDTO, userId: string): Promise<Wallet>;
     processRechargeRefundPayment(orderId: string): Promise<Wallet>;
     processRechargeSuccess(orderId: string, transactionId: string, gatewayId: string): Promise<boolean>;
     processLoanPayment(deductBalanceData: DeductWalletBalanceRechargeDto, userId: string): Promise<Wallet>;

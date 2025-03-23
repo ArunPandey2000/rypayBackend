@@ -17,6 +17,7 @@ var OrderType;
     OrderType["RECHARGE"] = "RECHARGE";
     OrderType["TRANSFER"] = "TRANSFER";
     OrderType["PAYMENT"] = "PAYMENT";
+    OrderType["PAYMENT_GATEWAY"] = "PAYMENT_GATEWAY";
     OrderType["PAYOUT"] = "PAYOUT";
     OrderType["UPI_PAYOUT"] = "UPI_PAYOUT";
 })(OrderType || (exports.OrderType = OrderType = {}));

@@ -41,6 +41,9 @@ import { SseService } from './busybox/external/services/sse-service';
 import { BullModule } from '@nestjs/bull';
 import { CoinsModule } from 'src/coins/coins.module';
 import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
+import { ExternalPaymentGatewayController } from './upitransact/external/controllers/upitransact-external.controller';
+import { PaymentGatewayController } from './upitransact/external/controllers/upitransact.controller';
+import { PaymentExternalService } from './upitransact/external/services/payment-external.service';
 
 @Module({
   imports: [
@@ -67,6 +70,7 @@ import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
     AccessTokenClientService,
     TransactionsClientService,
     ExternalService,
+    PaymentExternalService,
     SseService,
     RechargeClientService,
     PayoutClientService,
@@ -77,7 +81,7 @@ import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
     WalletBridge,
     OtpRepository
   ],
-  controllers: [ExternalController, PayoutController, RechargeExternalController, SseController],
+  controllers: [ExternalController, PayoutController, RechargeExternalController, SseController, PaymentGatewayController, ExternalPaymentGatewayController],
   exports: [
     MerchantClientService,
     CardsClientService,

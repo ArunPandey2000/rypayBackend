@@ -45,6 +45,15 @@ export declare class DeductWalletBalanceRechargeDto {
     charges?: number;
     serviceUsed: string;
 }
+export declare class AddMoneyThroughPGDTO {
+    amount: number;
+    reference: string;
+    receiverId: string;
+    description: string;
+    status: TransactionStatus;
+    charges?: number;
+    serviceUsed: string;
+}
 export declare class UpdateWalletAfterRechargeDto extends DeductWalletBalanceRechargeDto {
     user: User;
     wallet: Wallet;

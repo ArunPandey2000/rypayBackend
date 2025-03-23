@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateWalletAfterRechargeDto = exports.DeductWalletBalanceRechargeDto = exports.TransferMoneyDto = exports.AddMoneyToWalletDto = void 0;
+exports.UpdateWalletAfterRechargeDto = exports.AddMoneyThroughPGDTO = exports.DeductWalletBalanceRechargeDto = exports.TransferMoneyDto = exports.AddMoneyToWalletDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const transaction_type_enum_1 = require("../../transactions/enum/transaction-type.enum");
@@ -55,6 +55,9 @@ __decorate([
 class DeductWalletBalanceRechargeDto {
 }
 exports.DeductWalletBalanceRechargeDto = DeductWalletBalanceRechargeDto;
+class AddMoneyThroughPGDTO {
+}
+exports.AddMoneyThroughPGDTO = AddMoneyThroughPGDTO;
 class UpdateWalletAfterRechargeDto extends DeductWalletBalanceRechargeDto {
 }
 exports.UpdateWalletAfterRechargeDto = UpdateWalletAfterRechargeDto;

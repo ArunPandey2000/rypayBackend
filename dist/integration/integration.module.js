@@ -50,6 +50,9 @@ const sse_service_1 = require("./busybox/external/services/sse-service");
 const bull_1 = require("@nestjs/bull");
 const coins_module_1 = require("../coins/coins.module");
 const aadhar_verification_entity_1 = require("../core/entities/aadhar-verification.entity");
+const upitransact_external_controller_1 = require("./upitransact/external/controllers/upitransact-external.controller");
+const upitransact_controller_1 = require("./upitransact/external/controllers/upitransact.controller");
+const payment_external_service_1 = require("./upitransact/external/services/payment-external.service");
 let IntegrationModule = class IntegrationModule {
 };
 exports.IntegrationModule = IntegrationModule;
@@ -79,6 +82,7 @@ exports.IntegrationModule = IntegrationModule = __decorate([
             access_token_client_service_1.AccessTokenClientService,
             transactions_client_service_1.TransactionsClientService,
             external_service_1.ExternalService,
+            payment_external_service_1.PaymentExternalService,
             sse_service_1.SseService,
             recharge_client_service_1.RechargeClientService,
             payout_client_service_1.PayoutClientService,
@@ -89,7 +93,7 @@ exports.IntegrationModule = IntegrationModule = __decorate([
             wallet_queue_1.WalletBridge,
             otp_repository_1.OtpRepository
         ],
-        controllers: [external_controller_1.ExternalController, payout_controller_1.PayoutController, recharge_external_controller_1.RechargeExternalController, recharge_sse_controller_1.SseController],
+        controllers: [external_controller_1.ExternalController, payout_controller_1.PayoutController, recharge_external_controller_1.RechargeExternalController, recharge_sse_controller_1.SseController, upitransact_controller_1.PaymentGatewayController, upitransact_external_controller_1.ExternalPaymentGatewayController],
         exports: [
             merchant_client_service_1.MerchantClientService,
             cards_client_service_1.CardsClientService,

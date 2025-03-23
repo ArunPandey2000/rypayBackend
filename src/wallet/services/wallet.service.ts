@@ -25,7 +25,7 @@ import { TransactionsService } from 'src/transactions/services/transactions.serv
 import { DataSource, FindOptionsWhere, QueryRunner, Repository } from 'typeorm';
 import { WalletQRFormat } from '../constant/wallet-qr.constant';
 import { CreateWalletDto } from '../dto/create-wallet.dto';
-import { AddMoneyToWalletDto, DeductWalletBalanceRechargeDto, TransferMoneyDto } from '../dto/transfer-money.dto';
+import { AddMoneyThroughPGDTO, AddMoneyToWalletDto, DeductWalletBalanceRechargeDto, TransferMoneyDto } from '../dto/transfer-money.dto';
 import { CoinTransactionService } from 'src/coins/coins.service';
 import { CoinTransaction } from 'src/core/entities/coins.entity';
 
@@ -368,6 +368,44 @@ export class WalletService {
       await this.notificationBridge.add('transaction', {
         transaction,
         type: NotificationType.TRANSACTION_DEBIT
+      });
+      return wallet;
+    });
+  }
+
+  async processPaymentGatewaySuccess(
+    addMoneyDto: AddMoneyThroughPGDTO,
+    userId: string,
+  ): Promise<Wallet> {
+    return this.handleTransaction(async (queryRunner) => {
+      const user = await this.findUserById(userId);
+      const wallet = await this.findWalletByUserId(userId);
+
+      if (addMoneyDto.amount < 0) {
+        throw new BadRequestException('Amount cannot be negative');
+      }
+      let walletBalance = Number.parseFloat(wallet.balance?.toString());
+
+      const rechargeDto = {
+        ...addMoneyDto,
+        transactionHash: generateHash(),
+        user: user,
+        type: TransactionType.DEBIT,
+        transactionDate: new Date(),
+        walletBalanceBefore: walletBalance,
+        walletBalanceAfter: walletBalance + addMoneyDto.amount,
+        wallet,
+        sender: user.id,
+        receiver: addMoneyDto.receiverId,
+        serviceUsed: addMoneyDto.serviceUsed,
+      };
+      walletBalance -= addMoneyDto.amount;
+
+      await this.updateWalletBalance(wallet, addMoneyDto.amount, queryRunner, true);
+      const transaction = await this.transactionsService.saveTransaction(rechargeDto, queryRunner);
+      await this.notificationBridge.add('transaction', {
+        transaction,
+        type: NotificationType.TRANSACTION_CREDIT
       });
       return wallet;
     });

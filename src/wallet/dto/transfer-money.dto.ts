@@ -95,6 +95,15 @@ export class AddMoneyToWalletDto {
     serviceUsed: string;
   }
 
+  export class AddMoneyThroughPGDTO {
+    amount: number;
+    reference: string;
+    receiverId: string;
+    description: string;
+    status: TransactionStatus;
+    serviceUsed: string;
+  }
+
   export class UpdateWalletAfterRechargeDto extends DeductWalletBalanceRechargeDto {
     user: User;
   

@@ -330,6 +330,37 @@ let WalletService = class WalletService {
             return wallet;
         });
     }
+    async processPaymentGatewaySuccess(addMoneyDto, userId) {
+        return this.handleTransaction(async (queryRunner) => {
+            const user = await this.findUserById(userId);
+            const wallet = await this.findWalletByUserId(userId);
+            if (addMoneyDto.amount < 0) {
+                throw new common_1.BadRequestException('Amount cannot be negative');
+            }
+            let walletBalance = Number.parseFloat(wallet.balance?.toString());
+            const rechargeDto = {
+                ...addMoneyDto,
+                transactionHash: (0, hash_util_1.generateHash)(),
+                user: user,
+                type: transaction_type_enum_1.TransactionType.DEBIT,
+                transactionDate: new Date(),
+                walletBalanceBefore: walletBalance,
+                walletBalanceAfter: walletBalance + addMoneyDto.amount,
+                wallet,
+                sender: user.id,
+                receiver: addMoneyDto.receiverId,
+                serviceUsed: addMoneyDto.serviceUsed,
+            };
+            walletBalance -= addMoneyDto.amount;
+            await this.updateWalletBalance(wallet, addMoneyDto.amount, queryRunner, true);
+            const transaction = await this.transactionsService.saveTransaction(rechargeDto, queryRunner);
+            await this.notificationBridge.add('transaction', {
+                transaction,
+                type: notification_entity_1.NotificationType.TRANSACTION_CREDIT
+            });
+            return wallet;
+        });
+    }
     async processRechargeRefundPayment(orderId) {
         return this.handleTransaction(async (queryRunner) => {
             const order = await this.orderRepository.findOne({ where: { order_id: orderId }, relations: { user: true } });
