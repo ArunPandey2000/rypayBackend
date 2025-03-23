@@ -125,6 +125,10 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "profileIcon", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ name: 'staticQR', nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "staticQR", void 0);
+__decorate([
     (0, typeorm_1.Column)({ name: 'referralCode', nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "referralCode", void 0);

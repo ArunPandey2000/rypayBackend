@@ -60,6 +60,9 @@ let UsersController = class UsersController {
     async updateProfileIcon(file, req) {
         return this.userService.updateProfileIcon(req.user.sub, file);
     }
+    async updateStaticQR(userId, file) {
+        return this.userService.updateStaticQR(userId, file);
+    }
     async setPin(req, pinRequest) {
         await this.userService.setPin(req.user.sub, pinRequest.pin);
         return {
@@ -302,6 +305,42 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateProfileIcon", null);
+__decorate([
+    (0, common_1.Put)('update-static-qr/:userId'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
+    (0, swagger_1.ApiOperation)({ summary: 'Update static QR' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Static QR uploaded successfully.' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad Request.' }),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
+    (0, swagger_1.ApiBody)({
+        description: 'File to upload and user ID',
+        type: 'multipart/form-data',
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                }
+            },
+        },
+    }),
+    __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.UploadedFile)(new common_1.ParseFilePipe({
+        validators: [
+            new common_1.MaxFileSizeValidator({
+                maxSize: (10 * 1024 * 1024),
+                message: 'File is too large. Max file size is 10MB',
+            }),
+        ],
+        fileIsRequired: true,
+    }))),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateStaticQR", null);
 __decorate([
     (0, common_1.Post)('set-pin'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

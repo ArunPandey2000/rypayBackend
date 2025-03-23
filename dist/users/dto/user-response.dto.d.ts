@@ -32,6 +32,7 @@ export declare class UserResponse {
     isPinCreated: boolean;
     cardDetails: CardResponse;
     profileUrl: String;
+    staticQRUrl: String;
     aadharNumber: String;
     panNumber: String;
     referrelCode: String;

@@ -31,9 +31,9 @@ let PaymentExternalService = PaymentExternalService_1 = class PaymentExternalSer
         this.logger = new common_1.Logger(PaymentExternalService_1.name);
     }
     async handlePaymentCallback(requestDto) {
-        const serviceUsed = 'Payout';
+        const serviceUsed = 'PaymentGateway';
         const orderId = requestDto.data.orderId;
-        const order = await this.orderRepository.findOne({ where: { order_id: orderId } });
+        const order = await this.orderRepository.findOne({ where: { order_id: orderId }, relations: ['user'] });
         if (!order) {
             throw new common_1.BadRequestException('order not found');
         }
@@ -83,7 +83,7 @@ let PaymentExternalService = PaymentExternalService_1 = class PaymentExternalSer
             accountId: ""
         };
         const SavedOrder = this.orderRepository.create(order);
-        this.orderRepository.save(SavedOrder);
+        await this.orderRepository.save(SavedOrder);
         return {
             referenceId: SavedOrder.order_id,
             amount: payload.amount,

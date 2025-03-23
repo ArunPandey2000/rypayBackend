@@ -97,6 +97,9 @@ export class User {
   @Column({ name: 'profileIcon', nullable: true })
   profileIcon: string;
 
+  @Column({ name: 'staticQR', nullable: true })
+  staticQR: string;
+
   @Column({ name: 'referralCode', nullable: true })
   referralCode: string;
 

@@ -148,6 +148,10 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)
+], UserResponse.prototype, "staticQRUrl", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
 ], UserResponse.prototype, "aadharNumber", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),

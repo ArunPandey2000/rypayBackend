@@ -25,6 +25,10 @@ export declare class UsersController {
         message: string;
         fileUrl: string;
     }>;
+    updateStaticQR(userId: string, file: Express.Multer.File): Promise<{
+        message: string;
+        fileUrl: string;
+    }>;
     setPin(req: any, pinRequest: PinRequestDto): Promise<{
         message: string;
     }>;

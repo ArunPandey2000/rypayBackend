@@ -22,10 +22,10 @@ export class PaymentExternalService {
     }
 
     async handlePaymentCallback(requestDto: WebhookPaymentRequestDto) {
-        const serviceUsed = 'Payout';
+        const serviceUsed = 'PaymentGateway';
 
         const orderId = requestDto.data.orderId;
-        const order = await this.orderRepository.findOne({where: {order_id: orderId}});
+        const order = await this.orderRepository.findOne({where: {order_id: orderId}, relations: ['user']});
         if(!order) {
             throw new BadRequestException('order not found');
         }
@@ -76,7 +76,7 @@ export class PaymentExternalService {
             accountId: ""
         }
         const SavedOrder = this.orderRepository.create(order);
-        this.orderRepository.save(SavedOrder);
+        await this.orderRepository.save(SavedOrder);
         return {
             referenceId: SavedOrder.order_id,
             amount: payload.amount,

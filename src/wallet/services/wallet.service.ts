@@ -390,7 +390,7 @@ export class WalletService {
         ...addMoneyDto,
         transactionHash: generateHash(),
         user: user,
-        type: TransactionType.DEBIT,
+        type: TransactionType.CREDIT,
         transactionDate: new Date(),
         walletBalanceBefore: walletBalance,
         walletBalanceAfter: walletBalance + addMoneyDto.amount,

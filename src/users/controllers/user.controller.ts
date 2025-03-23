@@ -201,6 +201,39 @@ export class UsersController {
       return this.userService.updateProfileIcon(req.user.sub, file);
   }
 
+  @Put('update-static-qr/:userId')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiOperation({ summary: 'Update static QR' })
+  @ApiResponse({ status: 200, description: 'Static QR uploaded successfully.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+      description: 'File to upload and user ID',
+      type: 'multipart/form-data',
+      schema: {
+          type: 'object',
+          properties: {
+              file: {
+                  type: 'string',
+                  format: 'binary',
+              }
+          },
+      },
+  })
+  async updateStaticQR(@Param('userId') userId: string, @UploadedFile(new ParseFilePipe({
+    validators: [
+      new MaxFileSizeValidator({
+        maxSize: (10 * 1024 * 1024), // 10MB
+        message: 'File is too large. Max file size is 10MB',
+      }),
+    ],
+    fileIsRequired: true,
+  })) file: Express.Multer.File) {
+      return this.userService.updateStaticQR(userId, file);
+  }
+
   @Post('set-pin')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

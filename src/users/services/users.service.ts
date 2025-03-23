@@ -287,6 +287,10 @@ export class UsersService {
       const fileInfo = await this.uploadFileService.getPresignedSignedUrl(userModel.profileIcon);
       userResponse.profileUrl = fileInfo.url;
     }
+    if (userModel.staticQR) {
+      const fileInfo = await this.uploadFileService.getPresignedSignedUrl(userModel.staticQR);
+      userResponse.staticQRUrl = fileInfo.url;
+    }
     return userResponse;
   }
 
@@ -469,6 +473,10 @@ export class UsersService {
       const fileInfo = await this.uploadFileService.getPresignedSignedUrl(user.profileIcon);
       (user as any).profileUrl = fileInfo.url;
     }
+    if (user.staticQR) {
+      const fileInfo = await this.uploadFileService.getPresignedSignedUrl(user.staticQR);
+      (user as any).staticQRUrl = fileInfo.url;
+    }
     if (user.documents?.length) {
       for (const document of user.documents) {
         const fileInfo = await this.uploadFileService.getPresignedSignedUrl(document.documentUrl);
@@ -516,6 +524,20 @@ export class UsersService {
     await this.userRepository.save(user);
     return {
       message: 'Profile icon updated successfully!',
+      fileUrl: fileInfo.url
+    }
+  }
+
+  async updateStaticQR(userId: string, file: Express.Multer.File) {
+    const user = await this.findUserById(userId);
+    if (!user) {
+      throw new BadRequestException('user not found');
+    }
+    const fileInfo = await this.uploadFileService.uploadSingleFile(file);
+    user.staticQR = fileInfo.key;
+    await this.userRepository.save(user);
+    return {
+      message: 'Static QR updated successfully!',
       fileUrl: fileInfo.url
     }
   }

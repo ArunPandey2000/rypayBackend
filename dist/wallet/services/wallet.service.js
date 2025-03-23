@@ -342,7 +342,7 @@ let WalletService = class WalletService {
                 ...addMoneyDto,
                 transactionHash: (0, hash_util_1.generateHash)(),
                 user: user,
-                type: transaction_type_enum_1.TransactionType.DEBIT,
+                type: transaction_type_enum_1.TransactionType.CREDIT,
                 transactionDate: new Date(),
                 walletBalanceBefore: walletBalance,
                 walletBalanceAfter: walletBalance + addMoneyDto.amount,

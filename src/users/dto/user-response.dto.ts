@@ -90,6 +90,9 @@ export class UserResponse {
   profileUrl: String
 
   @ApiProperty()
+  staticQRUrl: String
+
+  @ApiProperty()
   aadharNumber: String
 
   @ApiProperty()
