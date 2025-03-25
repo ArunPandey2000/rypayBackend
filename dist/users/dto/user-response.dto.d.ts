@@ -35,6 +35,7 @@ export declare class UserResponse {
     staticQRUrl: String;
     aadharNumber: String;
     panNumber: String;
+    merchantPartnerId: String;
     referrelCode: String;
     accountDetails: AccountResponse;
     constructor(user: User);

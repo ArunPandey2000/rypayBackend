@@ -27,7 +27,7 @@ __decorate([
     __metadata("design:type", String)
 ], Merchant.prototype, "gstNumber", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'msme_number', type: 'varchar', nullable: false }),
+    (0, typeorm_1.Column)({ name: 'msme_number', type: 'varchar', nullable: true }),
     __metadata("design:type", String)
 ], Merchant.prototype, "msmeNumber", void 0);
 exports.Merchant = Merchant = __decorate([

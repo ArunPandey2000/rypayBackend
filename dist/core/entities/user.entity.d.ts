@@ -37,6 +37,7 @@ export declare class User {
     referralCode: string;
     userSession: string;
     merchant: Merchant;
+    merchantPartnerId: string;
     notifications: Notification[];
     coinTransactions: CoinTransaction[];
     mobileDevices: string[];

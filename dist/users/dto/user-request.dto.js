@@ -99,7 +99,6 @@ __decorate([
     __metadata("design:type", String)
 ], UserRequestCommonDto.prototype, "userType", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)(),
     (0, swagger_1.ApiProperty)(),
     (0, class_validator_1.Matches)(/[A-Z]{5}[0-9]{4}[A-Z]{1}/),
     __metadata("design:type", String)

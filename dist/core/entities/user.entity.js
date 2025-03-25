@@ -43,7 +43,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "aadharNumber", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'pan_number', type: 'varchar', unique: true }),
+    (0, typeorm_1.Column)({ name: 'pan_number', type: 'varchar', unique: true, nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "panNumber", void 0);
 __decorate([
@@ -141,6 +141,10 @@ __decorate([
     (0, typeorm_1.JoinColumn)({ name: 'merchant_id' }),
     __metadata("design:type", merchant_entity_1.Merchant)
 ], User.prototype, "merchant", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'merchantPartnerId', nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "merchantPartnerId", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => notification_entity_1.Notification, (notification) => notification.user),
     __metadata("design:type", Array)

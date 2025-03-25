@@ -22,7 +22,7 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new ValidationExceptionFilter());
   app.enableCors();
-  app.use(json());
+  app.use(json({ limit: '50mb' }));
   SwaggerModule.setup('api', app, document);
   app.use(helmet());
   const logger = app.get(Logger);

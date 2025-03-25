@@ -77,6 +77,7 @@ class UserResponse {
         this.panNumber = user.panNumber;
         this.isBlocked = !!user.isBlocked;
         this.phoneNumber = user.phoneNumber;
+        this.merchantPartnerId = user.merchantPartnerId;
         this.kycVerificationStatus = kyc_verification_status_enum_1.KycVerificationStatus[user.kycVerificationStatus].toString();
         this.isPinCreated = !!user.pin;
         this.cardDetails = new CardResponse(user.card);
@@ -157,6 +158,10 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)
 ], UserResponse.prototype, "panNumber", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    __metadata("design:type", String)
+], UserResponse.prototype, "merchantPartnerId", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)

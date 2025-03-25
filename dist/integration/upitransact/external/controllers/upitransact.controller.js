@@ -18,12 +18,18 @@ const swagger_1 = require("@nestjs/swagger");
 const payment_external_service_1 = require("../services/payment-external.service");
 const payment_request_dto_1 = require("../dto/payment-request.dto");
 const jwt_auth_guard_1 = require("../../../../auth/guards/jwt-auth.guard");
+const settlement_history_dto_1 = require("../dto/settlement-history.dto");
+const payment_external_client_service_1 = require("../../external-system-client/payment-external-client.service");
 let PaymentGatewayController = class PaymentGatewayController {
-    constructor(externalService) {
+    constructor(externalService, resellerExternalCLient) {
         this.externalService = externalService;
+        this.resellerExternalCLient = resellerExternalCLient;
     }
     async handleKycEvents(req, payload) {
         return this.externalService.createPaymentRequestOrder(req.user.sub, payload);
+    }
+    async getMergedData(startDate, endDate, merchantId) {
+        return this.resellerExternalCLient.getMergedData(startDate, endDate, merchantId);
     }
 };
 exports.PaymentGatewayController = PaymentGatewayController;
@@ -35,11 +41,30 @@ __decorate([
     __metadata("design:paramtypes", [Object, payment_request_dto_1.PaymentRequestDto]),
     __metadata("design:returntype", Promise)
 ], PaymentGatewayController.prototype, "handleKycEvents", null);
+__decorate([
+    (0, common_1.Get)('settlements'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get merged transaction and settlement data' }),
+    (0, swagger_1.ApiQuery)({ name: 'startDate', required: true, example: '2025-03-01' }),
+    (0, swagger_1.ApiQuery)({ name: 'endDate', required: true, example: '2025-03-20' }),
+    (0, swagger_1.ApiQuery)({ name: 'merchantId', required: false, example: 'THANDICOFF' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Merged transaction and settlement data',
+        type: settlement_history_dto_1.MergedDataResponseDTO,
+    }),
+    __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, common_1.Query)('endDate')),
+    __param(2, (0, common_1.Query)('merchantId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", Promise)
+], PaymentGatewayController.prototype, "getMergedData", null);
 exports.PaymentGatewayController = PaymentGatewayController = __decorate([
     (0, common_1.Controller)('external'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiTags)('External'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __metadata("design:paramtypes", [payment_external_service_1.PaymentExternalService])
+    __metadata("design:paramtypes", [payment_external_service_1.PaymentExternalService,
+        payment_external_client_service_1.PaymentExternalClientService])
 ], PaymentGatewayController);
 //# sourceMappingURL=upitransact.controller.js.map

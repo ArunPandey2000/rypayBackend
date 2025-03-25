@@ -53,6 +53,7 @@ const aadhar_verification_entity_1 = require("../core/entities/aadhar-verificati
 const upitransact_external_controller_1 = require("./upitransact/external/controllers/upitransact-external.controller");
 const upitransact_controller_1 = require("./upitransact/external/controllers/upitransact.controller");
 const payment_external_service_1 = require("./upitransact/external/services/payment-external.service");
+const payment_external_client_service_1 = require("./upitransact/external-system-client/payment-external-client.service");
 let IntegrationModule = class IntegrationModule {
 };
 exports.IntegrationModule = IntegrationModule;
@@ -82,6 +83,7 @@ exports.IntegrationModule = IntegrationModule = __decorate([
             access_token_client_service_1.AccessTokenClientService,
             transactions_client_service_1.TransactionsClientService,
             external_service_1.ExternalService,
+            payment_external_client_service_1.PaymentExternalClientService,
             payment_external_service_1.PaymentExternalService,
             sse_service_1.SseService,
             recharge_client_service_1.RechargeClientService,

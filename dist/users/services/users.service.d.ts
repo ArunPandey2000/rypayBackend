@@ -72,7 +72,7 @@ export declare class UsersService {
         message: string;
         fileUrl: string;
     }>;
-    updateStaticQR(userId: string, file: Express.Multer.File): Promise<{
+    updateStaticQR(userId: string, merchantId: string, file: Express.Multer.File): Promise<{
         message: string;
         fileUrl: string;
     }>;

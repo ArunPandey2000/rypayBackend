@@ -528,13 +528,14 @@ export class UsersService {
     }
   }
 
-  async updateStaticQR(userId: string, file: Express.Multer.File) {
+  async updateStaticQR(userId: string, merchantId: string, file: Express.Multer.File) {
     const user = await this.findUserById(userId);
     if (!user) {
       throw new BadRequestException('user not found');
     }
     const fileInfo = await this.uploadFileService.uploadSingleFile(file);
     user.staticQR = fileInfo.key;
+    user.merchantPartnerId = merchantId;
     await this.userRepository.save(user);
     return {
       message: 'Static QR updated successfully!',

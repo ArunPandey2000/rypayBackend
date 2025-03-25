@@ -1,14 +1,14 @@
+import { User } from 'src/core/entities/user.entity';
 import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
+import { KycVerificationStatusResponse } from '../dto/kyc-status.dto';
+import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
 import { PinRequestDto, UpdateForgotPin } from '../dto/pin-request.dto';
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
 import { UserAdminRequestDto, UserRequestDto, UserUpdateRequestDto, ValidateOTPAfterCardCreationDTO } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
+import { ValidateAadharDto } from '../dto/validate-aadhar.dto';
 import { UploadFileService } from '../services/updaload-file.service';
 import { UsersService } from '../services/users.service';
-import { KycVerificationStatusResponse } from '../dto/kyc-status.dto';
-import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
-import { User } from 'src/core/entities/user.entity';
-import { ValidateAadharDto } from '../dto/validate-aadhar.dto';
 export declare class UsersController {
     private userService;
     private uploadFileService;
@@ -25,7 +25,7 @@ export declare class UsersController {
         message: string;
         fileUrl: string;
     }>;
-    updateStaticQR(userId: string, file: Express.Multer.File): Promise<{
+    updateStaticQR(userId: string, file: Express.Multer.File, merchantId: string): Promise<{
         message: string;
         fileUrl: string;
     }>;

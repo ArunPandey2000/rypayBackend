@@ -1,19 +1,19 @@
-import { Body, Controller, Delete, FileTypeValidator, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
-import { PinRequestDto, UpdateForgotPin } from '../dto/pin-request.dto';
-import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
-import { UserAdminRequestDto, UserRequestDto, UserUpdateRequestDto, UserUpdateResponse, ValidateOTPAfterCardCreationDTO } from '../dto/user-request.dto';
-import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
-import { UploadFileService } from '../services/updaload-file.service';
-import { UsersService } from '../services/users.service';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { User } from 'src/core/entities/user.entity';
+import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
 import { KycVerificationStatusResponse } from '../dto/kyc-status.dto';
 import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
-import { User } from 'src/core/entities/user.entity';
+import { PinRequestDto, UpdateForgotPin } from '../dto/pin-request.dto';
+import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
+import { UserAdminRequestDto, UserRequestDto, UserUpdateRequestDto, ValidateOTPAfterCardCreationDTO } from '../dto/user-request.dto';
+import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { ValidateAadharDto } from '../dto/validate-aadhar.dto';
+import { UploadFileService } from '../services/updaload-file.service';
+import { UsersService } from '../services/users.service';
 
 @Controller('user')
 @ApiTags('User')
@@ -202,37 +202,44 @@ export class UsersController {
   }
 
   @Put('update-static-qr/:userId')
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  @ApiOperation({ summary: 'Update static QR' })
-  @ApiResponse({ status: 200, description: 'Static QR uploaded successfully.' })
-  @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-      description: 'File to upload and user ID',
-      type: 'multipart/form-data',
-      schema: {
-          type: 'object',
-          properties: {
-              file: {
-                  type: 'string',
-                  format: 'binary',
-              }
-          },
+@UseInterceptors(FileInterceptor('file'))
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, AdminGuard)
+@ApiOperation({ summary: 'Update static QR' })
+@ApiResponse({ status: 200, description: 'Static QR uploaded successfully.' })
+@ApiResponse({ status: 400, description: 'Bad Request.' })
+@ApiConsumes('multipart/form-data')
+@ApiBody({
+  description: 'File to upload, user ID, and merchant ID',
+  schema: {
+    type: 'object',
+    properties: {
+      file: {
+        type: 'string',
+        format: 'binary',
       },
-  })
-  async updateStaticQR(@Param('userId') userId: string, @UploadedFile(new ParseFilePipe({
+      merchantId: {
+        type: 'string',
+      },
+    },
+  },
+})
+async updateStaticQR(
+  @Param('userId') userId: string,
+  @UploadedFile(new ParseFilePipe({
     validators: [
       new MaxFileSizeValidator({
-        maxSize: (10 * 1024 * 1024), // 10MB
+        maxSize: 10 * 1024 * 1024, // 10MB
         message: 'File is too large. Max file size is 10MB',
       }),
     ],
     fileIsRequired: true,
-  })) file: Express.Multer.File) {
-      return this.userService.updateStaticQR(userId, file);
-  }
+  })) file: Express.Multer.File,
+  @Body('merchantId') merchantId: string
+) {
+  return this.userService.updateStaticQR(userId, merchantId, file);
+}
+
 
   @Post('set-pin')
   @UseGuards(JwtAuthGuard)

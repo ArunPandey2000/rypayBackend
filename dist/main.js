@@ -21,7 +21,7 @@ async function bootstrap() {
     app.useGlobalPipes(new common_1.ValidationPipe({ transform: true, stopAtFirstError: true }));
     app.useGlobalFilters(new exception_filters_1.ValidationExceptionFilter());
     app.enableCors();
-    app.use((0, express_1.json)());
+    app.use((0, express_1.json)({ limit: '50mb' }));
     swagger_1.SwaggerModule.setup('api', app, document);
     app.use((0, helmet_1.default)());
     const logger = app.get(nestjs_pino_1.Logger);

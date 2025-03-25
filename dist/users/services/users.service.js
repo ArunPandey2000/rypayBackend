@@ -464,13 +464,14 @@ let UsersService = class UsersService {
             fileUrl: fileInfo.url
         };
     }
-    async updateStaticQR(userId, file) {
+    async updateStaticQR(userId, merchantId, file) {
         const user = await this.findUserById(userId);
         if (!user) {
             throw new common_1.BadRequestException('user not found');
         }
         const fileInfo = await this.uploadFileService.uploadSingleFile(file);
         user.staticQR = fileInfo.key;
+        user.merchantPartnerId = merchantId;
         await this.userRepository.save(user);
         return {
             message: 'Static QR updated successfully!',

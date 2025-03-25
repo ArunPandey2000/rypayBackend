@@ -99,6 +99,9 @@ export class UserResponse {
   panNumber: String
 
   @ApiProperty()
+  merchantPartnerId: String
+
+  @ApiProperty()
   referrelCode: String
 
   @ApiProperty()
@@ -116,6 +119,7 @@ export class UserResponse {
     this.panNumber = user.panNumber;
     this.isBlocked = !!user.isBlocked;
     this.phoneNumber = user.phoneNumber;
+    this.merchantPartnerId = user.merchantPartnerId;
     this.kycVerificationStatus = KycVerificationStatus[user.kycVerificationStatus].toString();
     this.isPinCreated = !!user.pin;
     this.cardDetails = new CardResponse(user.card);

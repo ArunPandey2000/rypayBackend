@@ -33,7 +33,7 @@ export class User {
   @Column({ name: 'aadhar_number', type: 'varchar', unique: true })
   aadharNumber: string;
 
-  @Column({ name: 'pan_number', type: 'varchar', unique: true })
+  @Column({ name: 'pan_number', type: 'varchar', unique: true, nullable: true })
   panNumber: string;
 
   @Column({ name: 'is_kyc_verified', type: 'smallint', default: 0 })
@@ -109,6 +109,9 @@ export class User {
   @OneToOne(() => Merchant, (merchant) => merchant.id, { cascade: true })
   @JoinColumn({ name: 'merchant_id' })
   merchant: Merchant;
+
+  @Column({ name: 'merchantPartnerId', nullable: true })
+  merchantPartnerId: string
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];

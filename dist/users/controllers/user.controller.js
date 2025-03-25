@@ -16,18 +16,18 @@ exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
 const swagger_1 = require("@nestjs/swagger");
+const admin_guard_1 = require("../../auth/guards/admin.guard");
 const jwt_auth_guard_1 = require("../../auth/guards/jwt-auth.guard");
+const user_entity_1 = require("../../core/entities/user.entity");
+const kyc_status_dto_1 = require("../dto/kyc-status.dto");
+const phone_number_exists_dto_1 = require("../dto/phone-number-exists.dto");
 const pin_request_dto_1 = require("../dto/pin-request.dto");
 const user_kyc_upload_dto_1 = require("../dto/user-kyc-upload.dto");
 const user_request_dto_1 = require("../dto/user-request.dto");
 const user_response_dto_1 = require("../dto/user-response.dto");
+const validate_aadhar_dto_1 = require("../dto/validate-aadhar.dto");
 const updaload_file_service_1 = require("../services/updaload-file.service");
 const users_service_1 = require("../services/users.service");
-const admin_guard_1 = require("../../auth/guards/admin.guard");
-const kyc_status_dto_1 = require("../dto/kyc-status.dto");
-const phone_number_exists_dto_1 = require("../dto/phone-number-exists.dto");
-const user_entity_1 = require("../../core/entities/user.entity");
-const validate_aadhar_dto_1 = require("../dto/validate-aadhar.dto");
 let UsersController = class UsersController {
     constructor(userService, uploadFileService) {
         this.userService = userService;
@@ -60,8 +60,8 @@ let UsersController = class UsersController {
     async updateProfileIcon(file, req) {
         return this.userService.updateProfileIcon(req.user.sub, file);
     }
-    async updateStaticQR(userId, file) {
-        return this.userService.updateStaticQR(userId, file);
+    async updateStaticQR(userId, file, merchantId) {
+        return this.userService.updateStaticQR(userId, merchantId, file);
     }
     async setPin(req, pinRequest) {
         await this.userService.setPin(req.user.sub, pinRequest.pin);
@@ -315,15 +315,17 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad Request.' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({
-        description: 'File to upload and user ID',
-        type: 'multipart/form-data',
+        description: 'File to upload, user ID, and merchant ID',
         schema: {
             type: 'object',
             properties: {
                 file: {
                     type: 'string',
                     format: 'binary',
-                }
+                },
+                merchantId: {
+                    type: 'string',
+                },
             },
         },
     }),
@@ -331,14 +333,15 @@ __decorate([
     __param(1, (0, common_1.UploadedFile)(new common_1.ParseFilePipe({
         validators: [
             new common_1.MaxFileSizeValidator({
-                maxSize: (10 * 1024 * 1024),
+                maxSize: 10 * 1024 * 1024,
                 message: 'File is too large. Max file size is 10MB',
             }),
         ],
         fileIsRequired: true,
     }))),
+    __param(2, (0, common_1.Body)('merchantId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, Object, String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateStaticQR", null);
 __decorate([

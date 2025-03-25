@@ -44,6 +44,7 @@ import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
 import { ExternalPaymentGatewayController } from './upitransact/external/controllers/upitransact-external.controller';
 import { PaymentGatewayController } from './upitransact/external/controllers/upitransact.controller';
 import { PaymentExternalService } from './upitransact/external/services/payment-external.service';
+import { PaymentExternalClientService } from './upitransact/external-system-client/payment-external-client.service';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { PaymentExternalService } from './upitransact/external/services/payment-
     AccessTokenClientService,
     TransactionsClientService,
     ExternalService,
+    PaymentExternalClientService,
     PaymentExternalService,
     SseService,
     RechargeClientService,
