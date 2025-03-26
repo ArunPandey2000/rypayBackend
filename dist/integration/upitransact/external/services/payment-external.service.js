@@ -23,14 +23,21 @@ const hash_util_1 = require("../../../../core/utils/hash.util");
 const external_constant_1 = require("../../../busybox/external/constants/external.constant");
 const wallet_service_1 = require("../../../../wallet/services/wallet.service");
 const typeorm_2 = require("typeorm");
+const busybox_webhook_logs_entity_1 = require("../../../../core/entities/busybox_webhook_logs.entity");
 let PaymentExternalService = PaymentExternalService_1 = class PaymentExternalService {
-    constructor(walletService, orderRepository, userRepository) {
+    constructor(walletService, webHookRepo, orderRepository, userRepository) {
         this.walletService = walletService;
+        this.webHookRepo = webHookRepo;
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.logger = new common_1.Logger(PaymentExternalService_1.name);
     }
     async handlePaymentCallback(requestDto) {
+        const webHookResponse = this.webHookRepo.create({
+            type: busybox_webhook_logs_entity_1.Webhook_Type.QRPayment,
+            additionalData: requestDto
+        });
+        await this.webHookRepo.save(webHookResponse);
         const serviceUsed = 'PaymentGateway';
         const orderId = requestDto.data.orderId;
         const order = await this.orderRepository.findOne({ where: { order_id: orderId }, relations: ['user'] });
@@ -94,9 +101,11 @@ let PaymentExternalService = PaymentExternalService_1 = class PaymentExternalSer
 exports.PaymentExternalService = PaymentExternalService;
 exports.PaymentExternalService = PaymentExternalService = PaymentExternalService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __param(1, (0, typeorm_1.InjectRepository)(order_entity_1.Order)),
-    __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(1, (0, typeorm_1.InjectRepository)(busybox_webhook_logs_entity_1.BusyBoxWebhookResponse)),
+    __param(2, (0, typeorm_1.InjectRepository)(order_entity_1.Order)),
+    __param(3, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [wallet_service_1.WalletService,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])
 ], PaymentExternalService);

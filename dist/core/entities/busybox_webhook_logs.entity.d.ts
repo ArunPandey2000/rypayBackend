@@ -3,7 +3,8 @@ export declare enum Webhook_Type {
     TRANSACTION = "TRANSACTION",
     UPI = "UPI",
     DEBIT = "DEBIT",
-    Payout = "PAYOUT"
+    Payout = "PAYOUT",
+    QRPayment = "QR_Payment"
 }
 export declare class BusyBoxWebhookResponse {
     id: string;

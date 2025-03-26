@@ -4,12 +4,14 @@ import { WalletService } from 'src/wallet/services/wallet.service';
 import { Repository } from 'typeorm';
 import { PaymentRequestDto } from '../dto/payment-request.dto';
 import { WebhookPaymentRequestDto } from '../dto/webhook-payload.dto';
+import { BusyBoxWebhookResponse } from 'src/core/entities/busybox_webhook_logs.entity';
 export declare class PaymentExternalService {
     private walletService;
+    private webHookRepo;
     private orderRepository;
     private userRepository;
     private readonly logger;
-    constructor(walletService: WalletService, orderRepository: Repository<Order>, userRepository: Repository<User>);
+    constructor(walletService: WalletService, webHookRepo: Repository<BusyBoxWebhookResponse>, orderRepository: Repository<Order>, userRepository: Repository<User>);
     handlePaymentCallback(requestDto: WebhookPaymentRequestDto): Promise<{
         referenceId: string;
         amount: number;

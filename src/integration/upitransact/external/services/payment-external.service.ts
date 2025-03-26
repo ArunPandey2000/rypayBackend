@@ -9,11 +9,13 @@ import { WalletService } from 'src/wallet/services/wallet.service';
 import { Repository } from 'typeorm';
 import { PaymentRequestDto } from '../dto/payment-request.dto';
 import { WebhookPaymentRequestDto } from '../dto/webhook-payload.dto';
+import { BusyBoxWebhookResponse, Webhook_Type } from 'src/core/entities/busybox_webhook_logs.entity';
 @Injectable()
 export class PaymentExternalService {
     private readonly logger: Logger;
     constructor(
         private walletService: WalletService,
+        @InjectRepository(BusyBoxWebhookResponse) private webHookRepo: Repository<BusyBoxWebhookResponse>,
         @InjectRepository(Order) private orderRepository: Repository<Order>,
         @InjectRepository(User) private userRepository: Repository<User>
 
@@ -22,6 +24,12 @@ export class PaymentExternalService {
     }
 
     async handlePaymentCallback(requestDto: WebhookPaymentRequestDto) {
+
+        const webHookResponse = this.webHookRepo.create(<BusyBoxWebhookResponse>{
+            type: Webhook_Type.QRPayment,
+            additionalData: requestDto as any
+        })
+        await this.webHookRepo.save(webHookResponse);
         const serviceUsed = 'PaymentGateway';
 
         const orderId = requestDto.data.orderId;
