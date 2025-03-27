@@ -32,7 +32,7 @@ export class PaymentExternalService {
         await this.webHookRepo.save(webHookResponse);
         const serviceUsed = 'PaymentGateway';
 
-        const orderId = requestDto.data.orderId;
+        const orderId = requestDto.data.merchantReferenceId;
         const order = await this.orderRepository.findOne({where: {order_id: orderId}, relations: ['user']});
         if(!order) {
             throw new BadRequestException('order not found');

@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { MergedDataResponseDTO, SettlementHistoryDTO } from "../external/dto/settlement-history.dto";
+import { MergedDataResponseDTO, SettlementHistoryDTO, TransactionHistoryDTO } from "../external/dto/settlement-history.dto";
 import * as moment from "moment-timezone";
 import { HttpService } from "@nestjs/axios";
 import { catchError, firstValueFrom } from "rxjs";
@@ -76,11 +76,42 @@ export class PaymentExternalClientService {
 
       return {
         todayTotalCollection,
+        todayTotalPayments: transactions?.length,
         todayTotalSettlementForTomorrow: todayTotalCollection,
         settlementHistory,
       };
     } catch (error) {
       throw new Error(`Failed to fetch merged data: ${error.message}`);
+    }
+  }
+
+  async getTransactionsData(startDate: string, endDate: string, merchantId?: string): Promise<TransactionHistoryDTO[]> {
+    try {
+
+      const transactionRequest = this.httpService.post(this.transactionApiUrl, this.getPayloadBody(
+        merchantId, startDate, endDate
+      ), {
+        headers: { Authorization: this.authHeader, 'Content-Type': 'application/json' }
+      }).pipe(
+        catchError((error) => this.handleHttpError(error, 'transactions'))
+      );
+
+
+      const transactionResponse = await firstValueFrom(transactionRequest).catch(() => ({ data: { data: [] } }))
+
+      const transactions = transactionResponse?.data?.data || [];
+
+      const transactionHistory: TransactionHistoryDTO[] = transactions.map((transaction) => ({
+        date: transaction.created_at.split('T')[0],
+        amount: parseFloat(transaction.amount),
+        status: transaction.status,
+        merchantId: transaction.merchant_id,
+        UTR: transaction.UTR,
+      }));
+
+      return transactionHistory
+    } catch (error) {
+      throw new Error(`Failed to fetch transaction data: ${error.message}`);
     }
   }
 

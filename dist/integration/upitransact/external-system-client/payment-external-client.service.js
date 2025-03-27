@@ -62,12 +62,33 @@ let PaymentExternalClientService = class PaymentExternalClientService {
             }));
             return {
                 todayTotalCollection,
+                todayTotalPayments: transactions?.length,
                 todayTotalSettlementForTomorrow: todayTotalCollection,
                 settlementHistory,
             };
         }
         catch (error) {
             throw new Error(`Failed to fetch merged data: ${error.message}`);
+        }
+    }
+    async getTransactionsData(startDate, endDate, merchantId) {
+        try {
+            const transactionRequest = this.httpService.post(this.transactionApiUrl, this.getPayloadBody(merchantId, startDate, endDate), {
+                headers: { Authorization: this.authHeader, 'Content-Type': 'application/json' }
+            }).pipe((0, rxjs_1.catchError)((error) => this.handleHttpError(error, 'transactions')));
+            const transactionResponse = await (0, rxjs_1.firstValueFrom)(transactionRequest).catch(() => ({ data: { data: [] } }));
+            const transactions = transactionResponse?.data?.data || [];
+            const transactionHistory = transactions.map((transaction) => ({
+                date: transaction.created_at.split('T')[0],
+                amount: parseFloat(transaction.amount),
+                status: transaction.status,
+                merchantId: transaction.merchant_id,
+                UTR: transaction.UTR,
+            }));
+            return transactionHistory;
+        }
+        catch (error) {
+            throw new Error(`Failed to fetch transaction data: ${error.message}`);
         }
     }
     handleHttpError(error, source) {

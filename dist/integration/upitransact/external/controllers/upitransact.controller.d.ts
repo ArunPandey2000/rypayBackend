@@ -1,6 +1,6 @@
 import { PaymentExternalService } from '../services/payment-external.service';
 import { PaymentRequestDto } from '../dto/payment-request.dto';
-import { MergedDataResponseDTO } from '../dto/settlement-history.dto';
+import { MergedDataResponseDTO, TransactionHistoryDTO } from '../dto/settlement-history.dto';
 import { PaymentExternalClientService } from '../../external-system-client/payment-external-client.service';
 export declare class PaymentGatewayController {
     private externalService;
@@ -12,4 +12,5 @@ export declare class PaymentGatewayController {
         message: string;
     }>;
     getMergedData(startDate: string, endDate: string, merchantId?: string): Promise<MergedDataResponseDTO>;
+    getTransactionsData(startDate: string, endDate: string, merchantId?: string): Promise<TransactionHistoryDTO[]>;
 }

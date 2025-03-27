@@ -31,6 +31,9 @@ let PaymentGatewayController = class PaymentGatewayController {
     async getMergedData(startDate, endDate, merchantId) {
         return this.resellerExternalCLient.getMergedData(startDate, endDate, merchantId);
     }
+    async getTransactionsData(startDate, endDate, merchantId) {
+        return this.resellerExternalCLient.getTransactionsData(startDate, endDate, merchantId);
+    }
 };
 exports.PaymentGatewayController = PaymentGatewayController;
 __decorate([
@@ -44,8 +47,8 @@ __decorate([
 __decorate([
     (0, common_1.Get)('settlements'),
     (0, swagger_1.ApiOperation)({ summary: 'Get merged transaction and settlement data' }),
-    (0, swagger_1.ApiQuery)({ name: 'startDate', required: true, example: '2025-03-01' }),
-    (0, swagger_1.ApiQuery)({ name: 'endDate', required: true, example: '2025-03-20' }),
+    (0, swagger_1.ApiQuery)({ name: 'startDate', required: true, example: '01-03-2025' }),
+    (0, swagger_1.ApiQuery)({ name: 'endDate', required: true, example: '17-03-2025' }),
     (0, swagger_1.ApiQuery)({ name: 'merchantId', required: false, example: 'THANDICOFF' }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -59,6 +62,25 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], PaymentGatewayController.prototype, "getMergedData", null);
+__decorate([
+    (0, common_1.Get)('transactions'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get merged transactions data' }),
+    (0, swagger_1.ApiQuery)({ name: 'startDate', required: true, example: '01-03-2025' }),
+    (0, swagger_1.ApiQuery)({ name: 'endDate', required: true, example: '17-03-2025' }),
+    (0, swagger_1.ApiQuery)({ name: 'merchantId', required: false, example: 'THANDICOFF' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'get merchant transactions',
+        type: settlement_history_dto_1.TransactionHistoryDTO,
+        isArray: true
+    }),
+    __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, common_1.Query)('endDate')),
+    __param(2, (0, common_1.Query)('merchantId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", Promise)
+], PaymentGatewayController.prototype, "getTransactionsData", null);
 exports.PaymentGatewayController = PaymentGatewayController = __decorate([
     (0, common_1.Controller)('external'),
     (0, swagger_1.ApiBearerAuth)(),

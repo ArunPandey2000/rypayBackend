@@ -39,7 +39,7 @@ let PaymentExternalService = PaymentExternalService_1 = class PaymentExternalSer
         });
         await this.webHookRepo.save(webHookResponse);
         const serviceUsed = 'PaymentGateway';
-        const orderId = requestDto.data.orderId;
+        const orderId = requestDto.data.merchantReferenceId;
         const order = await this.orderRepository.findOne({ where: { order_id: orderId }, relations: ['user'] });
         if (!order) {
             throw new common_1.BadRequestException('order not found');

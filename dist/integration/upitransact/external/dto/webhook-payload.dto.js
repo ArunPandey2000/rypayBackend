@@ -29,7 +29,7 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)
-], PaymentDataDto.prototype, "orderId", void 0);
+], PaymentDataDto.prototype, "merchantReferenceId", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, swagger_1.ApiProperty)(),

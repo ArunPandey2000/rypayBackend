@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@ne
 import { PaymentExternalService } from '../services/payment-external.service';
 import { PaymentRequestDto } from '../dto/payment-request.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { MergedDataResponseDTO } from '../dto/settlement-history.dto';
+import { MergedDataResponseDTO, TransactionHistoryDTO } from '../dto/settlement-history.dto';
 import { PaymentExternalClientService } from '../../external-system-client/payment-external-client.service';
 
 @Controller('external')
@@ -24,8 +24,8 @@ export class PaymentGatewayController {
 
   @Get('settlements')
   @ApiOperation({ summary: 'Get merged transaction and settlement data' })
-  @ApiQuery({ name: 'startDate', required: true, example: '2025-03-01' })
-  @ApiQuery({ name: 'endDate', required: true, example: '2025-03-20' })
+  @ApiQuery({ name: 'startDate', required: true, example: '01-03-2025' })
+  @ApiQuery({ name: 'endDate', required: true, example: '17-03-2025' })
   @ApiQuery({ name: 'merchantId', required: false, example: 'THANDICOFF' })
   @ApiResponse({
     status: 200,
@@ -38,5 +38,24 @@ export class PaymentGatewayController {
     @Query('merchantId') merchantId?: string,
   ): Promise<MergedDataResponseDTO> {
     return this.resellerExternalCLient.getMergedData(startDate, endDate, merchantId);
+  }
+
+  @Get('transactions')
+  @ApiOperation({ summary: 'Get merged transactions data' })
+  @ApiQuery({ name: 'startDate', required: true, example: '01-03-2025' })
+  @ApiQuery({ name: 'endDate', required: true, example: '17-03-2025' })
+  @ApiQuery({ name: 'merchantId', required: false, example: 'THANDICOFF' })
+  @ApiResponse({
+    status: 200,
+    description: 'get merchant transactions',
+    type: TransactionHistoryDTO,
+    isArray: true
+  })
+  async getTransactionsData(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @Query('merchantId') merchantId?: string,
+  ): Promise<TransactionHistoryDTO[]> {
+    return this.resellerExternalCLient.getTransactionsData(startDate, endDate, merchantId);
   }
 }
