@@ -30,6 +30,9 @@ export class TransactionHistoryDTO {
   @ApiProperty({example: '25031610PSNFP002751'})
   merchantId: string
 
+  @ApiProperty({example: '25031610PSNFP002751'})
+  payeeName: string
+
   @ApiProperty({example: 'YESBN12025031605334037'})
   UTR: string
 }

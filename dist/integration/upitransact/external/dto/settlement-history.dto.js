@@ -54,6 +54,10 @@ __decorate([
     __metadata("design:type", String)
 ], TransactionHistoryDTO.prototype, "merchantId", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: '25031610PSNFP002751' }),
+    __metadata("design:type", String)
+], TransactionHistoryDTO.prototype, "payeeName", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ example: 'YESBN12025031605334037' }),
     __metadata("design:type", String)
 ], TransactionHistoryDTO.prototype, "UTR", void 0);

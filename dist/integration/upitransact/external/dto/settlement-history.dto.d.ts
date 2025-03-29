@@ -10,6 +10,7 @@ export declare class TransactionHistoryDTO {
     amount: number;
     status: string;
     merchantId: string;
+    payeeName: string;
     UTR: string;
 }
 export declare class MergedDataResponseDTO {

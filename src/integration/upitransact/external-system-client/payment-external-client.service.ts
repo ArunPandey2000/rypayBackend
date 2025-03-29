@@ -67,7 +67,7 @@ export class PaymentExternalClientService {
 
       // Convert settlements to an array of DTOs
       const settlementHistory: SettlementHistoryDTO[] = settlements.map((settlement) => ({
-        date: settlement.created_at.split('T')[0], // Extract date part
+        date: settlement.created_at,
         totalAmountSettled: parseFloat(settlement.amount),
         status: settlement.status,
         bankReferenceNumber: settlement.bankReferenceNumber,
@@ -102,10 +102,11 @@ export class PaymentExternalClientService {
       const transactions = transactionResponse?.data?.data || [];
 
       const transactionHistory: TransactionHistoryDTO[] = transactions.map((transaction) => ({
-        date: transaction.created_at.split('T')[0],
+        date: transaction.created_at,
         amount: parseFloat(transaction.amount),
         status: transaction.status,
         merchantId: transaction.merchant_id,
+        payeeName: transaction.payerName,
         UTR: transaction.UTR,
       }));
 

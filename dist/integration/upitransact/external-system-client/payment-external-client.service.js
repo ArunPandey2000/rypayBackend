@@ -54,7 +54,7 @@ let PaymentExternalClientService = class PaymentExternalClientService {
             const settlements = settlementResponse?.data?.data || [];
             const todayTotalCollection = transactions.reduce((sum, t) => sum + t.amount, 0);
             const settlementHistory = settlements.map((settlement) => ({
-                date: settlement.created_at.split('T')[0],
+                date: settlement.created_at,
                 totalAmountSettled: parseFloat(settlement.amount),
                 status: settlement.status,
                 bankReferenceNumber: settlement.bankReferenceNumber,
@@ -79,10 +79,11 @@ let PaymentExternalClientService = class PaymentExternalClientService {
             const transactionResponse = await (0, rxjs_1.firstValueFrom)(transactionRequest).catch(() => ({ data: { data: [] } }));
             const transactions = transactionResponse?.data?.data || [];
             const transactionHistory = transactions.map((transaction) => ({
-                date: transaction.created_at.split('T')[0],
+                date: transaction.created_at,
                 amount: parseFloat(transaction.amount),
                 status: transaction.status,
                 merchantId: transaction.merchant_id,
+                payeeName: transaction.payerName,
                 UTR: transaction.UTR,
             }));
             return transactionHistory;
