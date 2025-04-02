@@ -18,6 +18,12 @@ export class NotificationProcessor {
     this.notificationService.processTransactionNotification(data);
   }
 
+  @Process('staticQR')
+  async handleStaticQRNotification(job: Job) {
+    const data = job.data;
+    this.notificationService.processStaticQRNotification(data);
+  }
+
   @Process('referrel')
   async handleReferrelNotification(job: Job) {
     const data = job.data;

@@ -22,6 +22,15 @@ export declare class TransactionNotification {
     };
     type: NotificationType;
 }
+export declare class StaticQRNotification {
+    data: {
+        user: User;
+        amount: string;
+        payeeName: string;
+        payeeUPIId: string;
+    };
+    type: NotificationType;
+}
 export declare class ReferrelNotification {
     transaction: {
         user: User;

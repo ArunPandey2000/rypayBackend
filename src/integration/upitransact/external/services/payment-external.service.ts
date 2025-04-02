@@ -10,6 +10,9 @@ import { Repository } from 'typeorm';
 import { PaymentRequestDto } from '../dto/payment-request.dto';
 import { WebhookPaymentRequestDto } from '../dto/webhook-payload.dto';
 import { BusyBoxWebhookResponse, Webhook_Type } from 'src/core/entities/busybox_webhook_logs.entity';
+import { NotificationBridge } from 'src/notifications/services/notification-bridge';
+import { StaticQRNotification } from 'src/notifications/dto/transaction-notification.dto';
+import { NotificationType } from 'src/core/entities/notification.entity';
 @Injectable()
 export class PaymentExternalService {
     private readonly logger: Logger;
@@ -17,6 +20,7 @@ export class PaymentExternalService {
         private walletService: WalletService,
         @InjectRepository(BusyBoxWebhookResponse) private webHookRepo: Repository<BusyBoxWebhookResponse>,
         @InjectRepository(Order) private orderRepository: Repository<Order>,
+        private readonly notificationBridge: NotificationBridge,
         @InjectRepository(User) private userRepository: Repository<User>
 
     ) {
@@ -24,12 +28,34 @@ export class PaymentExternalService {
     }
 
     async handlePaymentCallback(requestDto: WebhookPaymentRequestDto) {
-
         const webHookResponse = this.webHookRepo.create(<BusyBoxWebhookResponse>{
             type: Webhook_Type.QRPayment,
             additionalData: requestDto as any
         })
         await this.webHookRepo.save(webHookResponse);
+        if (requestDto.data.paymentType === 'Dynamic') {
+            await this.dynamicQRHandler(requestDto)
+        } else {
+            await this.staticQRHandler(requestDto);
+        }
+    }
+
+    private async staticQRHandler(requestDto: WebhookPaymentRequestDto) {
+        const mid = requestDto.data.mid;
+        const user = await this.userRepository.findOneBy({merchantPartnerId: mid});
+        const notificationEvent = <StaticQRNotification>{
+            data: {
+                user,
+                payeeName: requestDto.data.payerName,
+                payeeUPIId: requestDto.data.payeeUPI,
+                amount: requestDto.data.amount
+            },
+            type: NotificationType.TRANSACTION_CREDIT
+        }
+        await this.notificationBridge.add('staticQR', notificationEvent)
+    }
+
+    private async dynamicQRHandler(requestDto: WebhookPaymentRequestDto) {
         const serviceUsed = 'PaymentGateway';
 
         const orderId = requestDto.data.merchantReferenceId;

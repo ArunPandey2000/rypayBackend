@@ -357,7 +357,6 @@ let UsersService = class UsersService {
         await queryRunner.startTransaction();
         try {
             for (const fileInfo of fileInfos) {
-                debugger;
                 const documentInfo = await queryRunner.manager.findOne(document_entity_1.UserDocument, {
                     where: { user: { id: userId }, documentType: fileInfo.docType },
                 });

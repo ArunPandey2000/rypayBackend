@@ -75,6 +75,14 @@ let NotificationService = class NotificationService {
         const type = notificationData.transaction.type === transaction_type_enum_1.TransactionType.CREDIT ? notification_entity_1.NotificationType.TRANSACTION_CREDIT : notification_entity_1.NotificationType.TRANSACTION_DEBIT;
         await this.insertInAppNotification(message, type, notificationData.transaction.user.id);
     }
+    async processStaticQRNotification(notificationData) {
+        const currentUser = notificationData.data.user;
+        if (currentUser) {
+            const message = (0, transaction_message_constant_1.createStaticQRMessage)(notificationData.data);
+            const type = notification_entity_1.NotificationType.TRANSACTION_CREDIT;
+            await this.insertInAppNotification(message, type, currentUser.id);
+        }
+    }
     async processReferrelNotification(notificationData) {
         const counterUserName = `${notificationData.counterPartyUser.firstName} ${notificationData.counterPartyUser.lastName}`;
         const message = (0, referel_bonus_message_constant_1.createReferrelMessage)(notificationData.isReferrer, notificationData.transaction.amount, counterUserName);

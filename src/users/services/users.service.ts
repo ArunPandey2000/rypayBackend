@@ -414,7 +414,6 @@ export class UsersService {
 
     try {
       for (const fileInfo of fileInfos) {
-        debugger
         const documentInfo = await queryRunner.manager.findOne(UserDocument, {
           where: { user: {id: userId}, documentType: fileInfo.docType },
         });

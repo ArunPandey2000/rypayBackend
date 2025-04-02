@@ -1,9 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CashbackRedemmedNotification = exports.ReferrelNotification = exports.TransactionNotification = void 0;
+exports.CashbackRedemmedNotification = exports.ReferrelNotification = exports.StaticQRNotification = exports.TransactionNotification = void 0;
 class TransactionNotification {
 }
 exports.TransactionNotification = TransactionNotification;
+class StaticQRNotification {
+}
+exports.StaticQRNotification = StaticQRNotification;
 class ReferrelNotification {
 }
 exports.ReferrelNotification = ReferrelNotification;

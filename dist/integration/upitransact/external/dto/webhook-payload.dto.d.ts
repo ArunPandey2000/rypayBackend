@@ -1,6 +1,7 @@
 declare class PaymentDataDto {
     paymentType: string;
     amount: string;
+    mid: string;
     merchantReferenceId: string;
     successDate: string;
     UTR: string;

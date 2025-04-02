@@ -2,7 +2,7 @@ import { Notification, NotificationType } from 'src/core/entities/notification.e
 import { User } from 'src/core/entities/user.entity';
 import { Repository } from 'typeorm';
 import { RechargeNotificationDto } from '../dto/recharge-notification.dto';
-import { CashbackRedemmedNotification, ReferrelNotification, TransactionNotification } from '../dto/transaction-notification.dto';
+import { CashbackRedemmedNotification, ReferrelNotification, StaticQRNotification, TransactionNotification } from '../dto/transaction-notification.dto';
 import { GeneralNotification } from '../dto/announcement-notification.dto';
 import { FirebaseClientService } from 'src/integration/firebase/firebase.client.service';
 import { CoinTransaction } from 'src/core/entities/coins.entity';
@@ -15,6 +15,7 @@ export declare class NotificationService {
     sendPushNotificationToUser(tokens: string[], type: NotificationType, message: string, icon: string): Promise<void>;
     processRechargeNotification(notificationData: RechargeNotificationDto): Promise<void>;
     processTransactionNotification(notificationData: TransactionNotification): Promise<void>;
+    processStaticQRNotification(notificationData: StaticQRNotification): Promise<void>;
     processReferrelNotification(notificationData: ReferrelNotification): Promise<void>;
     processCashbackRedemmedNotification(notificationData: CashbackRedemmedNotification): Promise<void>;
     processUserRegistrationNotification(notificationData: User): Promise<void>;

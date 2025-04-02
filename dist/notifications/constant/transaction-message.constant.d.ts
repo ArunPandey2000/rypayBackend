@@ -5,3 +5,8 @@ export declare function createTransactionMessage({ transactionType, amount, bank
     accountNumber: any;
     contact: any;
 }): string;
+export declare function createStaticQRMessage({ payeeName, amount, payeeUPIId }: {
+    payeeName: any;
+    amount: any;
+    payeeUPIId: any;
+}): string;

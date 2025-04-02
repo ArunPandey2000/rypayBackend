@@ -4,11 +4,11 @@ import { Notification, NotificationType } from 'src/core/entities/notification.e
 import { User } from 'src/core/entities/user.entity';
 import { LessThan, Repository } from 'typeorm';
 import { RechargeNotificationDto } from '../dto/recharge-notification.dto';
-import { CashbackRedemmedNotification, ReferrelNotification, TransactionNotification } from '../dto/transaction-notification.dto';
+import { CashbackRedemmedNotification, ReferrelNotification, StaticQRNotification, TransactionNotification } from '../dto/transaction-notification.dto';
 import { GeneralNotification } from '../dto/announcement-notification.dto';
 import { Pagination } from 'src/transactions/dto/pagination-response.dto';
 import { createRechargeMessage } from '../constant/recharge-notification-message.constant';
-import { createTransactionMessage } from '../constant/transaction-message.constant';
+import { createStaticQRMessage, createTransactionMessage } from '../constant/transaction-message.constant';
 import { FirebaseClientService } from 'src/integration/firebase/firebase.client.service';
 import { TransactionType } from 'src/transactions/enum/transaction-type.enum';
 import { createReferrelMessage } from '../constant/referel-bonus-message.constant';
@@ -70,6 +70,15 @@ export class NotificationService {
         });
         const type = notificationData.transaction.type === TransactionType.CREDIT ? NotificationType.TRANSACTION_CREDIT : NotificationType.TRANSACTION_DEBIT;
         await this.insertInAppNotification(message, type, notificationData.transaction.user.id);
+    }
+
+    async processStaticQRNotification(notificationData: StaticQRNotification){
+        const currentUser = notificationData.data.user;
+        if (currentUser) {
+            const message = createStaticQRMessage(notificationData.data)
+            const type = NotificationType.TRANSACTION_CREDIT;
+            await this.insertInAppNotification(message, type, currentUser.id);
+        }
     }
 
     async processReferrelNotification(notificationData: ReferrelNotification){

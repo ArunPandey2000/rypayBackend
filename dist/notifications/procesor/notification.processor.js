@@ -24,6 +24,10 @@ let NotificationProcessor = class NotificationProcessor {
         const data = job.data;
         this.notificationService.processTransactionNotification(data);
     }
+    async handleStaticQRNotification(job) {
+        const data = job.data;
+        this.notificationService.processStaticQRNotification(data);
+    }
     async handleReferrelNotification(job) {
         const data = job.data;
         this.notificationService.processReferrelNotification(data);
@@ -54,6 +58,12 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], NotificationProcessor.prototype, "handleTransactionNotification", null);
+__decorate([
+    (0, bull_1.Process)('staticQR'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationProcessor.prototype, "handleStaticQRNotification", null);
 __decorate([
     (0, bull_1.Process)('referrel'),
     __metadata("design:type", Function),

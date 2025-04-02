@@ -13,6 +13,10 @@ class PaymentDataDto {
 
   @IsString()
   @ApiProperty()
+  mid: string;
+
+  @IsString()
+  @ApiProperty()
   merchantReferenceId: string;
 
   @IsString()
