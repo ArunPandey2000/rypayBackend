@@ -328,7 +328,7 @@ export class UsersService {
       throw new NotFoundException('user not found');
     }
     const isRequiredDocumentsUploaded = user.documents.length && user.documents
-      .every((document) => ['AADHAR', 'PAN'].includes(document.documentType));
+      .every((document) => ['AADHAR', 'AADHAR_BACK_SIDE', 'PAN'].includes(document.documentType));
     if (!isRequiredDocumentsUploaded) {
       throw new BadRequestException('AADHAR or PAN documents not uploaded');
     }

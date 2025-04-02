@@ -281,7 +281,7 @@ let UsersService = class UsersService {
             throw new common_1.NotFoundException('user not found');
         }
         const isRequiredDocumentsUploaded = user.documents.length && user.documents
-            .every((document) => ['AADHAR', 'PAN'].includes(document.documentType));
+            .every((document) => ['AADHAR', 'AADHAR_BACK_SIDE', 'PAN'].includes(document.documentType));
         if (!isRequiredDocumentsUploaded) {
             throw new common_1.BadRequestException('AADHAR or PAN documents not uploaded');
         }
