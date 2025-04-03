@@ -62,7 +62,7 @@ let UploadFileService = class UploadFileService {
                 Key: key,
             });
             const url = await (0, s3_request_presigner_1.getSignedUrl)(this.client, command, {
-                expiresIn: 2 * 60,
+                expiresIn: 48 * 60 * 60,
             });
             return { url };
         }

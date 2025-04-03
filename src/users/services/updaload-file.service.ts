@@ -62,7 +62,7 @@ export class UploadFileService {
       });
 
       const url = await getSignedUrl(this.client, command, {
-        expiresIn: 2 * 60, // 1 hours
+        expiresIn: 48 * 60 * 60, // 2 days
       });
       return { url };
     } catch (error) {
