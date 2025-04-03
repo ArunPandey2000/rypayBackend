@@ -59,7 +59,7 @@ let PaymentExternalClientService = class PaymentExternalClientService {
                 status: settlement.status,
                 bankReferenceNumber: settlement.bankReferenceNumber,
                 UTR: settlement.UTR,
-            }));
+            }))?.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
             return {
                 todayTotalCollection,
                 todayTotalPayments: transactions?.length,
@@ -86,7 +86,7 @@ let PaymentExternalClientService = class PaymentExternalClientService {
                 payeeName: transaction.payerName,
                 UTR: transaction.UTR,
             }));
-            return transactionHistory;
+            return transactionHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         }
         catch (error) {
             throw new Error(`Failed to fetch transaction data: ${error.message}`);

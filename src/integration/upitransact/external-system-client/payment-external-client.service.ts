@@ -72,7 +72,7 @@ export class PaymentExternalClientService {
         status: settlement.status,
         bankReferenceNumber: settlement.bankReferenceNumber,
         UTR: settlement.UTR,
-      }));
+      }))?.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
       return {
         todayTotalCollection,
@@ -110,7 +110,7 @@ export class PaymentExternalClientService {
         UTR: transaction.UTR,
       }));
 
-      return transactionHistory
+      return transactionHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     } catch (error) {
       throw new Error(`Failed to fetch transaction data: ${error.message}`);
     }
