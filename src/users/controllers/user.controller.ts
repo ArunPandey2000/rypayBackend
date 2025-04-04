@@ -350,7 +350,7 @@ async updateStaticQR(
   async getUserStaticQR(
     @Req() req: any
   ): Promise<StaticQRDTO> {
-    return this.userService.getUserStaticQR(req.sub.id);
+    return this.userService.getUserStaticQR(req.user.sub);
   }
 
   @ApiOperation({ summary: 'Endpoint to get kyc status of user' })

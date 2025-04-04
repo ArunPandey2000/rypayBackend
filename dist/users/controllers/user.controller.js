@@ -87,7 +87,7 @@ let UsersController = class UsersController {
         return this.userService.getUsersByKycStatus(kycStatus);
     }
     async getUserStaticQR(req) {
-        return this.userService.getUserStaticQR(req.sub.id);
+        return this.userService.getUserStaticQR(req.user.sub);
     }
     async getKycStatusOfUser(req) {
         const status = await this.userService.getKycStatusOfUser(req.user.sub);
