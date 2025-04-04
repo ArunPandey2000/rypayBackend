@@ -323,7 +323,7 @@ let UsersService = class UsersService {
                 };
             }
             return {
-                url: (await this.uploadFileService.getPresignedSignedUrl(user.profileIcon)).url
+                url: (await this.uploadFileService.getPresignedSignedUrl(user.staticQR)).url
             };
         }
         catch {

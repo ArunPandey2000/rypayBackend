@@ -373,7 +373,7 @@ export class UsersService {
         }
       }
       return <StaticQRDTO>{
-        url: (await this.uploadFileService.getPresignedSignedUrl(user.profileIcon)).url
+        url: (await this.uploadFileService.getPresignedSignedUrl(user.staticQR)).url
       }
     } catch {
       return <StaticQRDTO> {
