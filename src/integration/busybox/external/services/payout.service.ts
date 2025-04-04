@@ -100,7 +100,7 @@ export class PayoutService {
         const poolBalance = +(await this.payloutClientService.getPoolBalance()).balance;
 
         if (poolBalance < amount) {
-            throw new BadRequestException('System Error');
+            throw new BadRequestException('Technical Error! Please try after some time');
         }
         if (!user) {
             throw new ForbiddenException('User does not exist')

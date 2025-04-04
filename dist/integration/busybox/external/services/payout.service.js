@@ -96,7 +96,7 @@ let PayoutService = PayoutService_1 = class PayoutService {
         const user = await this.userRepository.findOne({ where: { id: userId } });
         const poolBalance = +(await this.payloutClientService.getPoolBalance()).balance;
         if (poolBalance < amount) {
-            throw new common_1.BadRequestException('System Error');
+            throw new common_1.BadRequestException('Technical Error! Please try after some time');
         }
         if (!user) {
             throw new common_1.ForbiddenException('User does not exist');
