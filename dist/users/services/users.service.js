@@ -310,6 +310,28 @@ let UsersService = class UsersService {
         });
         return users.map((user) => new user_response_dto_1.UserResponse(user));
     }
+    async getUserStaticQR(userId) {
+        try {
+            const user = await this.userRepository.findOne({
+                where: {
+                    id: userId
+                }
+            });
+            if (!user || !user.staticQR) {
+                return {
+                    url: null
+                };
+            }
+            return {
+                url: (await this.uploadFileService.getPresignedSignedUrl(user.profileIcon)).url
+            };
+        }
+        catch {
+            return {
+                url: null
+            };
+        }
+    }
     async getKycStatusOfUser(userId) {
         const user = await this.userRepository.findOneBy({
             id: userId

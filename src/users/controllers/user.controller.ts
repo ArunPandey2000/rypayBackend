@@ -14,6 +14,7 @@ import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { ValidateAadharDto } from '../dto/validate-aadhar.dto';
 import { UploadFileService } from '../services/updaload-file.service';
 import { UsersService } from '../services/users.service';
+import { StaticQRDTO } from '../dto/static-qr.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -201,7 +202,7 @@ export class UsersController {
       return this.userService.updateProfileIcon(req.user.sub, file);
   }
 
-  @Put('update-static-qr/:userId')
+@Put('update-static-qr/:userId')
 @UseInterceptors(FileInterceptor('file'))
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -332,6 +333,24 @@ async updateStaticQR(
     @Param('kycStatus') kycStatus: keyof typeof KycVerificationStatus
   ): Promise<UserResponse[]> {
     return this.userService.getUsersByKycStatus(kycStatus);
+  }
+
+  @ApiOperation({ summary: 'Endpoint to get Static QR code' })
+  @Get('/staticQR')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'get Static QR code.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request exception',
+  })
+  async getUserStaticQR(
+    @Req() req: any
+  ): Promise<StaticQRDTO> {
+    return this.userService.getUserStaticQR(req.sub.id);
   }
 
   @ApiOperation({ summary: 'Endpoint to get kyc status of user' })

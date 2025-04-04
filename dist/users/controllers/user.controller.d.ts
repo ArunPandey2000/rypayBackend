@@ -9,6 +9,7 @@ import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
 import { ValidateAadharDto } from '../dto/validate-aadhar.dto';
 import { UploadFileService } from '../services/updaload-file.service';
 import { UsersService } from '../services/users.service';
+import { StaticQRDTO } from '../dto/static-qr.dto';
 export declare class UsersController {
     private userService;
     private uploadFileService;
@@ -43,6 +44,7 @@ export declare class UsersController {
     }>;
     updateKYC(req: any, kycStatus: keyof typeof KycVerificationStatus): Promise<string>;
     getKYCInitiatedUsers(kycStatus: keyof typeof KycVerificationStatus): Promise<UserResponse[]>;
+    getUserStaticQR(req: any): Promise<StaticQRDTO>;
     getKycStatusOfUser(req: any): Promise<KycVerificationStatusResponse>;
     validateCard(req: any, otpRequest: ValidateOTPAfterCardCreationDTO): Promise<{
         isVerified: boolean;

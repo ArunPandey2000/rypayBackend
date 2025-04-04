@@ -19,6 +19,7 @@ import { RechargeClientService } from 'src/integration/a1topup/external-system-c
 import { ValidateAadharDto } from '../dto/validate-aadhar.dto';
 import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
 import { NotificationBridge } from 'src/notifications/services/notification-bridge';
+import { StaticQRDTO } from '../dto/static-qr.dto';
 export declare class UsersService {
     private tokenService;
     private configService;
@@ -57,6 +58,7 @@ export declare class UsersService {
     updateUserKycStatus(userId: string, updateKycStatus: keyof typeof KycVerificationStatus): Promise<string>;
     handleKycEvent(cardHolderId: string, kycStatus: string): Promise<void>;
     getUsersByKycStatus(kycStatus: keyof typeof KycVerificationStatus): Promise<UserResponse[]>;
+    getUserStaticQR(userId: string): Promise<StaticQRDTO>;
     getKycStatusOfUser(userId: string): Promise<string>;
     findUserById(userId: string): Promise<User>;
     sendVerificationCode(userId: string): Promise<void>;

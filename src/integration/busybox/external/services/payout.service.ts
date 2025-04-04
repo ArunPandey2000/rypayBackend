@@ -98,16 +98,15 @@ export class PayoutService {
     async validatePayout(userId: string, amount: number, serviceUsed: string) {
         const user = await this.userRepository.findOne({where: {id: userId}});
         const poolBalance = +(await this.payloutClientService.getPoolBalance()).balance;
-
-        if (poolBalance < amount) {
-            throw new BadRequestException('Technical Error! Please try after some time');
-        }
         if (!user) {
             throw new ForbiddenException('User does not exist')
         }
         const wallet = await this.walletService.getWallet({user: {id: userId}});
         if (wallet.balance < amount) {
             throw new BadRequestException('Insufficient Balance')
+        }
+        if (poolBalance < amount) {
+            throw new BadRequestException('Technical Error! Please try after some time');
         }
         await this.validateTransactionLimit(userId, amount, serviceUsed);
     }

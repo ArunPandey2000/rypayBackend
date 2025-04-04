@@ -38,6 +38,7 @@ import { RechargeClientService } from 'src/integration/a1topup/external-system-c
 import { ValidateAadharDto } from '../dto/validate-aadhar.dto';
 import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
 import { NotificationBridge } from 'src/notifications/services/notification-bridge';
+import { StaticQRDTO } from '../dto/static-qr.dto';
 
 @Injectable()
 export class UsersService {
@@ -357,6 +358,28 @@ export class UsersService {
       }
     });
     return users.map((user) => new UserResponse(user));
+  }
+
+  async getUserStaticQR(userId: string) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          id: userId
+        }
+      });
+      if (!user || !user.staticQR) {
+        return <StaticQRDTO> {
+          url: null
+        }
+      }
+      return <StaticQRDTO>{
+        url: (await this.uploadFileService.getPresignedSignedUrl(user.profileIcon)).url
+      }
+    } catch {
+      return <StaticQRDTO> {
+        url: null
+      }
+    }
   }
 
   async getKycStatusOfUser(userId: string) {

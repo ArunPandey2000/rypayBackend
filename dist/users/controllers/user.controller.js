@@ -86,6 +86,9 @@ let UsersController = class UsersController {
     async getKYCInitiatedUsers(kycStatus) {
         return this.userService.getUsersByKycStatus(kycStatus);
     }
+    async getUserStaticQR(req) {
+        return this.userService.getUserStaticQR(req.sub.id);
+    }
     async getKycStatusOfUser(req) {
         const status = await this.userService.getKycStatusOfUser(req.user.sub);
         return {
@@ -436,6 +439,24 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getKYCInitiatedUsers", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Endpoint to get Static QR code' }),
+    (0, common_1.Get)('/staticQR'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.OK,
+        description: 'get Static QR code.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: common_1.HttpStatus.BAD_REQUEST,
+        description: 'Bad request exception',
+    }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getUserStaticQR", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Endpoint to get kyc status of user' }),
     (0, common_1.Get)('/kyc'),
