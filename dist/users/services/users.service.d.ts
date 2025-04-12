@@ -50,7 +50,7 @@ export declare class UsersService {
     registerAdminAndGenerateToken(userRequestDto: UserAdminRequestDto): Promise<UserApiResponseDto>;
     updateUserProfile(userId: string, userRequestDto: UserUpdateRequestDto): Promise<User>;
     checkPhoneNumberExists(phoneNumber: string): Promise<PhoneNumberExists>;
-    getAllUsers(userId: string): Promise<UserResponse[]>;
+    getAllUsers(userId: string, searchQuery: string): Promise<UserResponse[]>;
     addProfileIconInUserResponse(userModel: User, userResponse: UserResponse): Promise<UserResponse>;
     setPin(userId: string, pin: string): Promise<void>;
     verifyPin(userId: string, pin: string): Promise<boolean>;

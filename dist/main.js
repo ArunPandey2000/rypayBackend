@@ -8,7 +8,14 @@ const express_1 = require("express");
 const helmet_1 = require("helmet");
 const nestjs_pino_1 = require("nestjs-pino");
 const exception_filters_1 = require("./core/filters/exception-filters");
+const all_exception_filters_1 = require("./core/filters/all-exception-filters");
 async function bootstrap() {
+    process.on('uncaughtException', (err) => {
+        console.error('Uncaught Exception:', err);
+    });
+    process.on('unhandledRejection', (reason, promise) => {
+        console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    });
     const app = await core_1.NestFactory.create(app_module_1.AppModule, { bufferLogs: true });
     const API_DEFAULT_PORT = Number(process.env.PORT ?? 3000);
     const config = new swagger_1.DocumentBuilder()
@@ -19,7 +26,7 @@ async function bootstrap() {
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     app.useGlobalPipes(new common_1.ValidationPipe({ transform: true, stopAtFirstError: true }));
-    app.useGlobalFilters(new exception_filters_1.ValidationExceptionFilter());
+    app.useGlobalFilters(new exception_filters_1.ValidationExceptionFilter(), new all_exception_filters_1.AllExceptionsFilter());
     app.enableCors();
     app.use((0, express_1.json)({ limit: '50mb' }));
     swagger_1.SwaggerModule.setup('api', app, document);

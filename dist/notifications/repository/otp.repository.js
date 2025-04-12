@@ -39,11 +39,6 @@ let OtpRepository = class OtpRepository {
         return this.otpRepo.save(otpRecord);
     }
     async validateUserOtp(phoneNumber, otp) {
-        if (otp === '123456') {
-            return {
-                message: 'valid'
-            };
-        }
         const record = await this.findByPhoneNumber(phoneNumber);
         if (!record) {
             throw new common_1.NotFoundException(otp_verification_status_enum_1.OTPValidateStatus.NOT_FOUND);

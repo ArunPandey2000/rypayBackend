@@ -34,11 +34,6 @@ export class OtpRepository {
   }
 
   async validateUserOtp(phoneNumber: string, otp: string) {
-    if (otp === '123456') {
-      return {
-        message: 'valid'
-      }
-    }
     const record = await this.findByPhoneNumber(phoneNumber);
     if (!record) {
       throw new NotFoundException(OTPValidateStatus.NOT_FOUND);

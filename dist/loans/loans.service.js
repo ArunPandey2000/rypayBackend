@@ -24,6 +24,7 @@ const order_entity_1 = require("../core/entities/order.entity");
 const hash_util_1 = require("../core/utils/hash.util");
 const transactions_entity_1 = require("../core/entities/transactions.entity");
 const loan_status_enum_1 = require("./enums/loan-status.enum");
+const moment = require("moment");
 let LoansService = class LoansService {
     constructor(loanRepo, walletService, orderRepository, userRepo) {
         this.loanRepo = loanRepo;
@@ -84,11 +85,13 @@ let LoansService = class LoansService {
         if (!userId) {
             throw new common_1.BadRequestException('userId not found');
         }
+        const endOfCurrentMonth = moment().endOf('month').toDate();
         const loans = (await this.loanRepo.find({
             where: {
                 user: {
                     id: userId
-                }
+                },
+                dueDate: (0, typeorm_2.LessThanOrEqual)(endOfCurrentMonth),
             },
             order: {
                 dueDate: 'ASC'

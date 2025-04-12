@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Post, Put, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
@@ -141,9 +141,10 @@ export class UsersController {
     description: 'Bad request exception',
   })
   async getAllUser(
-    @Req() req: any
+    @Req() req: any,
+    @Query('search') search
   ): Promise<UserResponse[]> {
-    return this.userService.getAllUsers(req.user.sub);
+    return this.userService.getAllUsers(req.user.sub, search);
   }
 
   @ApiOperation({ summary: 'Endpoint to check phone number exist' })

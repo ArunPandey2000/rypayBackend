@@ -3,7 +3,7 @@ import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Loan } from 'src/core/entities/loan.entity';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, Repository } from 'typeorm';
 import { User } from 'src/core/entities/user.entity';
 import { LoanAdminResponseDto, LoanResponseDto } from './dto/loan.dto';
 import { WalletService } from 'src/wallet/services/wallet.service';
@@ -12,6 +12,7 @@ import { generateRef } from 'src/core/utils/hash.util';
 import { TransactionStatus } from 'src/core/entities/transactions.entity';
 import { PayloanDto } from './dto/pay-loan.dto';
 import { LoanStatus } from './enums/loan-status.enum';
+import * as moment from 'moment';
 
 @Injectable()
 export class LoansService {
@@ -88,16 +89,21 @@ export class LoansService {
     if (!userId) {
       throw new BadRequestException('userId not found');
     }
+  
+    const endOfCurrentMonth = moment().endOf('month').toDate();
+  
     const loans = (await this.loanRepo.find({
       where: {
         user: {
           id: userId
-        }
+        },
+        dueDate: LessThanOrEqual(endOfCurrentMonth),
       },
       order: {
         dueDate: 'ASC'
       }
     })) ?? [];
+  
     return loans.map(loan => new LoanResponseDto(loan));
   }
 

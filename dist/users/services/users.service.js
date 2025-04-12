@@ -225,7 +225,7 @@ let UsersService = class UsersService {
             phoneNumber: user.phoneNumber
         };
     }
-    async getAllUsers(userId) {
+    async getAllUsers(userId, searchQuery) {
         const user = await this.userRepository.findOneBy({ id: userId });
         if (!user) {
             throw new common_1.BadRequestException('user not found');
@@ -233,11 +233,17 @@ let UsersService = class UsersService {
         if (user.role !== user_role_enum_1.UserRole.ADMIN) {
             throw new common_1.ForbiddenException('User does not have enough permissions');
         }
-        const users = await this.userRepository.find({
-            where: {
-                role: (0, typeorm_2.Not)(user_role_enum_1.UserRole.ADMIN),
-            },
-        });
+        const query = this.userRepository.createQueryBuilder('user');
+        query.where('user.role != :adminRole', { adminRole: user_role_enum_1.UserRole.ADMIN });
+        if (searchQuery) {
+            query.andWhere(`(
+          CONCAT(COALESCE(user.firstName, ''), ' ', COALESCE(user.lastName, '')) ILIKE :search OR
+          user.firstName ILIKE :search OR
+          user.lastName ILIKE :search OR
+          user.phoneNumber ILIKE :search
+        )`, { search: `%${searchQuery}%` });
+        }
+        const users = await query.getMany();
         return users.map(user => new user_response_dto_1.UserResponse(user));
     }
     async addProfileIconInUserResponse(userModel, userResponse) {

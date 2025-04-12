@@ -20,7 +20,7 @@ export declare class UsersController {
     deleteUser(req: any): Promise<string>;
     registerAdmin(signUpDto: UserAdminRequestDto): Promise<UserApiResponseDto>;
     updateUser(userId: string, updateDto: UserUpdateRequestDto): Promise<User>;
-    getAllUser(req: any): Promise<UserResponse[]>;
+    getAllUser(req: any, search: any): Promise<UserResponse[]>;
     checkUserExist(phoneNumber: string): Promise<PhoneNumberExists>;
     updateProfileIcon(file: Express.Multer.File, req: any): Promise<{
         message: string;

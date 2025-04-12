@@ -51,8 +51,8 @@ let UsersController = class UsersController {
     async updateUser(userId, updateDto) {
         return this.userService.updateUserProfile(userId, updateDto);
     }
-    async getAllUser(req) {
-        return this.userService.getAllUsers(req.user.sub);
+    async getAllUser(req, search) {
+        return this.userService.getAllUsers(req.user.sub, search);
     }
     async checkUserExist(phoneNumber) {
         return this.userService.checkPhoneNumberExists(phoneNumber);
@@ -245,8 +245,9 @@ __decorate([
         description: 'Bad request exception',
     }),
     __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)('search')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getAllUser", null);
 __decorate([

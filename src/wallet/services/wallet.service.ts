@@ -112,7 +112,7 @@ export class WalletService {
   async getWalletQRCode(query: FindOptionsWhere<Wallet>) {
     const wallet = await this.walletRepository.findOneBy(query);
     if (!wallet) {
-      throw new BadRequestException('Wallet not found');
+      throw new BadRequestException('Account not found');
     }
     const name = `${wallet.user.firstName} ${wallet.user.lastName}`;
     const data = WalletQRFormat
@@ -146,8 +146,8 @@ export class WalletService {
       const user = await this.findUserById(userId);
       const wallet = await this.findWalletByUserId(userId);
       const description = addMoneyWalletDto.message ?? (addMoneyWalletDto.type === TransactionType.CREDIT ?
-        `INR${addMoneyWalletDto.amount} was credited to your wallet` :
-        `INR${addMoneyWalletDto.amount} was debited from your wallet`
+        `INR${addMoneyWalletDto.amount} was credited to your account` :
+        `INR${addMoneyWalletDto.amount} was debited from your account`
       )
       const type = addMoneyWalletDto.type ?? TransactionType.CREDIT;
       const walletBalanceAfter = type === TransactionType.CREDIT ? wallet.balance + addMoneyWalletDto.amount : wallet.balance - addMoneyWalletDto.amount
@@ -196,7 +196,7 @@ export class WalletService {
         user,
         type: TransactionType.DEBIT,
         amount: Number(fundMyAccountDto.amount),
-        description: `INR${fundMyAccountDto.amount} was debited from your wallet`,
+        description: `INR${fundMyAccountDto.amount} was debited from your account`,
         transactionDate: new Date(),
         walletBalanceBefore: wallet.balance,
         walletBalanceAfter: wallet.balance - fundMyAccountDto.amount,
@@ -323,7 +323,7 @@ export class WalletService {
       }
       let walletBalance = Number.parseFloat(wallet.balance?.toString());
       if (deductBalanceData.amount > walletBalance) {
-        throw new BadRequestException('Insufficient funds');
+        throw new BadRequestException('Insufficient balance');
       }
 
       const rechargeDto = {
@@ -481,7 +481,7 @@ export class WalletService {
         throw new BadRequestException('Amount cannot be negative');
       }
       if (deductBalanceData.amount > wallet.balance) {
-        throw new BadRequestException('Insufficient funds');
+        throw new BadRequestException('Insufficient balance');
       }
 
       const rechargeDto = {

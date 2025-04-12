@@ -25,7 +25,7 @@ import { OtpRepository } from 'src/notifications/repository/otp.repository';
 import { OtpFlowService } from 'src/notifications/services/otp-flow.service';
 import { WalletBridge } from 'src/wallet/services/wallet.queue';
 import { WalletService } from 'src/wallet/services/wallet.service';
-import { DataSource, EntityManager, Not, QueryRunner, Repository } from 'typeorm';
+import { DataSource, EntityManager, ILike, Not, QueryRunner, Repository } from 'typeorm';
 import { KycRequiredDocTypes } from '../constants/kyc-required-doc-types.constant';
 import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
 import { UserDocumentResponseDto } from '../dto/user-documents.dto';
@@ -267,7 +267,7 @@ export class UsersService {
     }
   }
 
-  async getAllUsers(userId: string) {
+  async getAllUsers(userId: string, searchQuery: string) {
     const user = await this.userRepository.findOneBy({id: userId});
     if (!user) {
       throw new BadRequestException('user not found')
@@ -275,11 +275,23 @@ export class UsersService {
     if (user.role !== UserRole.ADMIN) {
       throw new ForbiddenException('User does not have enough permissions');
     }
-    const users =  await this.userRepository.find({
-      where: {
-        role: Not(UserRole.ADMIN),
-      },
-    });
+    const query = this.userRepository.createQueryBuilder('user');
+
+    query.where('user.role != :adminRole', { adminRole: UserRole.ADMIN });
+    
+    if (searchQuery) {
+      query.andWhere(
+        `(
+          CONCAT(COALESCE(user.firstName, ''), ' ', COALESCE(user.lastName, '')) ILIKE :search OR
+          user.firstName ILIKE :search OR
+          user.lastName ILIKE :search OR
+          user.phoneNumber ILIKE :search
+        )`,
+        { search: `%${searchQuery}%` },
+      );
+    }
+    
+    const users = await query.getMany();
     return users.map(user => new UserResponse(user));
   }
 
