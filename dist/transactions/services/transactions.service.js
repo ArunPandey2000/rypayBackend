@@ -129,35 +129,31 @@ let TransactionsService = class TransactionsService {
         const { page = 1, pageSize = 10 } = queryDto.pagination || {};
         const skipRecords = pageSize * (page - 1);
         const { search, transactionType, fromDate, toDate, sortDirection } = queryDto;
-        const baseWhere = {
-            ...(transactionType && { type: transactionType }),
-            ...(fromDate && toDate && { transactionDate: (0, typeorm_2.Between)(new Date(fromDate), new Date(toDate)) }),
-        };
-        let where = baseWhere;
-        if (search) {
-            where = [
-                {
-                    ...baseWhere,
-                    transactionHash: (0, typeorm_2.Like)(`%${search}%`),
-                },
-                {
-                    ...baseWhere,
-                    description: (0, typeorm_2.Like)(`%${search}%`),
-                },
-                {
-                    ...baseWhere,
-                    reference: (0, typeorm_2.Like)(`%${search}%`),
-                },
-            ];
+        const query = this.transactionsRepository
+            .createQueryBuilder('transaction')
+            .leftJoinAndSelect('transaction.user', 'user')
+            .skip(skipRecords)
+            .take(pageSize)
+            .orderBy('transaction.createdAt', sortDirection || 'DESC');
+        if (transactionType) {
+            query.andWhere('transaction.type = :transactionType', { transactionType });
         }
-        const transactions = await this.transactionsRepository.find({
-            where: where,
-            order: { createdAt: sortDirection || 'DESC' },
-            take: pageSize,
-            skip: skipRecords,
-            relations: ['user']
-        });
-        const total = await this.transactionsRepository.count({ where: where });
+        if (fromDate && toDate) {
+            query.andWhere('transaction.transactionDate BETWEEN :fromDate AND :toDate', {
+                fromDate: new Date(fromDate),
+                toDate: new Date(toDate),
+            });
+        }
+        if (search) {
+            query.andWhere(new typeorm_2.Brackets(qb => {
+                qb.where('transaction.transactionHash ILIKE :search', { search: `%${search}%` })
+                    .orWhere('transaction.description ILIKE :search', { search: `%${search}%` })
+                    .orWhere('transaction.reference ILIKE :search', { search: `%${search}%` })
+                    .orWhere('user.phone_number ILIKE :search', { search: `%${search}%` })
+                    .orWhere(`user.first_name || ' ' || user.last_name ILIKE :search`, { search: `%${search}%` });
+            }));
+        }
+        const [transactions, total] = await query.getManyAndCount();
         const walletTransactionUserIds = Array.from(new Set(transactions.map((transaction) => this.getRelevantUserId(transaction))));
         const userData = await this.userRepo.find({
             where: { id: (0, typeorm_2.In)(walletTransactionUserIds) },

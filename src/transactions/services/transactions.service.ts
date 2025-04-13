@@ -5,7 +5,7 @@ import { Transaction } from 'src/core/entities/transactions.entity';
 import { User } from 'src/core/entities/user.entity';
 import { formatAmountToINR, formatDateToIST } from 'src/core/utils/date.util';
 import { PdfService } from 'src/pdf/services/pdf.service';
-import { Between, In, Like, QueryRunner, Repository } from 'typeorm';
+import { Between, Brackets, In, Like, QueryRunner, Repository } from 'typeorm';
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { TransactionQueryDto } from '../dto/get-transactions.dto';
 import { Pagination } from '../dto/pagination-response.dto';
@@ -149,46 +149,40 @@ export class TransactionsService {
   async getAllWalletTransactions(queryDto: TransactionQueryDto) {
     const { page = 1, pageSize = 10 } = queryDto.pagination || {};
     const skipRecords = pageSize * (page - 1);
-
     const { search, transactionType, fromDate, toDate, sortDirection } = queryDto;
 
-    // Build the base query
-    const baseWhere: any = {
-      ...(transactionType && { type: transactionType }),
-      ...(fromDate && toDate && { transactionDate: Between(new Date(fromDate), new Date(toDate)) }),
-    };
+    const query = this.transactionsRepository
+      .createQueryBuilder('transaction')
+      .leftJoinAndSelect('transaction.user', 'user')
+      .skip(skipRecords)
+      .take(pageSize)
+      .orderBy('transaction.createdAt', sortDirection || 'DESC');
 
-    // Add search condition with `OR` logic
-    let where: any = baseWhere;
-    if (search) {
-      where = [
-        {
-          ...baseWhere,
-          transactionHash: Like(`%${search}%`),
-        },
-        {
-          ...baseWhere,
-          description: Like(`%${search}%`),
-        },
-        {
-          ...baseWhere,
-          reference: Like(`%${search}%`),
-        },
-      ];
+    if (transactionType) {
+      query.andWhere('transaction.type = :transactionType', { transactionType });
     }
 
-    // Fetch paginated transactions
-    const transactions = await this.transactionsRepository.find({
-      where: where,
-      order: { createdAt: sortDirection || 'DESC' },
-      take: pageSize,
-      skip: skipRecords,
-      relations: ['user']
-    });
+    if (fromDate && toDate) {
+      query.andWhere('transaction.transactionDate BETWEEN :fromDate AND :toDate', {
+        fromDate: new Date(fromDate),
+        toDate: new Date(toDate),
+      });
+    }
+    if (search) {
+      query.andWhere(new Brackets(qb => {
+        qb.where('transaction.transactionHash ILIKE :search', { search: `%${search}%` })
+          .orWhere('transaction.description ILIKE :search', { search: `%${search}%` })
+          .orWhere('transaction.reference ILIKE :search', { search: `%${search}%` })
+          .orWhere('user.phone_number ILIKE :search', { search: `%${search}%` })
+          .orWhere(`user.first_name || ' ' || user.last_name ILIKE :search`, { search: `%${search}%` });
+      }));
+    }
 
 
-    // Count the total number of transactions for pagination
-    const total = await this.transactionsRepository.count({ where: where });
+    const [transactions, total] = await query.getManyAndCount();
+
+
+    
 
     // Fetch user data for wallet transactions
     const walletTransactionUserIds = Array.from(new Set(transactions.map((transaction) => this.getRelevantUserId(transaction))));
