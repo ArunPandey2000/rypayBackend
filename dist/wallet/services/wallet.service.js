@@ -231,6 +231,9 @@ let WalletService = class WalletService {
             if (!receiver) {
                 throw new common_1.BadRequestException('Receiver not found');
             }
+            if (receiver.id === userId) {
+                throw new common_1.BadRequestException('Self transfer is not available');
+            }
             const senderWallet = await this.findWalletByUserId(userId);
             const receiverWallet = await this.findWalletByUserId(receiver.id);
             if (transferAccountDto.amount < 0) {
