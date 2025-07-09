@@ -203,7 +203,6 @@ export class RechargeClientService {
     }
   }
 
-
   async requestAadharOtp(aadharNumber: string) {
     const body = {
       token: this.apiToken,
