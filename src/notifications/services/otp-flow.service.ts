@@ -43,6 +43,7 @@ export class OtpFlowService {
     return otpRecord
       .then(() => {
         return {
+          success: true,
           message: 'success',
         } as sendOtpResponseDto;
       })
