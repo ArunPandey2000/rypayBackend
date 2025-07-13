@@ -66,6 +66,8 @@ export class AuthService {
       AuthUtil.getAccessTokenPayloadFromUserModel(userData);
     const tokens = await this.tokenService.generateTokens(tokenPayload);
     return <UserApiResponseDto>{
+      success:true,
+      message:"Success",
       user: await this.userService.addProfileIconInUserResponse(userData, new UserResponse(userData)),
       tokens: tokens,
     };
