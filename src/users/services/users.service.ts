@@ -125,7 +125,7 @@ export class UsersService {
       // const user = await this.userRepository.save(newUser);
       await queryRunner.commitTransaction();
       await this.notificationBridge.add('newUser', savedUser);
-      const userModel = {...savedUser, card: card};
+      const userModel = { ...savedUser, card: card };
 
       if (referrer) {
         await this.walletBridge.add('referrel', {
@@ -147,13 +147,13 @@ export class UsersService {
   async validateRefferelCode(referrelCode: string | null, queryRunner: QueryRunner) {
     let referrer: User = null;
     if (referrelCode) {
-      referrer = await this.userRepository.findOneBy({referralCode: referrelCode});
+      referrer = await this.userRepository.findOneBy({ referralCode: referrelCode });
       if (!referrer) {
-          await queryRunner.rollbackTransaction();
-  
-          await queryRunner.release();
-  
-          throw new BadRequestException('Invalid Referral code');
+        await queryRunner.rollbackTransaction();
+
+        await queryRunner.release();
+
+        throw new BadRequestException('Invalid Referral code');
       }
     }
     return referrer;
@@ -162,7 +162,7 @@ export class UsersService {
   async deleteUser(
     userId: string,
   ): Promise<string> {
-    const user = await this.userRepository.findOneBy({id: userId});
+    const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
       throw new ForbiddenException('user does not have enough permissions')
     }
@@ -188,9 +188,11 @@ export class UsersService {
       };
       const tokens = await this.tokenService.generateTokens(tokenPayload);
       return {
+        success: true,
+        message: "Fetched User Data",
         user,
         tokens,
-      };
+      } as any;
     }
     throw new InternalServerErrorException("Failed to issue card for the user");
   }
@@ -242,7 +244,7 @@ export class UsersService {
   async updateUserProfile(userId: string,
     userRequestDto: UserUpdateRequestDto,
   ): Promise<User> {
-    const user = await this.userRepository.findOne({where: {id: userId}, relations: ['merchant', 'card', 'address', 'loans', 'documents', 'beneficiaries']});
+    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['merchant', 'card', 'address', 'loans', 'documents', 'beneficiaries'] });
     if (!user) {
       throw new BadRequestException('user not found');
     }
@@ -268,7 +270,7 @@ export class UsersService {
   }
 
   async getAllUsers(userId: string, searchQuery: string) {
-    const user = await this.userRepository.findOneBy({id: userId});
+    const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
       throw new BadRequestException('user not found')
     }
@@ -278,7 +280,7 @@ export class UsersService {
     const query = this.userRepository.createQueryBuilder('user');
 
     query.where('user.role != :adminRole', { adminRole: UserRole.ADMIN });
-    
+
     if (searchQuery) {
       query.andWhere(
         `(
@@ -290,7 +292,7 @@ export class UsersService {
         { search: `%${searchQuery}%` },
       );
     }
-    
+
     const users = await query.getMany();
     return users.map(user => new UserResponse(user));
   }
@@ -313,7 +315,7 @@ export class UsersService {
   }
 
   async verifyPin(userId: string, pin: string): Promise<boolean> {
-    const user = await this.userRepository.findOne({where: {id: userId}});
+    const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
@@ -380,7 +382,7 @@ export class UsersService {
         }
       });
       if (!user || !user.staticQR) {
-        return <StaticQRDTO> {
+        return <StaticQRDTO>{
           url: null
         }
       }
@@ -388,7 +390,7 @@ export class UsersService {
         url: (await this.uploadFileService.getPresignedSignedUrl(user.staticQR)).url
       }
     } catch {
-      return <StaticQRDTO> {
+      return <StaticQRDTO>{
         url: null
       }
     }
@@ -411,7 +413,7 @@ export class UsersService {
   async sendVerificationCode(userId: string) {
     const user = await this.findUserById(userId);
     if (!user) {
-        throw new BadRequestException('User not found');
+      throw new BadRequestException('User not found');
     }
     await this.otpFlowService.requestOtp(user.phoneNumber, user.email)
   }
@@ -430,7 +432,7 @@ export class UsersService {
     } catch {
       throw new BadRequestException('Failed to validate OTP');
     }
-    
+
   }
 
   async updateUserKycDetails(userId: string, fileInfos: UpdateKycDetailUploadDto[]): Promise<boolean> {
@@ -450,14 +452,16 @@ export class UsersService {
     try {
       for (const fileInfo of fileInfos) {
         const documentInfo = await queryRunner.manager.findOne(UserDocument, {
-          where: { user: {id: userId}, documentType: fileInfo.docType },
+          where: { user: { id: userId }, documentType: fileInfo.docType },
         });
         await this.saveDocumentInfo(fileInfo, userInfo, documentInfo, queryRunner.manager);
       }
       const userUploadedDocs = await queryRunner.manager.find(UserDocument, {
-        where: { user: {
-          id: userId
-        } },
+        where: {
+          user: {
+            id: userId
+          }
+        },
       });
       if (this.isKycVerificationDocumentsUploaded(fileInfos, userUploadedDocs)) {
         await queryRunner.manager.update(User, {}, {
@@ -486,19 +490,21 @@ export class UsersService {
   }
 
   async getUserDocuments(userId: string) {
-    const documents = await this.documentRepository.find({where: {user: {id: userId}}}) ?? [];
+    const documents = await this.documentRepository.find({ where: { user: { id: userId } } }) ?? [];
     for (const document of documents) {
       document.documentUrl = (await this.uploadFileService.getPresignedSignedUrl(document.documentUrl)).url;
     }
     return documents.reduce((acc, item) => {
-      acc[item.documentType] = new UserDocumentResponseDto(item); 
+      acc[item.documentType] = new UserDocumentResponseDto(item);
       return acc;
     }, {});
   }
 
   async getUserProfile(userId: string) {
-    const user = await this.userRepository.findOne({where:{id: userId},
-    relations: ['merchant', 'card', 'address', 'loans', 'documents', 'beneficiaries']} );
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['merchant', 'card', 'address', 'loans', 'documents', 'beneficiaries']
+    });
     if (!user) {
       throw new BadRequestException('user not found');
     }
@@ -529,7 +535,7 @@ export class UsersService {
     if (documentInfo) {
       documentInfo.description = fileInfo.description;
       documentInfo.documentUrl = fileInfo.fileKey;
-      await entityManager.update(UserDocument, {user: userInfo, documentType: documentInfo.documentType},
+      await entityManager.update(UserDocument, { user: userInfo, documentType: documentInfo.documentType },
         {
           description: fileInfo.description,
           documentUrl: fileInfo.fileKey
@@ -544,7 +550,7 @@ export class UsersService {
       });
       await entityManager.save(documentInfo);
     }
-    
+
     return true;
   }
 

@@ -26,13 +26,13 @@ export class AuthService {
     private otpRepository: OtpRepository,
     private userService: UsersService,
     @InjectRepository(User) private userRepo: Repository<User>,
-  ) {}
+  ) { }
 
   async validateOTP(userPhoneInfo: VerifyPhoneRequestDto) {
     return await this.otpRepository
       .validateUserOtp(userPhoneInfo.phoneNumber, userPhoneInfo.otp)
       .then(async () => {
-        return this.getUserData({fcmToken: userPhoneInfo.fcmToken, phoneNumber: userPhoneInfo.phoneNumber})
+        return this.getUserData({ fcmToken: userPhoneInfo.fcmToken, phoneNumber: userPhoneInfo.phoneNumber })
       })
       .catch((err) => {
         if (err instanceof InternalServerErrorException) {
@@ -42,14 +42,16 @@ export class AuthService {
       });
   }
 
-  async getUserData(payload: {fcmToken?: string; phoneNumber?: string; userId?: string;}) {
-    const where = payload.phoneNumber ? {phoneNumber: payload.phoneNumber} : {id: payload.userId};
+  async getUserData(payload: { fcmToken?: string; phoneNumber?: string; userId?: string; }) {
+    const where = payload.phoneNumber ? { phoneNumber: payload.phoneNumber } : { id: payload.userId };
     const userData = await this.userRepo.findOne({
       where: where,
       relations: { address: true, merchant: true, card: true },
     });
     if (!userData) {
       return <UserApiResponseDto>{
+        success: true,
+        message: "Success",
         user: null,
         tokens: null,
       };
@@ -60,14 +62,14 @@ export class AuthService {
     if (payload.fcmToken) {
       const mobileDevices = userData.mobileDevices ?? [];
       const updatedTokens = Array.from(new Set([...mobileDevices, payload.fcmToken]));
-      await this.userRepo.update({id: userData.id}, {mobileDevices: updatedTokens})
+      await this.userRepo.update({ id: userData.id }, { mobileDevices: updatedTokens })
     }
     const tokenPayload =
       AuthUtil.getAccessTokenPayloadFromUserModel(userData);
     const tokens = await this.tokenService.generateTokens(tokenPayload);
     return <UserApiResponseDto>{
-      success:true,
-      message:"Success",
+      success: true,
+      message: "Success",
       user: await this.userService.addProfileIconInUserResponse(userData, new UserResponse(userData)),
       tokens: tokens,
     };
