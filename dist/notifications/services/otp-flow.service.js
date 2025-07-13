@@ -46,6 +46,7 @@ let OtpFlowService = class OtpFlowService {
         return otpRecord
             .then(() => {
             return {
+                success: true,
                 message: 'success',
             };
         })

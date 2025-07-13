@@ -65,6 +65,8 @@ let AuthService = class AuthService {
         const tokenPayload = auth_util_1.AuthUtil.getAccessTokenPayloadFromUserModel(userData);
         const tokens = await this.tokenService.generateTokens(tokenPayload);
         return {
+            success: true,
+            message: "Success",
             user: await this.userService.addProfileIconInUserResponse(userData, new user_response_dto_1.UserResponse(userData)),
             tokens: tokens,
         };
