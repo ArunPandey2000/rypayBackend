@@ -50,6 +50,8 @@ let AuthService = class AuthService {
         });
         if (!userData) {
             return {
+                success: true,
+                message: "Success",
                 user: null,
                 tokens: null,
             };

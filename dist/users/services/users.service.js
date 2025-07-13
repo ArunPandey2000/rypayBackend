@@ -156,6 +156,8 @@ let UsersService = class UsersService {
             };
             const tokens = await this.tokenService.generateTokens(tokenPayload);
             return {
+                success: true,
+                message: "Fetched User Data",
                 user,
                 tokens,
             };
@@ -391,9 +393,11 @@ let UsersService = class UsersService {
                 await this.saveDocumentInfo(fileInfo, userInfo, documentInfo, queryRunner.manager);
             }
             const userUploadedDocs = await queryRunner.manager.find(document_entity_1.UserDocument, {
-                where: { user: {
+                where: {
+                    user: {
                         id: userId
-                    } },
+                    }
+                },
             });
             if (this.isKycVerificationDocumentsUploaded(fileInfos, userUploadedDocs)) {
                 await queryRunner.manager.update(user_entity_1.User, {}, {
@@ -433,8 +437,10 @@ let UsersService = class UsersService {
         }, {});
     }
     async getUserProfile(userId) {
-        const user = await this.userRepository.findOne({ where: { id: userId },
-            relations: ['merchant', 'card', 'address', 'loans', 'documents', 'beneficiaries'] });
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['merchant', 'card', 'address', 'loans', 'documents', 'beneficiaries']
+        });
         if (!user) {
             throw new common_1.BadRequestException('user not found');
         }
