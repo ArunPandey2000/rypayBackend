@@ -253,8 +253,9 @@ async updateStaticQR(
   ): Promise<{ message: string; }> {
     await this.userService.setPin(req.user.sub, pinRequest.pin);
     return {
+      success:true,
       message: 'pin created successfully'
-    };
+    }as any;
   }
 
   @Post('verify-pin')
