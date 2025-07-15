@@ -175,7 +175,11 @@ export class UsersService {
     if (!user) {
       throw new ForbiddenException('User not found');
     }
-    return user;
+    return {
+      success:true,
+      message:"User fetched successfully.",
+      user
+    };
   }
   
 

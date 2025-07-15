@@ -146,7 +146,11 @@ let UsersService = class UsersService {
         if (!user) {
             throw new common_1.ForbiddenException('User not found');
         }
-        return user;
+        return {
+            success: true,
+            message: "User fetched successfully.",
+            user
+        };
     }
     async registerUserAndGenerateToken(userRequestDto) {
         const orgId = this.configService.get('BUSY_BOX_ORG_ID');
