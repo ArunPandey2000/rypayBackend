@@ -171,16 +171,58 @@ export class UsersService {
     return "Success";
   }
   async getUserDetail(userId: string): Promise<any> {
-    const user = await this.userRepository.findOneBy({ id: userId });
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['address', 'card', 'accountDetails'],
+    });
+  
     if (!user) {
       throw new ForbiddenException('User not found');
     }
+    const primaryBeneficiary = user.beneficiaries?.[0] || null;
+
     return {
-      success:true,
-      message:"User fetched successfully.",
-      user
+      success: true,
+      message: 'Fetched User Data',
+      user: {
+        userid: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        dob: user.dob,
+        userRole: user.role,
+        address: user.address ? {
+          address1: user.address.address1,
+          address2: user.address.address2,
+          city: user.address.city,
+          state: user.address.state,
+          pincode: user.address.pincode,
+          id: user.address.id,
+          createdAt: user.address.createdAt,
+        } : null,
+        aadharNumber: user.aadharNumber,
+        panNumber: user.panNumber,
+        isBlocked: user.isBlocked,
+        phoneNumber: user.phoneNumber,
+        merchantPartnerId: user.merchantPartnerId,
+        kycVerificationStatus: user.kycVerificationStatus === 0 ? "NOT_INITIATED" : "VERIFIED", // adjust as per enum
+        isPinCreated: !!user.pin,
+        cardDetails: user.card ? {
+          cardId: user.card.cardNumber,
+          status: user.card.status,
+          lastFourDigit: user.card.lastFourDigits
+        } : null,
+        accountDetails: primaryBeneficiary ? {
+          accountNumber: primaryBeneficiary.bankAccountNumber,
+          ifscCode: primaryBeneficiary.ifscCode,
+          nameInBank: primaryBeneficiary.nameInBank,
+          //upi: primaryBeneficiary.upi,
+        } : null,
+        referrelCode: user.referralCode
+      }
     };
   }
+  
   
 
   async registerUserAndGenerateToken(

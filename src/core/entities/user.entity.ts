@@ -10,6 +10,7 @@ import { KycVerificationStatus } from '../enum/kyc-verification-status.enum';
 import { UserDocument } from './document.entity';
 import { UserRole } from '../enum/user-role.enum';
 import { Address } from './address.entity';
+// import { CardEntity } from "./card.entity";
 import { Merchant } from './merchant.entity';
 import { Order } from './order.entity';
 import { Card } from './card.entity';
@@ -81,6 +82,10 @@ export class User {
   @OneToOne(() => Address, (add) => add.id, { cascade: true })
   @JoinColumn({ name: 'address_id' })
   address: Address;
+
+  // @OneToOne(() => Card, card => card.user)
+  // @JoinColumn({ name: 'card_holder_id', referencedColumnName: 'cardHolderId' })
+  // cardDetails: Card;
 
   @OneToOne(() => Card, card => card.user)
   card: Card;
