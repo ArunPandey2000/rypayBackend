@@ -41,6 +41,7 @@ export declare class UsersService {
     registerUser(userRequestDto: UserRequestDto): Promise<UserResponse>;
     validateRefferelCode(referrelCode: string | null, queryRunner: QueryRunner): Promise<User>;
     deleteUser(userId: string): Promise<string>;
+    getUserDetail(userId: string): Promise<any>;
     registerUserAndGenerateToken(userRequestDto: UserRequestDto): Promise<UserApiResponseDto>;
     requestAadharOtp(aadharNumber: string): Promise<{
         message: string;

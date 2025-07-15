@@ -81,6 +81,20 @@ export class UsersController {
     return this.userService.deleteUser(req.user.sub);
   }
 
+  @ApiOperation({ summary: 'Get current user details' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'User details fetched successfully',
+    //type: UserEntity, // Or a DTO if you're using one
+  })
+  async getUserDetail(@Req() req: any): Promise<any> {
+    return this.userService.getUserDetail(req.user.sub);
+  }
+
+
   @ApiOperation({ summary: 'Endpoint to register the user as Admin' })
   @Post('/signup/admin')
   @ApiResponse({
@@ -253,9 +267,8 @@ async updateStaticQR(
   ): Promise<{ message: string; }> {
     await this.userService.setPin(req.user.sub, pinRequest.pin);
     return {
-      success:true,
       message: 'pin created successfully'
-    }as any;
+    };
   }
 
   @Post('verify-pin')

@@ -45,6 +45,9 @@ let UsersController = class UsersController {
     async deleteUser(req) {
         return this.userService.deleteUser(req.user.sub);
     }
+    async getUserDetail(req) {
+        return this.userService.getUserDetail(req.user.sub);
+    }
     async registerAdmin(signUpDto) {
         return this.userService.registerAdminAndGenerateToken(signUpDto);
     }
@@ -184,6 +187,20 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "deleteUser", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Get current user details' }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)(),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'User details fetched successfully',
+    }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getUserDetail", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Endpoint to register the user as Admin' }),
     (0, common_1.Post)('/signup/admin'),

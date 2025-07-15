@@ -141,6 +141,13 @@ let UsersService = class UsersService {
         await this.userRepository.save(user);
         return "Success";
     }
+    async getUserDetail(userId) {
+        const user = await this.userRepository.findOneBy({ id: userId });
+        if (!user) {
+            throw new common_1.ForbiddenException('User not found');
+        }
+        return user;
+    }
     async registerUserAndGenerateToken(userRequestDto) {
         const orgId = this.configService.get('BUSY_BOX_ORG_ID');
         const issueCardDto = user_mapper_1.UserMapper.mapUserRequestDtoToMerchantRegistrationDto(userRequestDto, orgId);

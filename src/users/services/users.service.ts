@@ -170,6 +170,14 @@ export class UsersService {
     await this.userRepository.save(user);
     return "Success";
   }
+  async getUserDetail(userId: string): Promise<any> {
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new ForbiddenException('User not found');
+    }
+    return user;
+  }
+  
 
   async registerUserAndGenerateToken(
     userRequestDto: UserRequestDto,
