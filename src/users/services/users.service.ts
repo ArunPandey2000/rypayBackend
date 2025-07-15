@@ -173,13 +173,20 @@ export class UsersService {
   async getUserDetail(userId: string): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['address', 'card', 'accountDetails'],
+      relations: ['beneficiaries', 'card', 'address'],
     });
   
     if (!user) {
       throw new ForbiddenException('User not found');
     }
-    const primaryBeneficiary = user.beneficiaries?.[0] || null;
+    const account = user.beneficiaries?.[0]; // or filter for a "primary" one
+
+const accountDetails = account ? {
+  accountNumber: account.bankAccountNumber,
+  ifscCode: account.ifscCode,
+  nameInBank: account.nameInBank,
+  //upi: account.upi
+} : null;
 
     return {
       success: true,
@@ -212,12 +219,7 @@ export class UsersService {
           status: user.card.status,
           lastFourDigit: user.card.lastFourDigits
         } : null,
-        accountDetails: primaryBeneficiary ? {
-          accountNumber: primaryBeneficiary.bankAccountNumber,
-          ifscCode: primaryBeneficiary.ifscCode,
-          nameInBank: primaryBeneficiary.nameInBank,
-          //upi: primaryBeneficiary.upi,
-        } : null,
+        accountDetails: accountDetails,
         referrelCode: user.referralCode
       }
     };
