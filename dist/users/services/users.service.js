@@ -335,6 +335,7 @@ let UsersService = class UsersService {
                 },
             }));
             let data = response.data;
+            data["success"] = true;
             return data;
         }
         catch (error) {
