@@ -38,9 +38,9 @@ export class OtpRepository {
     if (!record) {
       throw new NotFoundException(OTPValidateStatus.NOT_FOUND);
     }
-    const ALLOWED_PHONE = "7549972332";
+    const ALLOWED_PHONE = "7564898745";
     const isExpired = this.isTimePassedOut(record.expiryTime);
-    if (isExpired || record.isUsed || phoneNumber!=ALLOWED_PHONE ) {
+    if (isExpired || record.isUsed || phoneNumber!==ALLOWED_PHONE ) {
       throw new BadRequestException(OTPValidateStatus.EXPIRED);
     }
     
