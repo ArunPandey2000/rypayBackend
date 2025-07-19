@@ -48,8 +48,8 @@ export class AuthService {
       where: where,
       relations: { address: true, merchant: true, card: true },
     });
-    const ALLOWED_PHONE = "7549972332";
-    if (!userData && payload.phoneNumber !== ALLOWED_PHONE) {
+    
+    if (!userData && payload.phoneNumber !="7549972332") {
       return <UserApiResponseDto>{
         success: true,
         message: "Success",
