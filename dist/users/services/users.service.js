@@ -24,6 +24,7 @@ const cards_service_1 = require("../../cards/services/cards.service");
 const card_entity_1 = require("../../core/entities/card.entity");
 const document_entity_1 = require("../../core/entities/document.entity");
 const user_entity_1 = require("../../core/entities/user.entity");
+const virtual_account_entity_1 = require("../../core/entities/virtual-account.entity");
 const kyc_verification_status_enum_1 = require("../../core/enum/kyc-verification-status.enum");
 const user_role_enum_1 = require("../../core/enum/user-role.enum");
 const hash_util_1 = require("../../core/utils/hash.util");
@@ -42,7 +43,7 @@ const recharge_client_service_1 = require("../../integration/a1topup/external-sy
 const aadhar_verification_entity_1 = require("../../core/entities/aadhar-verification.entity");
 const notification_bridge_1 = require("../../notifications/services/notification-bridge");
 let UsersService = class UsersService {
-    constructor(tokenService, httpService, configService, walletService, merchantClientService, cardService, _connection, uploadFileService, otpFlowService, otpRepository, rechargeClient, walletBridge, notificationBridge, userRepository, aadharResponseRepo, documentRepository) {
+    constructor(tokenService, httpService, configService, walletService, merchantClientService, cardService, _connection, uploadFileService, otpFlowService, otpRepository, rechargeClient, walletBridge, notificationBridge, userRepository, virtualAccountRepo, aadharResponseRepo, documentRepository) {
         this.tokenService = tokenService;
         this.httpService = httpService;
         this.configService = configService;
@@ -57,6 +58,7 @@ let UsersService = class UsersService {
         this.walletBridge = walletBridge;
         this.notificationBridge = notificationBridge;
         this.userRepository = userRepository;
+        this.virtualAccountRepo = virtualAccountRepo;
         this.aadharResponseRepo = aadharResponseRepo;
         this.documentRepository = documentRepository;
         this.saltRounds = 10;
@@ -335,6 +337,14 @@ let UsersService = class UsersService {
                 },
             }));
             let data = response.data;
+            const newAccount = this.virtualAccountRepo.create({
+                accountId: data.data.accountId,
+                accountNumber: data.data.accountNumber,
+                ifscCode: data.data.ifscCode,
+                status: data.data.status || 'ACTIVE',
+                userId: userId,
+            });
+            const saved = await this.virtualAccountRepo.save(newAccount);
             data["success"] = true;
             return data;
         }
@@ -597,8 +607,9 @@ exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(13, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __param(14, (0, typeorm_1.InjectRepository)(aadhar_verification_entity_1.AadharResponse)),
-    __param(15, (0, typeorm_1.InjectRepository)(document_entity_1.UserDocument)),
+    __param(14, (0, typeorm_1.InjectRepository)(virtual_account_entity_1.VirtualAccount)),
+    __param(15, (0, typeorm_1.InjectRepository)(aadhar_verification_entity_1.AadharResponse)),
+    __param(16, (0, typeorm_1.InjectRepository)(document_entity_1.UserDocument)),
     __metadata("design:paramtypes", [token_service_1.TokenService,
         axios_1.HttpService,
         config_1.ConfigService,
@@ -612,6 +623,7 @@ exports.UsersService = UsersService = __decorate([
         recharge_client_service_1.RechargeClientService,
         wallet_queue_1.WalletBridge,
         notification_bridge_1.NotificationBridge,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])

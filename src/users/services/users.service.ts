@@ -18,6 +18,7 @@ import { CardsService } from 'src/cards/services/cards.service';
 import { CardStatus } from 'src/core/entities/card.entity';
 import { UserDocument } from 'src/core/entities/document.entity';
 import { User } from 'src/core/entities/user.entity';
+import { VirtualAccount } from 'src/core/entities/virtual-account.entity'
 import { Wallet } from 'src/core/entities/wallet.entity';
 import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enum';
 import { UserRole } from 'src/core/enum/user-role.enum';
@@ -61,6 +62,7 @@ export class UsersService {
     private readonly walletBridge: WalletBridge,
     private readonly notificationBridge: NotificationBridge,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(VirtualAccount) private virtualAccountRepo: Repository<VirtualAccount>,
     @InjectRepository(AadharResponse) private aadharResponseRepo: Repository<AadharResponse>,
     @InjectRepository(UserDocument) private documentRepository: Repository<UserDocument>,
   ) { }
@@ -416,10 +418,19 @@ export class UsersService {
           },
         })
       );
-
-      // // Optionally, save accountId to user entity
-      // await this.userRepository.update(userId, { accountId });
       let data = response.data
+      const newAccount = this.virtualAccountRepo.create({
+        accountId: data.data.accountId, // from BusyBox
+        accountNumber: data.data.accountNumber,
+        ifscCode: data.data.ifscCode,
+        status: data.data.status || 'ACTIVE',
+        userId: userId,
+      });
+  
+      // 👇 Save to PostgreSQL
+      const saved = await this.virtualAccountRepo.save(newAccount);
+      
+     
           data["success"]=true
       return data
     } catch (error) {
