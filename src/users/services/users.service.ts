@@ -39,6 +39,7 @@ import { ValidateAadharDto } from '../dto/validate-aadhar.dto';
 import { AadharResponse } from 'src/core/entities/aadhar-verification.entity';
 import { NotificationBridge } from 'src/notifications/services/notification-bridge';
 import { StaticQRDTO } from '../dto/static-qr.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UsersService {
@@ -368,6 +369,18 @@ const accountDetails = account ? {
   async setPin(userId: string, pin: string): Promise<void> {
     const hashedPin = await bcrypt.hash(pin, this.saltRounds);
     await this.userRepository.update(userId, { pin: hashedPin });
+  }
+
+  async createVirtualAccount(userId: string, customer_name: string,email: string,phoneNumber: string): Promise<void> {
+
+    return {
+      accountId:uuidv4().replace(/-/g, '').slice(0, 8),
+      customer_name,
+      email,
+      phoneNumber
+    } as any
+
+    //await this.userRepository.update(userId, { pin: hashedPin });
   }
 
   async verifyPin(userId: string, pin: string): Promise<boolean> {

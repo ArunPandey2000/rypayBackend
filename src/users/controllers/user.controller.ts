@@ -8,6 +8,7 @@ import { KycVerificationStatus } from 'src/core/enum/kyc-verification-status.enu
 import { KycVerificationStatusResponse } from '../dto/kyc-status.dto';
 import { PhoneNumberExists } from '../dto/phone-number-exists.dto';
 import { PinRequestDto, UpdateForgotPin } from '../dto/pin-request.dto';
+import { VirtualAccountRequestDto } from "../dto/virtual-account-request.dto"
 import { UpdateKycDetailUploadDto } from '../dto/user-kyc-upload.dto';
 import { UserAdminRequestDto, UserRequestDto, UserUpdateRequestDto, ValidateOTPAfterCardCreationDTO } from '../dto/user-request.dto';
 import { UserApiResponseDto, UserResponse } from '../dto/user-response.dto';
@@ -269,6 +270,22 @@ async updateStaticQR(
     return {
       message: 'pin created successfully'
     };
+  }
+
+  @Post('create-virtual-account')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  async createVirtualAccount(
+    @Req() req: any,
+    @Body() virtualRequest: VirtualAccountRequestDto,
+  ): Promise<{ message: string; }> {
+    let data = await this.userService.createVirtualAccount(req.user.sub, virtualRequest.customer_name,virtualRequest.email,virtualRequest.phoneNumber);
+   
+    return {
+      message: 'Virtual account created successfully',
+      data
+    }as any
   }
 
   @Post('verify-pin')

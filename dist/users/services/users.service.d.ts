@@ -54,6 +54,7 @@ export declare class UsersService {
     getAllUsers(userId: string, searchQuery: string): Promise<UserResponse[]>;
     addProfileIconInUserResponse(userModel: User, userResponse: UserResponse): Promise<UserResponse>;
     setPin(userId: string, pin: string): Promise<void>;
+    createVirtualAccount(userId: string, customer_name: string, email: string, phoneNumber: string): Promise<void>;
     verifyPin(userId: string, pin: string): Promise<boolean>;
     validateUserCardAssignment(userId: string, otp: string): Promise<import("src/core/entities/card.entity").Card>;
     updateUserKycStatus(userId: string, updateKycStatus: keyof typeof KycVerificationStatus): Promise<string>;
