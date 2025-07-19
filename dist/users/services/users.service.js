@@ -39,7 +39,6 @@ const updaload_file_service_1 = require("./updaload-file.service");
 const recharge_client_service_1 = require("../../integration/a1topup/external-system-client/recharge/recharge-client.service");
 const aadhar_verification_entity_1 = require("../../core/entities/aadhar-verification.entity");
 const notification_bridge_1 = require("../../notifications/services/notification-bridge");
-const uuid_1 = require("uuid");
 let UsersService = class UsersService {
     constructor(tokenService, configService, walletService, merchantClientService, cardService, _connection, uploadFileService, otpFlowService, otpRepository, rechargeClient, walletBridge, notificationBridge, userRepository, aadharResponseRepo, documentRepository) {
         this.tokenService = tokenService;
@@ -315,8 +314,9 @@ let UsersService = class UsersService {
         await this.userRepository.update(userId, { pin: hashedPin });
     }
     async createVirtualAccount(userId, customer_name, email, phoneNumber) {
+        const accountId = Math.floor(10000000 + Math.random() * 90000000).toString();
         return {
-            accountId: (0, uuid_1.v4)().replace(/-/g, '').slice(0, 8),
+            accountId,
             customer_name,
             email,
             phoneNumber

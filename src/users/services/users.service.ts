@@ -372,9 +372,9 @@ const accountDetails = account ? {
   }
 
   async createVirtualAccount(userId: string, customer_name: string,email: string,phoneNumber: string): Promise<void> {
-
+    const accountId = Math.floor(10000000 + Math.random() * 90000000).toString();
     return {
-      accountId:uuidv4().replace(/-/g, '').slice(0, 8),
+      accountId,
       customer_name,
       email,
       phoneNumber
