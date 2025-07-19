@@ -14,6 +14,8 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
+const axios_1 = require("@nestjs/axios");
+const rxjs_1 = require("rxjs");
 const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
 const bcrypt = require("bcrypt");
@@ -40,8 +42,9 @@ const recharge_client_service_1 = require("../../integration/a1topup/external-sy
 const aadhar_verification_entity_1 = require("../../core/entities/aadhar-verification.entity");
 const notification_bridge_1 = require("../../notifications/services/notification-bridge");
 let UsersService = class UsersService {
-    constructor(tokenService, configService, walletService, merchantClientService, cardService, _connection, uploadFileService, otpFlowService, otpRepository, rechargeClient, walletBridge, notificationBridge, userRepository, aadharResponseRepo, documentRepository) {
+    constructor(tokenService, httpService, configService, walletService, merchantClientService, cardService, _connection, uploadFileService, otpFlowService, otpRepository, rechargeClient, walletBridge, notificationBridge, userRepository, aadharResponseRepo, documentRepository) {
         this.tokenService = tokenService;
+        this.httpService = httpService;
         this.configService = configService;
         this.walletService = walletService;
         this.merchantClientService = merchantClientService;
@@ -314,15 +317,40 @@ let UsersService = class UsersService {
         await this.userRepository.update(userId, { pin: hashedPin });
     }
     async createVirtualAccount(userId, customer_name, email, phoneNumber) {
-        const busyBoxAPIURL = this.configService.get('BUSY_BOX_PAYOUT_API_BASE_URL');
         const accountId = Math.floor(10000000 + Math.random() * 90000000).toString();
-        return {
-            busyBoxAPIURL,
-            accountId,
+        const busyBoxBaseUrl = this.configService.get('BUSY_BOX_PAYOUT_API_BASE_URL');
+        const token = this.configService.get('BUSY_BOX_PAYOUT_API_TOKEN') || 'HnKFjVswJ8BhXRFzxf8pP6L1fDlhOrpzCs8S+VcGrl7xurg7iur3LfIsxCJE/ttiHm3cJbqxDKbj8fKxSeQIlcKZ/P/i7dnanAqyd1+O4FINU7n+W/QWg/ZBkfdZ0v+JqnnuGI2oXMOv7Z72WpzwnQ==';
+        const url = `${busyBoxBaseUrl}/collect/va/create`;
+        const payload = {
             customer_name,
+            vaId: accountId,
             email,
-            phoneNumber
+            mobile: phoneNumber,
         };
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post(url, payload, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            }));
+            return {
+                success: true,
+                message: 'Virtual account created successfully',
+                data: {
+                    accountId,
+                    customer_name,
+                    email,
+                    phoneNumber,
+                    busyboxResponse: response.data
+                }
+            };
+        }
+        catch (error) {
+            const errMessage = error.response?.data || error.message;
+            console.error('Error creating virtual account:', errMessage);
+            throw new common_1.InternalServerErrorException('Failed to create virtual account');
+        }
     }
     async verifyPin(userId, pin) {
         const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -576,10 +604,11 @@ let UsersService = class UsersService {
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __param(12, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __param(13, (0, typeorm_1.InjectRepository)(aadhar_verification_entity_1.AadharResponse)),
-    __param(14, (0, typeorm_1.InjectRepository)(document_entity_1.UserDocument)),
+    __param(13, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(14, (0, typeorm_1.InjectRepository)(aadhar_verification_entity_1.AadharResponse)),
+    __param(15, (0, typeorm_1.InjectRepository)(document_entity_1.UserDocument)),
     __metadata("design:paramtypes", [token_service_1.TokenService,
+        axios_1.HttpService,
         config_1.ConfigService,
         wallet_service_1.WalletService,
         merchant_client_service_1.MerchantClientService,

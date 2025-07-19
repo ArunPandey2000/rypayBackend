@@ -75,10 +75,7 @@ let UsersController = class UsersController {
     }
     async createVirtualAccount(req, virtualRequest) {
         let data = await this.userService.createVirtualAccount(req.user.sub, virtualRequest.customer_name, virtualRequest.email, virtualRequest.phoneNumber);
-        return {
-            message: 'Virtual account created successfully',
-            data
-        };
+        return data;
     }
     async verifyPin(req, pinRequest) {
         const valid = await this.userService.verifyPin(req.user.sub, pinRequest.pin);

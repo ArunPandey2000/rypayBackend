@@ -7,6 +7,8 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -46,6 +48,7 @@ export class UsersService {
   private readonly saltRounds = 10;
   constructor(
     private tokenService: TokenService,
+    private readonly httpService: HttpService,
     private configService: ConfigService,
     private walletService: WalletService,
     private merchantClientService: MerchantClientService,
@@ -371,19 +374,70 @@ const accountDetails = account ? {
     await this.userRepository.update(userId, { pin: hashedPin });
   }
 
-  async createVirtualAccount(userId: string, customer_name: string,email: string,phoneNumber: string): Promise<void> {
-    const busyBoxAPIURL = this.configService.get('BUSY_BOX_PAYOUT_API_BASE_URL');
-    const accountId = Math.floor(10000000 + Math.random() * 90000000).toString();
-    return {
-      busyBoxAPIURL,
-      accountId,
-      customer_name,
-      email,
-      phoneNumber
-    } as any
+  // async createVirtualAccount(userId: string, customer_name: string,email: string,phoneNumber: string): Promise<void> {
+  //   const busyBoxAPIURL = this.configService.get('BUSY_BOX_PAYOUT_API_BASE_URL');
+  //   const accountId = Math.floor(10000000 + Math.random() * 90000000).toString();
+  //   return {
+  //     busyBoxAPIURL,
+  //     accountId,
+  //     customer_name,
+  //     email,
+  //     phoneNumber
+  //   } as any
 
-    //await this.userRepository.update(userId, { pin: hashedPin });
+  //   //await this.userRepository.update(userId, { pin: hashedPin });
+  // }
+  async createVirtualAccount(
+    userId: string,
+    customer_name: string,
+    email: string,
+    phoneNumber: string
+  ): Promise<any> {
+    const accountId = Math.floor(10000000 + Math.random() * 90000000).toString();
+  
+    const busyBoxBaseUrl = this.configService.get('BUSY_BOX_PAYOUT_API_BASE_URL') 
+    const token = this.configService.get('BUSY_BOX_PAYOUT_API_TOKEN') || 'HnKFjVswJ8BhXRFzxf8pP6L1fDlhOrpzCs8S+VcGrl7xurg7iur3LfIsxCJE/ttiHm3cJbqxDKbj8fKxSeQIlcKZ/P/i7dnanAqyd1+O4FINU7n+W/QWg/ZBkfdZ0v+JqnnuGI2oXMOv7Z72WpzwnQ==';
+  
+    const url = `${busyBoxBaseUrl}/collect/va/create`;
+  
+    const payload = {
+      customer_name,
+      vaId: accountId,
+      email,
+      mobile: phoneNumber,
+    };
+  
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(url, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+      );
+  
+      // // Optionally, save accountId to user entity
+      // await this.userRepository.update(userId, { accountId });
+  
+      return {
+        success:true,
+        message: 'Virtual account created successfully',
+        data: {
+          accountId,
+          customer_name,
+          email,
+          phoneNumber,
+          busyboxResponse: response.data
+        }
+      };
+    } catch (error) {
+      const errMessage = error.response?.data || error.message;
+      console.error('Error creating virtual account:', errMessage);
+      throw new InternalServerErrorException('Failed to create virtual account');
+    }
   }
+  
 
   async verifyPin(userId: string, pin: string): Promise<boolean> {
     const user = await this.userRepository.findOne({ where: { id: userId } });

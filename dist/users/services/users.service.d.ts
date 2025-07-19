@@ -1,3 +1,4 @@
+import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { TokenService } from 'src/auth/services/token.service';
 import { CardsService } from 'src/cards/services/cards.service';
@@ -22,6 +23,7 @@ import { NotificationBridge } from 'src/notifications/services/notification-brid
 import { StaticQRDTO } from '../dto/static-qr.dto';
 export declare class UsersService {
     private tokenService;
+    private readonly httpService;
     private configService;
     private walletService;
     private merchantClientService;
@@ -37,7 +39,7 @@ export declare class UsersService {
     private aadharResponseRepo;
     private documentRepository;
     private readonly saltRounds;
-    constructor(tokenService: TokenService, configService: ConfigService, walletService: WalletService, merchantClientService: MerchantClientService, cardService: CardsService, _connection: DataSource, uploadFileService: UploadFileService, otpFlowService: OtpFlowService, otpRepository: OtpRepository, rechargeClient: RechargeClientService, walletBridge: WalletBridge, notificationBridge: NotificationBridge, userRepository: Repository<User>, aadharResponseRepo: Repository<AadharResponse>, documentRepository: Repository<UserDocument>);
+    constructor(tokenService: TokenService, httpService: HttpService, configService: ConfigService, walletService: WalletService, merchantClientService: MerchantClientService, cardService: CardsService, _connection: DataSource, uploadFileService: UploadFileService, otpFlowService: OtpFlowService, otpRepository: OtpRepository, rechargeClient: RechargeClientService, walletBridge: WalletBridge, notificationBridge: NotificationBridge, userRepository: Repository<User>, aadharResponseRepo: Repository<AadharResponse>, documentRepository: Repository<UserDocument>);
     registerUser(userRequestDto: UserRequestDto): Promise<UserResponse>;
     validateRefferelCode(referrelCode: string | null, queryRunner: QueryRunner): Promise<User>;
     deleteUser(userId: string): Promise<string>;
@@ -54,7 +56,7 @@ export declare class UsersService {
     getAllUsers(userId: string, searchQuery: string): Promise<UserResponse[]>;
     addProfileIconInUserResponse(userModel: User, userResponse: UserResponse): Promise<UserResponse>;
     setPin(userId: string, pin: string): Promise<void>;
-    createVirtualAccount(userId: string, customer_name: string, email: string, phoneNumber: string): Promise<void>;
+    createVirtualAccount(userId: string, customer_name: string, email: string, phoneNumber: string): Promise<any>;
     verifyPin(userId: string, pin: string): Promise<boolean>;
     validateUserCardAssignment(userId: string, otp: string): Promise<import("src/core/entities/card.entity").Card>;
     updateUserKycStatus(userId: string, updateKycStatus: keyof typeof KycVerificationStatus): Promise<string>;

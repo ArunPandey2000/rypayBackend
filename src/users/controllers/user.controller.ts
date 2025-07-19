@@ -282,10 +282,7 @@ async updateStaticQR(
   ): Promise<{ message: string; }> {
     let data = await this.userService.createVirtualAccount(req.user.sub, virtualRequest.customer_name,virtualRequest.email,virtualRequest.phoneNumber);
    
-    return {
-      message: 'Virtual account created successfully',
-      data
-    }as any
+    return data;
   }
 
   @Post('verify-pin')
