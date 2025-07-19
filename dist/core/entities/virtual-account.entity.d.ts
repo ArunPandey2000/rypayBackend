@@ -1,9 +1,9 @@
 export declare class VirtualAccount {
     id: number;
-    accountId: string;
-    accountNumber: string;
-    ifscCode: string;
+    accountid: string;
+    accountnumber: string;
+    ifsccode: string;
     status: string;
-    createOn: Date;
-    userId: string;
+    createon: Date;
+    userid: string;
 }

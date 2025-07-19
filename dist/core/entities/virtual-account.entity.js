@@ -21,15 +21,15 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({ unique: true }),
     __metadata("design:type", String)
-], VirtualAccount.prototype, "accountId", void 0);
+], VirtualAccount.prototype, "accountid", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], VirtualAccount.prototype, "accountNumber", void 0);
+], VirtualAccount.prototype, "accountnumber", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], VirtualAccount.prototype, "ifscCode", void 0);
+], VirtualAccount.prototype, "ifsccode", void 0);
 __decorate([
     (0, typeorm_1.Column)({ default: 'ACTIVE' }),
     __metadata("design:type", String)
@@ -37,11 +37,11 @@ __decorate([
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp' }),
     __metadata("design:type", Date)
-], VirtualAccount.prototype, "createOn", void 0);
+], VirtualAccount.prototype, "createon", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], VirtualAccount.prototype, "userId", void 0);
+], VirtualAccount.prototype, "userid", void 0);
 exports.VirtualAccount = VirtualAccount = __decorate([
     (0, typeorm_1.Entity)('virtual_accounts')
 ], VirtualAccount);

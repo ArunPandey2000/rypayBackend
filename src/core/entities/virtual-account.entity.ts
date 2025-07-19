@@ -8,20 +8,20 @@ export class VirtualAccount {
 
 
     @Column({ unique: true })
-    accountId: string;
+    accountid: string;
 
     @Column()
-    accountNumber: string;
+    accountnumber: string;
 
     @Column()
-    ifscCode: string;
+    ifsccode: string;
 
     @Column({ default: 'ACTIVE' })
     status: string;
 
     @CreateDateColumn({ type: 'timestamp' })
-    createOn: Date;
+    createon: Date;
 
     @Column()
-    userId: string;
+    userid: string;
 }
