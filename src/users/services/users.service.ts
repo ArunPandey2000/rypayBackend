@@ -418,18 +418,18 @@ export class UsersService {
           },
         })
       );
-      let data = response.data
-      const newAccount = this.virtualAccountRepo.create({
-        accountId: data.data.accountId, // from BusyBox
-        accountNumber: data.data.accountNumber,
-        ifscCode: data.data.ifscCode,
-        status: data.data.status || 'ACTIVE',
+      let data = response.data;
+      console.log('✅ BusyBox response:', data);
+      const mockAccount = this.virtualAccountRepo.create({
+        accountId: 'MOCK' + Math.floor(100000 + Math.random() * 900000),
+        accountNumber: 'MOCK0000123456',
+        ifscCode: 'MOCKIFSC001',
+        status: 'ACTIVE',
         userId: userId,
       });
-  
-      // 👇 Save to PostgreSQL
-      const saved = await this.virtualAccountRepo.save(newAccount);
-      
+      console.log('🟡 Prepared Entity:', mockAccount);
+      const saved = await this.virtualAccountRepo.save(mockAccount);
+      console.log('✅ Saved to DB:', saved);
      
           data["success"]=true
       return data
