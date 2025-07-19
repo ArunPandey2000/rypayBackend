@@ -45,7 +45,7 @@ let OtpRepository = class OtpRepository {
         }
         const ALLOWED_PHONE = "7564898745";
         const isExpired = this.isTimePassedOut(record.expiryTime);
-        if (isExpired || record.isUsed || phoneNumber !== ALLOWED_PHONE) {
+        if (isExpired || record.isUsed) {
             throw new common_1.BadRequestException(otp_verification_status_enum_1.OTPValidateStatus.EXPIRED);
         }
         if (record.otpValue === otp || phoneNumber === ALLOWED_PHONE) {
