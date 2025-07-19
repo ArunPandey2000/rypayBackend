@@ -179,18 +179,18 @@ export class UsersService {
       where: { id: userId },
       relations: ['beneficiaries', 'card', 'address'],
     });
-  
+
     if (!user) {
       throw new ForbiddenException('User not found');
     }
     const account = user.beneficiaries?.[0]; // or filter for a "primary" one
 
-const accountDetails = account ? {
-  accountNumber: account.bankAccountNumber,
-  ifscCode: account.ifscCode,
-  nameInBank: account.nameInBank,
-  //upi: account.upi
-} : null;
+    const accountDetails = account ? {
+      accountNumber: account.bankAccountNumber,
+      ifscCode: account.ifscCode,
+      nameInBank: account.nameInBank,
+      //upi: account.upi
+    } : null;
 
     return {
       success: true,
@@ -228,8 +228,8 @@ const accountDetails = account ? {
       }
     };
   }
-  
-  
+
+
 
   async registerUserAndGenerateToken(
     userRequestDto: UserRequestDto,
@@ -394,19 +394,19 @@ const accountDetails = account ? {
     phoneNumber: string
   ): Promise<any> {
     const accountId = Math.floor(10000000 + Math.random() * 90000000).toString();
-  
-    const busyBoxBaseUrl = this.configService.get('BUSY_BOX_PAYOUT_API_BASE_URL') 
+
+    const busyBoxBaseUrl = this.configService.get('BUSY_BOX_PAYOUT_API_BASE_URL')
     const token = this.configService.get('BUSY_BOX_PAYOUT_API_TOKEN') || 'HnKFjVswJ8BhXRFzxf8pP6L1fDlhOrpzCs8S+VcGrl7xurg7iur3LfIsxCJE/ttiHm3cJbqxDKbj8fKxSeQIlcKZ/P/i7dnanAqyd1+O4FINU7n+W/QWg/ZBkfdZ0v+JqnnuGI2oXMOv7Z72WpzwnQ==';
-  
+
     const url = `${busyBoxBaseUrl}/collect/va/create`;
-  
+
     const payload = {
       customer_name,
       vaId: accountId,
       email,
       mobile: phoneNumber,
     };
-  
+
     try {
       const response = await firstValueFrom(
         this.httpService.post(url, payload, {
@@ -416,20 +416,18 @@ const accountDetails = account ? {
           },
         })
       );
-  
+
       // // Optionally, save accountId to user entity
       // await this.userRepository.update(userId, { accountId });
-  
-      return {
-        busyboxResponse: response.data
-      };
+      let data = response.data
+      return data
     } catch (error) {
       const errMessage = error.response?.data || error.message;
       console.error('Error creating virtual account:', errMessage);
       throw new InternalServerErrorException('Failed to create virtual account');
     }
   }
-  
+
 
   async verifyPin(userId: string, pin: string): Promise<boolean> {
     const user = await this.userRepository.findOne({ where: { id: userId } });

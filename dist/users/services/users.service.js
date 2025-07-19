@@ -334,9 +334,8 @@ let UsersService = class UsersService {
                     'Content-Type': 'application/json',
                 },
             }));
-            return {
-                busyboxResponse: response.data
-            };
+            let data = response.data;
+            return data;
         }
         catch (error) {
             const errMessage = error.response?.data || error.message;
