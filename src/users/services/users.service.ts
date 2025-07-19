@@ -421,15 +421,7 @@ const accountDetails = account ? {
       // await this.userRepository.update(userId, { accountId });
   
       return {
-        success:true,
-        message: 'Virtual account created successfully',
-        data: {
-          accountId,
-          customer_name,
-          email,
-          phoneNumber,
-          busyboxResponse: response.data
-        }
+        busyboxResponse: response.data
       };
     } catch (error) {
       const errMessage = error.response?.data || error.message;

@@ -335,15 +335,7 @@ let UsersService = class UsersService {
                 },
             }));
             return {
-                success: true,
-                message: 'Virtual account created successfully',
-                data: {
-                    accountId,
-                    customer_name,
-                    email,
-                    phoneNumber,
-                    busyboxResponse: response.data
-                }
+                busyboxResponse: response.data
             };
         }
         catch (error) {
