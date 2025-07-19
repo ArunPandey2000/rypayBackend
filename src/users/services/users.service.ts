@@ -372,8 +372,10 @@ const accountDetails = account ? {
   }
 
   async createVirtualAccount(userId: string, customer_name: string,email: string,phoneNumber: string): Promise<void> {
+    const busyBoxAPIURL = this.configService.get('BUSY_BOX_PAYOUT_API_BASE_URL');
     const accountId = Math.floor(10000000 + Math.random() * 90000000).toString();
     return {
+      busyBoxAPIURL,
       accountId,
       customer_name,
       email,

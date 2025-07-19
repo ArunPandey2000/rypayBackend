@@ -314,8 +314,10 @@ let UsersService = class UsersService {
         await this.userRepository.update(userId, { pin: hashedPin });
     }
     async createVirtualAccount(userId, customer_name, email, phoneNumber) {
+        const busyBoxAPIURL = this.configService.get('BUSY_BOX_PAYOUT_API_BASE_URL');
         const accountId = Math.floor(10000000 + Math.random() * 90000000).toString();
         return {
+            busyBoxAPIURL,
             accountId,
             customer_name,
             email,
